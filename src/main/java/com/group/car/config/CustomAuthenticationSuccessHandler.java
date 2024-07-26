@@ -24,7 +24,7 @@ public class CustomAuthenticationSuccessHandler implements AuthenticationSuccess
             if (grantedAuthority.getAuthority().equals("ROLE_CUSTOMER")) {
                 redirectUrl = "/home";
                 break;
-            } else if (grantedAuthority.getAuthority().equals("ROLE_DRIVER")) {
+            } else if (grantedAuthority.getAuthority().equals("ROLE_CAR OWNER")) {
                 redirectUrl = "/home-driver";
                 break;
             }

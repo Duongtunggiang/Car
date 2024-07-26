@@ -12,6 +12,9 @@ public class Account {
 
     private String username;
 
+    @Column(unique = true, nullable = false)
+    private String email;
+
     private String password;
 
     private boolean enabled;
@@ -30,6 +33,14 @@ public class Account {
     private Set<Role> roles;
 
     // Getters and setters
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
+    public String getEmail() {
+        return email;
+    }
 
     public CarOwner getCarOwner() {
         return carOwner;

@@ -19,13 +19,13 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception{
         return http.authorizeHttpRequests(auth -> auth
                         .requestMatchers("/").permitAll()
-                        .requestMatchers("/store/**").permitAll()
                         .requestMatchers("/register").permitAll()
                         .requestMatchers("/login").permitAll()
                         .requestMatchers("/logout").permitAll()
-                        .requestMatchers("/home").hasRole("CUSTOMER")
-                        .requestMatchers("/home-driver").hasRole("DRIVER")
+                        .requestMatchers("/home").hasRole("Customer")
+                        .requestMatchers("/home-driver").hasRole("CarOwner")
                         .anyRequest().authenticated())
+//                .formLogin(form -> form.defaultSuccessUrl("/", true))
                 .formLogin(form -> form
                         .loginPage("/login")
                         .successHandler(customAuthenticationSuccessHandler)
