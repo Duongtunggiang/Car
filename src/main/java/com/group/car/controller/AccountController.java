@@ -150,6 +150,18 @@ public class AccountController {
     public String login() {
         return "login";
     }
+    @GetMapping("/contract")
+    public String contract(){
+        return "contract";
+    }
+    @GetMapping("/home")
+    public String home(){
+        return "home";
+    }
+    @GetMapping("/home-driver")
+    public String homeDriver(){
+        return "home-driver";
+    }
 
     @PostMapping("/login")
     public String login(@RequestParam("username") String username,
@@ -163,14 +175,14 @@ public class AccountController {
         if (account != null && passwordEncoder.matches(password, account.getPassword())) {
             if (account.getRoles().stream().anyMatch(role -> role.getName().equals("CarOwner"))) {
                 return "redirect:/home-driver";
+            } else if (account.getRoles().stream().anyMatch(role -> role.getName().equals("Customer"))) {
+                return "redirect:/home";
             }
-            return "redirect:/home";
-        } else {
-            model.addAttribute("error", "Invalid username or password");
-            return "login";
         }
-    }
 
+        model.addAttribute("error", "Invalid username or password");
+        return "login";
+    }
 
 
 }

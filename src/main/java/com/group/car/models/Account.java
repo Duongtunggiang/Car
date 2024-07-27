@@ -10,11 +10,13 @@ public class Account {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
 
+    @Column(name="username", nullable = false)
     private String username;
 
     @Column(unique = true, nullable = false)
     private String email;
 
+    @Column(name = "password", nullable = false)
     private String password;
 
     private boolean enabled;
@@ -24,9 +26,9 @@ public class Account {
     @OneToOne(mappedBy = "account")
     private CarOwner carOwner ;
 
-    @ManyToMany
+    @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(
-            name = "Account_Role",
+            name = "account_roles",
             joinColumns = @JoinColumn(name = "account_id"),
             inverseJoinColumns = @JoinColumn(name = "role_id")
     )
