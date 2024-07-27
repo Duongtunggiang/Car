@@ -19,12 +19,21 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         return http.authorizeHttpRequests(auth -> auth
                         .requestMatchers("/").permitAll()
+
                         .requestMatchers("/register").permitAll()
                         .requestMatchers("/register-driver").permitAll()
                         .requestMatchers("/login").permitAll()
                         .requestMatchers("/logout").permitAll()
                         .requestMatchers("/home").hasRole("Customer")
                         .requestMatchers("/home-driver").hasRole("CarOwner")
+
+
+
+                        //car-controller
+                        .requestMatchers("/cars/**").permitAll()
+//                        .requestMatchers("cars/rent-car").permitAll()
+//                        .requestMatchers("cars/car-details").permitAll()
+                        //end of car-controller
                         .anyRequest().authenticated())
                 .formLogin(form -> form
                         .loginPage("/login")

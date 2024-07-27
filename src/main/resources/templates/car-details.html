@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Rent-a-car</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        body { font-family: Arial, sans-serif; margin: 0; padding: 0; }
+        .header { background-color: #333; color: white; padding: 10px; display: flex; justify-content: space-between; align-items: center; }
+        .container { width: 80%; margin: 0 auto; }
+        .breadcrumb { margin: 20px 0; }
+        .car-details { display: flex; justify-content: space-between; }
+        .car-image { width: 60%; height: 300px; background-color: #eee; display: flex; justify-content: space-between; align-items: center; }
+        .car-info { width: 35%; }
+        .btn { padding: 10px 20px; background-color: #007bff; color: white; border: none; cursor: pointer; }
+        .tabs { display: flex; margin-top: 20px; }
+        .tab { padding: 10px; border: 1px solid #ddd; cursor: pointer; }
+        .tab.active { background-color: #f0f0f0; }
+        .car-specs { display: flex; flex-wrap: wrap; }
+        .spec { width: 50%; margin-bottom: 10px; }
+        table { width: 100%; border-collapse: collapse; }
+        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+        .footer { background-color: #f0f0f0; padding: 20px 0; margin-top: 20px; }
+    </style>
+</head>
+<body>
+<div class="header">
+    <div>
+        <span>🚗 Rent a car today!</span>
+    </div>
+    <div>
+        <span>ABOUT US</span>
+        <span>Welcome, An ▼</span>
+    </div>
+</div>
+
+<div class="container">
+    <div class="breadcrumb">
+        Home > Search Results > Car details
+    </div>
+
+    <h2>Car Details</h2>
+
+    <div class="car-details">
+        <div class="car-image">
+            <span>❮</span>
+            <span>❯</span>
+        </div>
+        <div class="car-info">
+            <h3>Nissan Navara El 2017</h3>
+            <button class="btn">Rent now</button>
+            <p>Ratings: ☆☆☆☆☆ (No ratings yet)</p>
+            <p>No. of rides: 0</p>
+            <p>Price: 900k/day</p>
+            <p>Locations: Cau Giay, Hanoi</p>
+            <p>Status: <span style="color: green;">Available</span></p>
+        </div>
+    </div>
+
+    <div class="tabs">
+        <div class="tab active">Basic Information</div>
+        <div class="tab">Details</div>
+        <div class="tab">Terms of use</div>
+    </div>
+
+    <div class="car-specs">
+        <div class="spec">
+            <strong>License plate:</strong>
+            <span></span>
+        </div>
+        <div class="spec">
+            <strong>Color:</strong>
+            <span></span>
+        </div>
+        <div class="spec">
+            <strong>Brand name:</strong>
+            <span></span>
+        </div>
+        <div class="spec">
+            <strong>Model:</strong>
+            <span></span>
+        </div>
+        <div class="spec">
+            <strong>Production year:</strong>
+            <span></span>
+        </div>
+        <div class="spec">
+            <strong>No. of seats:</strong>
+            <span></span>
+        </div>
+        <div class="spec">
+            <strong>Transmission:</strong>
+            <span></span>
+        </div>
+        <div class="spec">
+            <strong>Fuel:</strong>
+            <span></span>
+        </div>
+    </div>
+
+    <h3>Documents:</h3>
+    <table>
+        <tr>
+            <th>No</th>
+            <th>Name</th>
+            <th>Note</th>
+        </tr>
+        <tr>
+            <td>1</td>
+            <td>Registration paper</td>
+            <td>Verified</td>
+        </tr>
+        <tr>
+            <td>2</td>
+            <td>Certificate of Inspection</td>
+            <td>Verified</td>
+        </tr>
+        <tr>
+            <td>3</td>
+            <td>Insurance</td>
+            <td>Not available</td>
+        </tr>
+    </table>
+
+    <p><em>Note: Documents will be available for viewing after you've paid the deposit to rent.</em></p>
+</div>
+
+<div class="footer">
+    <div class="container">
+        <div style="display: flex; justify-content: space-between;">
+            <div>
+                <h4>RENT CARS</h4>
+                <p>Search Cars and Rates</p>
+            </div>
+            <div>
+                <h4>CUSTOMER ACCESS</h4>
+                <p>Manage My Booking</p>
+                <p>My Wallet</p>
+                <p>My Car</p>
+                <p>Log In</p>
+            </div>
+            <div>
+                <h4>JOIN US</h4>
+                <p>New User Sign Up</p>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>
