@@ -21,19 +21,20 @@ public class CustomAuthenticationSuccessHandler implements AuthenticationSuccess
 
         Collection<? extends GrantedAuthority> authorities = authentication.getAuthorities();
         for (GrantedAuthority grantedAuthority : authorities) {
-            if (grantedAuthority.getAuthority().equals("ROLE_CUSTOMER")) {
+            if (grantedAuthority.getAuthority().equals("Customer")) {
                 redirectUrl = "/home";
                 break;
-            } else if (grantedAuthority.getAuthority().equals("ROLE_CAR OWNER")) {
+            } else if (grantedAuthority.getAuthority().equals("CarOwner")) {
                 redirectUrl = "/home-driver";
                 break;
             }
         }
 
         if (redirectUrl == null) {
-            throw new IllegalStateException();
+            throw new IllegalStateException("No valid role found");
         }
 
         response.sendRedirect(redirectUrl);
     }
 }
+

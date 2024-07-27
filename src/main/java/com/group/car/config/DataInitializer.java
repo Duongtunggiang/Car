@@ -24,7 +24,6 @@ public class DataInitializer {
                 roleRepository.save(carOwnerRole);
             }
 
-
             // Create "Customer" role
             if (roleRepository.findByName("Customer") == null) {
                 Role customerRole = new Role();
@@ -34,3 +33,4 @@ public class DataInitializer {
         };
     }
 }
+

@@ -51,6 +51,13 @@ public class AccountController {
                             "Email address is already used")
             );
         }
+        Account user = accountRepository.findByUsername(registerDto.getUsername());
+        if (user!=null){
+            result.addError(
+                    new FieldError("registerDto","username",
+                            "User name is already used")
+            );
+        }
         if (result.hasErrors()){
             return "register";
         }
@@ -85,7 +92,7 @@ public class AccountController {
         RegisterDto registerDto = new RegisterDto();
         model.addAttribute(registerDto);
         model.addAttribute("success",false);
-        return "register";
+        return "register-driver";
     }
 
     @PostMapping("/register-driver")
@@ -103,8 +110,15 @@ public class AccountController {
                             "Email address is already used")
             );
         }
+        Account user = accountRepository.findByUsername(registerDto.getUsername());
+        if (user!=null){
+            result.addError(
+                    new FieldError("registerDto","username",
+                            "User name is already used")
+            );
+        }
         if (result.hasErrors()){
-            return "register";
+            return "register-driver";
         }
         try{
             var bCryptEncoder = new BCryptPasswordEncoder();
@@ -129,7 +143,7 @@ public class AccountController {
                             e.getMessage())
             );
         }
-        return "register";
+        return "register-driver";
     }
 
     @GetMapping("/login")
@@ -138,7 +152,9 @@ public class AccountController {
     }
 
     @PostMapping("/login")
-    public String login(String username, String password, Model model) {
+    public String login(@RequestParam("username") String username,
+                        @RequestParam("password") String password,
+                        Model model) {
         Account account = accountRepository.findByEmail(username);
         if (account == null) {
             account = accountRepository.findByUsername(username);
@@ -154,4 +170,7 @@ public class AccountController {
             return "login";
         }
     }
+
+
+
 }
