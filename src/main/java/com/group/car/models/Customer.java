@@ -1,49 +1,35 @@
 package com.group.car.models;
 
 import jakarta.persistence.*;
-import java.util.Date;
+
+import java.time.LocalDate;
 import java.util.List;
 
 @Entity
-@Table(name = "Customer")
 public class Customer {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long id;
-
+    private Long id;
     private String name;
-    private Date dateOfBirth;
+    private LocalDate dateOfBirth;
+    @Column(unique = true)
     private String nationalIdNo;
     private String phoneNo;
-
-    @Column(unique = true, nullable = false)
     private String email;
-
     private String address;
     private String drivingLicense;
-    private String wallet;
+    private Double wallet;
 
-    @OneToMany(mappedBy = "customer", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "customer")
     private List<Booking> bookings;
 
-    @OneToOne
-    @JoinColumn(name = "account_id", nullable = false)
-    private Account account;
-
     // Getters and setters
-    public Account getAccount() {
-        return account;
-    }
 
-    public void setAccount(Account account) {
-        this.account = account;
-    }
-
-    public long getId() {
+    public Long getId() {
         return id;
     }
 
-    public void setId(long id) {
+    public void setId(Long id) {
         this.id = id;
     }
 
@@ -55,11 +41,11 @@ public class Customer {
         this.name = name;
     }
 
-    public Date getDateOfBirth() {
+    public LocalDate getDateOfBirth() {
         return dateOfBirth;
     }
 
-    public void setDateOfBirth(Date dateOfBirth) {
+    public void setDateOfBirth(LocalDate dateOfBirth) {
         this.dateOfBirth = dateOfBirth;
     }
 
@@ -103,11 +89,11 @@ public class Customer {
         this.drivingLicense = drivingLicense;
     }
 
-    public String getWallet() {
+    public Double getWallet() {
         return wallet;
     }
 
-    public void setWallet(String wallet) {
+    public void setWallet(Double wallet) {
         this.wallet = wallet;
     }
 

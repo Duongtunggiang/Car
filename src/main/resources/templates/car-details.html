@@ -47,13 +47,13 @@
             <span>❯</span>
         </div>
         <div class="car-info">
-            <h3>Nissan Navara El 2017</h3>
+            <h3 th:text="${car.name}">Nissan Navara El 2017</h3>
             <button class="btn">Rent now</button>
-            <p>Ratings: ☆☆☆☆☆ (No ratings yet)</p>
-            <p>No. of rides: 0</p>
-            <p>Price: 900k/day</p>
-            <p>Locations: Cau Giay, Hanoi</p>
-            <p>Status: <span style="color: green;">Available</span></p>
+            <p >Ratings: ☆☆☆☆☆ (No ratings yet)</p>
+            <p >No. of rides: 0</p>
+            <p th:text="'Price: ' + ${car.basePrice} + '/day'">Price: 900k/day</p>
+            <p th:text="'Locations: ' + ${car.address}">Locations: Cau Giay, Hanoi</p>
+            <p> Status: Available</span></p>
         </div>
     </div>
 
@@ -66,35 +66,35 @@
     <div class="car-specs">
         <div class="spec">
             <strong>License plate:</strong>
-            <span></span>
+            <span th:text="${car.licensePlate}"></span>
         </div>
         <div class="spec">
             <strong>Color:</strong>
-            <span></span>
+            <span th:text="${car.color}"></span>
         </div>
         <div class="spec">
             <strong>Brand name:</strong>
-            <span></span>
+            <span th:text="${car.brand}"></span>
         </div>
         <div class="spec">
             <strong>Model:</strong>
-            <span></span>
+            <span th:text="${car.model}"></span>
         </div>
         <div class="spec">
             <strong>Production year:</strong>
-            <span></span>
+            <span th:text="${car.productionYear}"></span>
         </div>
         <div class="spec">
             <strong>No. of seats:</strong>
-            <span></span>
+            <span th:text="${car.numberOfSeats}"></span>
         </div>
         <div class="spec">
             <strong>Transmission:</strong>
-            <span></span>
+            <span th:text="${car.transmissionType}"></span>
         </div>
         <div class="spec">
             <strong>Fuel:</strong>
-            <span></span>
+            <span th:text="${car.fuelType}"></span>
         </div>
     </div>
 

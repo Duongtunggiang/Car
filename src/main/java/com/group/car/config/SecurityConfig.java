@@ -18,7 +18,7 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         return http.authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/").permitAll()
+                        .requestMatchers("/**").permitAll()
 
                         .requestMatchers("/register").permitAll()
                         .requestMatchers("/register-driver").permitAll()
@@ -30,7 +30,7 @@ public class SecurityConfig {
 
 
                         //car-controller
-                        .requestMatchers("/cars/**").permitAll()
+                        .requestMatchers("/customer/**").permitAll()
 //                        .requestMatchers("cars/rent-car").permitAll()
 //                        .requestMatchers("cars/car-details").permitAll()
                         //end of car-controller

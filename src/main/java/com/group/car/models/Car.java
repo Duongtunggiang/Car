@@ -1,211 +1,213 @@
 package com.group.car.models;
 
 import jakarta.persistence.*;
-import java.util.Date;
+
 import java.util.List;
 
 @Entity
-@Table(name = "Car")
 public class Car {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long id;
-
+    private Long id;
     private String name;
+    @Column(unique = true)
     private String licensePlate;
     private String brand;
     private String model;
     private String color;
-    private int numbersOfSeats;
-    private Date productionYears;
+    private Integer numberOfSeats;
+    private Integer productionYear;
     private String transmissionType;
     private String fuelType;
-    private String mileage;
-    private String fuelConsumption;
-    private double basicPrice;
-    private double deposit;
+    private Integer mileage;
+    private Float fuelConsumption;
+    private Double basePrice;
+    private Double deposit;
     private String address;
-
-    @Column(columnDefinition = "TEXT")
+    @Column(length = 1000)
     private String description;
-
+    @Column(length = 1000)
     private String additionalFunctions;
+    @Column(length = 1000)
     private String termsOfUse;
-    private String images;
 
     @ManyToOne
-    @JoinColumn(name = "carOwner_id", nullable = false)
-    private CarOwner carOwner;
+    @JoinColumn(name = "owner_id")
+    private CarOwner owner;
 
-    @OneToMany(mappedBy = "car", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<CarBooking> carBookings;
+    @ElementCollection
+    private List<String> images;
+
+    @OneToMany(mappedBy = "car")
+    private List<Booking> bookings;
+
+    // Getters and setters
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
 
     public String getName() {
         return name;
-    }
-
-    public String getLicensePlate() {
-        return licensePlate;
-    }
-
-    public String getBrand() {
-        return brand;
-    }
-
-    public String getModel() {
-        return model;
-    }
-
-    public String getColor() {
-        return color;
-    }
-
-    public int getNumbersOfSeats() {
-        return numbersOfSeats;
-    }
-
-    public Date getProductionYears() {
-        return productionYears;
-    }
-
-    public String getTransmissionType() {
-        return transmissionType;
-    }
-
-    public String getFuelType() {
-        return fuelType;
-    }
-
-    public String getMileage() {
-        return mileage;
-    }
-
-    public String getFuelConsumption() {
-        return fuelConsumption;
-    }
-
-    public double getBasicPrice() {
-        return basicPrice;
-    }
-
-    public double getDeposit() {
-        return deposit;
-    }
-
-    public String getAddress() {
-        return address;
-    }
-
-    public String getDescription() {
-        return description;
-    }
-
-    public String getAdditionalFunctions() {
-        return additionalFunctions;
-    }
-
-    public String getTermsOfUse() {
-        return termsOfUse;
-    }
-
-    public String getImages() {
-        return images;
-    }
-
-    public CarOwner getCarOwner() {
-        return carOwner;
     }
 
     public void setName(String name) {
         this.name = name;
     }
 
+    public String getLicensePlate() {
+        return licensePlate;
+    }
+
     public void setLicensePlate(String licensePlate) {
         this.licensePlate = licensePlate;
+    }
+
+    public String getBrand() {
+        return brand;
     }
 
     public void setBrand(String brand) {
         this.brand = brand;
     }
 
+    public String getModel() {
+        return model;
+    }
+
     public void setModel(String model) {
         this.model = model;
+    }
+
+    public String getColor() {
+        return color;
     }
 
     public void setColor(String color) {
         this.color = color;
     }
 
-    public void setNumbersOfSeats(int numbersOfSeats) {
-        this.numbersOfSeats = numbersOfSeats;
+    public Integer getNumberOfSeats() {
+        return numberOfSeats;
     }
 
-    public void setProductionYears(Date productionYears) {
-        this.productionYears = productionYears;
+    public void setNumberOfSeats(Integer numberOfSeats) {
+        this.numberOfSeats = numberOfSeats;
+    }
+
+    public Integer getProductionYear() {
+        return productionYear;
+    }
+
+    public void setProductionYear(Integer productionYear) {
+        this.productionYear = productionYear;
+    }
+
+    public String getTransmissionType() {
+        return transmissionType;
     }
 
     public void setTransmissionType(String transmissionType) {
         this.transmissionType = transmissionType;
     }
 
+    public String getFuelType() {
+        return fuelType;
+    }
+
     public void setFuelType(String fuelType) {
         this.fuelType = fuelType;
     }
 
-    public void setMileage(String mileage) {
+    public Integer getMileage() {
+        return mileage;
+    }
+
+    public void setMileage(Integer mileage) {
         this.mileage = mileage;
     }
 
-    public void setFuelConsumption(String fuelConsumption) {
+    public Float getFuelConsumption() {
+        return fuelConsumption;
+    }
+
+    public void setFuelConsumption(Float fuelConsumption) {
         this.fuelConsumption = fuelConsumption;
     }
 
-    public void setBasicPrice(double basicPrice) {
-        this.basicPrice = basicPrice;
+    public Double getBasePrice() {
+        return basePrice;
     }
 
-    public void setDeposit(double deposit) {
+    public void setBasePrice(Double basePrice) {
+        this.basePrice = basePrice;
+    }
+
+    public Double getDeposit() {
+        return deposit;
+    }
+
+    public void setDeposit(Double deposit) {
         this.deposit = deposit;
+    }
+
+    public String getAddress() {
+        return address;
     }
 
     public void setAddress(String address) {
         this.address = address;
     }
 
+    public String getDescription() {
+        return description;
+    }
+
     public void setDescription(String description) {
         this.description = description;
+    }
+
+    public String getAdditionalFunctions() {
+        return additionalFunctions;
     }
 
     public void setAdditionalFunctions(String additionalFunctions) {
         this.additionalFunctions = additionalFunctions;
     }
 
+    public String getTermsOfUse() {
+        return termsOfUse;
+    }
+
     public void setTermsOfUse(String termsOfUse) {
         this.termsOfUse = termsOfUse;
     }
 
-    public void setImages(String images) {
+    public CarOwner getOwner() {
+        return owner;
+    }
+
+    public void setOwner(CarOwner owner) {
+        this.owner = owner;
+    }
+
+    public List<String> getImages() {
+        return images;
+    }
+
+    public void setImages(List<String> images) {
         this.images = images;
     }
 
-    public void setCarOwner(CarOwner carOwner) {
-        this.carOwner = carOwner;
+    public List<Booking> getBookings() {
+        return bookings;
     }
 
-    public long getId() {
-        return id;
-    }
-
-    public void setId(long id) {
-        this.id = id;
-    }
-
-
-    public List<CarBooking> getCarBookings() {
-        return carBookings;
-    }
-
-    public void setCarBookings(List<CarBooking> carBookings) {
-        this.carBookings = carBookings;
+    public void setBookings(List<Booking> bookings) {
+        this.bookings = bookings;
     }
 }

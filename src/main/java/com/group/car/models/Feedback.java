@@ -1,41 +1,38 @@
 package com.group.car.models;
 
 import jakarta.persistence.*;
-import java.util.Date;
+
+import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "Feedback")
 public class Feedback {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long id;
-
-    private int ratings;
-
-    @Column(columnDefinition = "TEXT")
+    private Long id;
+    private Integer ratings;
+    @Column(length = 1000)
     private String content;
-
-    @Temporal(TemporalType.TIMESTAMP)
-    private Date dateTime;
+    private LocalDateTime dateTime;
 
     @OneToOne
-    @JoinColumn(name = "booking_id", nullable = false)
+    @JoinColumn(name = "booking_id")
     private Booking booking;
 
     // Getters and setters
-    public long getId() {
+
+    public Long getId() {
         return id;
     }
 
-    public void setId(long id) {
+    public void setId(Long id) {
         this.id = id;
     }
 
-    public int getRatings() {
+    public Integer getRatings() {
         return ratings;
     }
 
-    public void setRatings(int ratings) {
+    public void setRatings(Integer ratings) {
         this.ratings = ratings;
     }
 
@@ -47,11 +44,11 @@ public class Feedback {
         this.content = content;
     }
 
-    public Date getDateTime() {
+    public LocalDateTime getDateTime() {
         return dateTime;
     }
 
-    public void setDateTime(Date dateTime) {
+    public void setDateTime(LocalDateTime dateTime) {
         this.dateTime = dateTime;
     }
 

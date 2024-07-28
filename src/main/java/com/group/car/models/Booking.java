@@ -1,39 +1,40 @@
 package com.group.car.models;
 
 import jakarta.persistence.*;
-import java.util.Date;
-import java.util.List;
+import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "Booking")
 public class Booking {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long id;
-
+    private Long id;
+    @Column(unique = true)
     private String bookingNo;
-    private Date startDateTime;
-    private Date endDateTime;
-    private String driversInformation;
+    private LocalDateTime startDateTime;
+    private LocalDateTime endDateTime;
+    @Column(length = 1000)
+    private String driverInformation;
     private String paymentMethod;
     private String status;
 
-    @OneToMany(mappedBy = "booking", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<CarBooking> carBookings;
+    @ManyToOne
+    @JoinColumn(name = "car_id")
+    private Car car;
 
     @ManyToOne
-    @JoinColumn(name = "customer_id", nullable = false)
+    @JoinColumn(name = "customer_id")
     private Customer customer;
 
-    @OneToOne(mappedBy = "booking", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToOne(mappedBy = "booking", cascade = CascadeType.ALL)
     private Feedback feedback;
 
     // Getters and setters
-    public long getId() {
+
+    public Long getId() {
         return id;
     }
 
-    public void setId(long id) {
+    public void setId(Long id) {
         this.id = id;
     }
 
@@ -45,28 +46,28 @@ public class Booking {
         this.bookingNo = bookingNo;
     }
 
-    public Date getStartDateTime() {
+    public LocalDateTime getStartDateTime() {
         return startDateTime;
     }
 
-    public void setStartDateTime(Date startDateTime) {
+    public void setStartDateTime(LocalDateTime startDateTime) {
         this.startDateTime = startDateTime;
     }
 
-    public Date getEndDateTime() {
+    public LocalDateTime getEndDateTime() {
         return endDateTime;
     }
 
-    public void setEndDateTime(Date endDateTime) {
+    public void setEndDateTime(LocalDateTime endDateTime) {
         this.endDateTime = endDateTime;
     }
 
-    public String getDriversInformation() {
-        return driversInformation;
+    public String getDriverInformation() {
+        return driverInformation;
     }
 
-    public void setDriversInformation(String driversInformation) {
-        this.driversInformation = driversInformation;
+    public void setDriverInformation(String driverInformation) {
+        this.driverInformation = driverInformation;
     }
 
     public String getPaymentMethod() {
@@ -85,12 +86,12 @@ public class Booking {
         this.status = status;
     }
 
-    public List<CarBooking> getCarBookings() {
-        return carBookings;
+    public Car getCar() {
+        return car;
     }
 
-    public void setCarBookings(List<CarBooking> carBookings) {
-        this.carBookings = carBookings;
+    public void setCar(Car car) {
+        this.car = car;
     }
 
     public Customer getCustomer() {
