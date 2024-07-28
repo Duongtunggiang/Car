@@ -19,12 +19,16 @@ public class Account {
     @Column(name = "password", nullable = false)
     private String password;
 
-    private boolean enabled;
+    @Column(name = "recent_password")
+    private String recentPassword;
 
-    @OneToOne(mappedBy = "account")
+    private boolean enabled = true;
+
+    @OneToOne(mappedBy = "account", cascade = CascadeType.ALL)
     private Customer customer;
-    @OneToOne(mappedBy = "account")
-    private CarOwner carOwner ;
+
+    @OneToOne(mappedBy = "account", cascade = CascadeType.ALL)
+    private CarOwner carOwner;
 
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(
@@ -35,6 +39,14 @@ public class Account {
     private Set<Role> roles;
 
     // Getters and setters
+
+    public String getRecentPassword() {
+        return recentPassword;
+    }
+
+    public void setRecentPassword(String recentPassword) {
+        this.recentPassword = recentPassword;
+    }
 
     public void setEmail(String email) {
         this.email = email;

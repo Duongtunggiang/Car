@@ -19,7 +19,9 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         return http.authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/", "/register", "/register-driver", "/login", "/logout").permitAll()
+                        .requestMatchers("/", "/register","/forgot-password","/reset-password",
+                                "/verify-password", "/register-driver",
+                                "/login", "/logout").permitAll()
                         .requestMatchers("/home").hasRole("Customer")
                         .requestMatchers("/contract").hasRole("Customer")
                         .requestMatchers("/home-driver").hasRole("CarOwner")

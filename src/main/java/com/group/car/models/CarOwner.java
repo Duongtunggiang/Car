@@ -12,19 +12,19 @@ public class CarOwner {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
 
-    private String Name;
+    private String name;
 
-    private Date DateOfBirth;
+    private Date dateOfBirth;
 
-    private String NationalIdNo;
-    private String PhoneNo;
+    private String nationalIdNo;
+    private String phoneNo;
 
     @Column(unique = true, nullable = false)
-    private String Email;
+    private String email;
 
-    private String Address;
-    private String Drivinglicense;
-    private String Wallet;
+    private String address;
+    private String drivingLicense;
+    private String wallet;
 
     @OneToMany(mappedBy = "carOwner", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Car> cars;
@@ -33,20 +33,50 @@ public class CarOwner {
     @JoinColumn(name = "account_id", nullable = false)
     private Account account;
 
-    public void setAccount(Account account) {
-        this.account = account;
+    // Getters and setters
+
+    public long getId() {
+        return id;
     }
 
-    public Account getAccount() {
-        return account;
+    public String getName() {
+        return name;
     }
 
-    public void setCars(List<Car> cars) {
-        this.cars = cars;
+    public Date getDateOfBirth() {
+        return dateOfBirth;
+    }
+
+    public String getNationalIdNo() {
+        return nationalIdNo;
+    }
+
+    public String getPhoneNo() {
+        return phoneNo;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public String getAddress() {
+        return address;
+    }
+
+    public String getDrivingLicense() {
+        return drivingLicense;
+    }
+
+    public String getWallet() {
+        return wallet;
     }
 
     public List<Car> getCars() {
         return cars;
+    }
+
+    public Account getAccount() {
+        return account;
     }
 
     public void setId(long id) {
@@ -54,70 +84,42 @@ public class CarOwner {
     }
 
     public void setName(String name) {
-        Name = name;
+        this.name = name;
     }
 
     public void setDateOfBirth(Date dateOfBirth) {
-        DateOfBirth = dateOfBirth;
+        this.dateOfBirth = dateOfBirth;
     }
 
     public void setNationalIdNo(String nationalIdNo) {
-        NationalIdNo = nationalIdNo;
+        this.nationalIdNo = nationalIdNo;
     }
 
     public void setPhoneNo(String phoneNo) {
-        PhoneNo = phoneNo;
+        this.phoneNo = phoneNo;
     }
 
     public void setEmail(String email) {
-        Email = email;
+        this.email = email;
     }
 
     public void setAddress(String address) {
-        Address = address;
+        this.address = address;
     }
 
-    public void setDrivinglicense(String drivinglicense) {
-        Drivinglicense = drivinglicense;
+    public void setDrivingLicense(String drivingLicense) {
+        this.drivingLicense = drivingLicense;
     }
 
     public void setWallet(String wallet) {
-        Wallet = wallet;
+        this.wallet = wallet;
     }
 
-    public long getId() {
-        return id;
+    public void setCars(List<Car> cars) {
+        this.cars = cars;
     }
 
-    public String getName() {
-        return Name;
-    }
-
-    public Date getDateOfBirth() {
-        return DateOfBirth;
-    }
-
-    public String getNationalIdNo() {
-        return NationalIdNo;
-    }
-
-    public String getPhoneNo() {
-        return PhoneNo;
-    }
-
-    public String getEmail() {
-        return Email;
-    }
-
-    public String getAddress() {
-        return Address;
-    }
-
-    public String getDrivinglicense() {
-        return Drivinglicense;
-    }
-
-    public String getWallet() {
-        return Wallet;
+    public void setAccount(Account account) {
+        this.account = account;
     }
 }

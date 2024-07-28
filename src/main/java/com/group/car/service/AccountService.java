@@ -19,8 +19,10 @@ public class AccountService implements UserDetailsService {
     @Override
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
         Account account = accountRepository.findByEmail(email);
-
         if (account != null) {
+            if (!account.isEnabled()) {
+                throw new UsernameNotFoundException("User not verified");
+            }
             return User.withUsername(account.getEmail())
                     .password(account.getPassword())
                     .roles(account.getRoles().stream().map(Role::getName).toArray(String[]::new))

@@ -23,6 +23,10 @@ public class Customer {
     private String drivingLicense;
     private String wallet;
 
+//    private String coverImage;
+//
+//    private String image;
+
     @OneToMany(mappedBy = "customer", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Booking> bookings;
 
