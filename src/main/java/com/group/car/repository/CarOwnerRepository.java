@@ -5,4 +5,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface CarOwnerRepository extends JpaRepository<CarOwner, Long> {
     CarOwner findByAccountId(Long accountId);
+
+    CarOwner findByAccountEmail(String email);
 }

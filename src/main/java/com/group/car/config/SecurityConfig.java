@@ -24,13 +24,12 @@ public class SecurityConfig {
                                 "/login", "/logout").permitAll()
                         .requestMatchers("/home").hasRole("Customer")
                         .requestMatchers("/contract").hasRole("Customer")
-                        .requestMatchers("/home-driver").hasRole("CarOwner")
+                        .requestMatchers("/home-driver","/carowner/**").hasRole("CarOwner")
                         .anyRequest().authenticated())
                 .formLogin(form -> form
                         .loginPage("/login")
                         .usernameParameter("email")
-//                        .successHandler(customAuthenticationSuccessHandler)
-//                        .defaultSuccessUrl("/home", true)
+                        .defaultSuccessUrl("/login-success", true)
                         .permitAll())
                 .logout(config -> config.logoutSuccessUrl("/").permitAll())
                 .build();

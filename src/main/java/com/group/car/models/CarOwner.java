@@ -13,9 +13,7 @@ public class CarOwner {
     private long id;
 
     private String name;
-
     private Date dateOfBirth;
-
     private String nationalIdNo;
     private String phoneNo;
 

@@ -19,8 +19,8 @@ public class Account {
     @Column(name = "password", nullable = false)
     private String password;
 
-    @Column(name = "recent_password")
-    private String recentPassword;
+//    @Column(name = "recent_password")
+//    private String recentPassword;
 
     private boolean enabled = true;
 
@@ -40,13 +40,13 @@ public class Account {
 
     // Getters and setters
 
-    public String getRecentPassword() {
-        return recentPassword;
-    }
-
-    public void setRecentPassword(String recentPassword) {
-        this.recentPassword = recentPassword;
-    }
+//    public String getRecentPassword() {
+//        return recentPassword;
+//    }
+//
+//    public void setRecentPassword(String recentPassword) {
+//        this.recentPassword = recentPassword;
+//    }
 
     public void setEmail(String email) {
         this.email = email;

@@ -40,6 +40,14 @@ public class Car {
     @OneToMany(mappedBy = "car", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<CarBooking> carBookings;
 
+    public Date getProductionYears() {
+        return productionYears;
+    }
+
+    public void setProductionYears(Date productionYears) {
+        this.productionYears = productionYears;
+    }
+
     public String getName() {
         return name;
     }
@@ -64,9 +72,6 @@ public class Car {
         return numbersOfSeats;
     }
 
-    public Date getProductionYears() {
-        return productionYears;
-    }
 
     public String getTransmissionType() {
         return transmissionType;
@@ -138,10 +143,6 @@ public class Car {
 
     public void setNumbersOfSeats(int numbersOfSeats) {
         this.numbersOfSeats = numbersOfSeats;
-    }
-
-    public void setProductionYears(Date productionYears) {
-        this.productionYears = productionYears;
     }
 
     public void setTransmissionType(String transmissionType) {

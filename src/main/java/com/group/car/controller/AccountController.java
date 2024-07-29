@@ -163,22 +163,20 @@ public class AccountController {
         return "contract";
     }
     @GetMapping("/home")
-    public String homes(){
+    public String home() {
         return "home";
     }
+
     @GetMapping("/home-driver")
-    public String homeDriver(){
+    public String homeDriver() {
         return "home-driver";
     }
 
     @PostMapping("/login")
-    public String login(@RequestParam("username") String username,
+    public String login(@RequestParam("email") String email,
                         @RequestParam("password") String password,
                         Model model) {
-        Account account = accountRepository.findByEmail(username);
-        if (account == null) {
-            account = accountRepository.findByUsername(username);
-        }
+        Account account = accountRepository.findByEmail(email);
 
         if (account != null && passwordEncoder.matches(password, account.getPassword())) {
             if (account.getRoles().stream().anyMatch(role -> role.getName().equals("CarOwner"))) {
@@ -188,9 +186,25 @@ public class AccountController {
             }
         }
 
-        model.addAttribute("error", "Invalid username or password");
+        model.addAttribute("error", "Invalid email or password");
         return "account/login";
     }
+
+    @GetMapping("/login-success")
+    public String loginSuccess(Principal principal) {
+        Account account = accountRepository.findByEmail(principal.getName());
+
+        if (account != null) {
+            if (account.getRoles().stream().anyMatch(role -> role.getName().equals("CarOwner"))) {
+                return "redirect:/home-driver";
+            } else if (account.getRoles().stream().anyMatch(role -> role.getName().equals("Customer"))) {
+                return "redirect:/home";
+            }
+        }
+
+        return "redirect:/login";
+    }
+
 
     // Forgot password
     @GetMapping("/forgot-password")

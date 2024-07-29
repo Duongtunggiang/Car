@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <title>List Car</title>
+</head>
+<body>
+<div class="container">
+    <h1 class="text-center my-4">List My Car</h1>
+    <p class="text-dark"><a class="text-primary" href="/home-driver">Home Car</a> / <a class="text-primary" href="/carowner">List Car</a> </p>
+    <a class="btn btn-primary m-3" href="/carowner/add">AddCar</a><br>
+
+    <table class="table">
+        <tbody>
+        <tr th:each="car : ${cars}">
+            <td>
+                <img th:src="@{'/img/' + ${car.images}}" width="200" height="200"></td>
+            <td>
+                <div th:text="${car.name}"></div>
+                <div>Rating: *****</div>
+                <div>No Of Rides: 0</div>
+                <div th:text="'Price: '+${car.basicPrice} + ' $/day'"></div>
+                <div th:text="'Location: '+${car.address}"></div>
+                <div>Status: Stop</div>
+            </td>
+            <td style="white-space: nowrap">
+                <a class="btn btn-primary btn-sm" th:href="@{'/carowner/edit?id=' + ${car.id}}">Edit</a>
+                <a class="btn btn-danger btn-sm" th:href="@{'/carowner/delete?id=' + ${car.id}}"
+                   onclick="return confirm('Are you sure?')">Delete</a>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
+            crossorigin="anonymous">
+    </script>
+</div>
+</body>
+</html>
