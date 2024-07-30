@@ -198,7 +198,7 @@ public class AccountController {
             if (account.getRoles().stream().anyMatch(role -> role.getName().equals("CarOwner"))) {
                 return "redirect:/home-driver";
             } else if (account.getRoles().stream().anyMatch(role -> role.getName().equals("Customer"))) {
-                return "redirect:/home";
+                return "redirect:/";
             }
         }
 

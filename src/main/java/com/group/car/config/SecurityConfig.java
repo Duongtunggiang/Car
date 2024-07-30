@@ -23,7 +23,7 @@ public class SecurityConfig {
                                 "/verify-password", "/register-driver",
                                 "/login", "/logout").permitAll()
                         .requestMatchers("/home").hasRole("Customer")
-                        .requestMatchers("/contract").hasRole("Customer")
+                        .requestMatchers("/contract","/customer/**").hasRole("Customer")
                         .requestMatchers("/home-driver","/carowner/**").hasRole("CarOwner")
                         .anyRequest().authenticated())
                 .formLogin(form -> form
