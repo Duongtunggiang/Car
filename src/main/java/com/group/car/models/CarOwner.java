@@ -22,7 +22,7 @@ public class CarOwner {
 
     private String address;
     private String drivingLicense;
-    private String wallet;
+    private int wallet;
 
     @OneToMany(mappedBy = "carOwner", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Car> cars;
@@ -65,7 +65,7 @@ public class CarOwner {
         return drivingLicense;
     }
 
-    public String getWallet() {
+    public int getWallet() {
         return wallet;
     }
 
@@ -109,7 +109,7 @@ public class CarOwner {
         this.drivingLicense = drivingLicense;
     }
 
-    public void setWallet(String wallet) {
+    public void setWallet(int wallet) {
         this.wallet = wallet;
     }
 

@@ -21,7 +21,7 @@ public class Customer {
 
     private String address;
     private String drivingLicense;
-    private String wallet;
+    private int wallet;
 
 //    private String coverImage;
 //
@@ -107,11 +107,11 @@ public class Customer {
         this.drivingLicense = drivingLicense;
     }
 
-    public String getWallet() {
+    public int getWallet() {
         return wallet;
     }
 
-    public void setWallet(String wallet) {
+    public void setWallet(int wallet) {
         this.wallet = wallet;
     }
 

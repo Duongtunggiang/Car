@@ -314,7 +314,7 @@ public class AccountController {
                                 @RequestParam String phoneNo,
                                 @RequestParam String address,
                                 @RequestParam String drivingLicense,
-                                @RequestParam String wallet,
+                                @RequestParam int wallet,
                                 Principal principal) {
         try {
             Account existingAccount = accountRepository.findByEmail(principal.getName());
@@ -390,4 +390,7 @@ public class AccountController {
 
         return "redirect:/profile";
     }
+
+
+
 }
