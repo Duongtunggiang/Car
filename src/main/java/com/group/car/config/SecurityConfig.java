@@ -18,13 +18,14 @@ public class SecurityConfig {
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-        return http.authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/", "/register","/forgot-password","/reset-password",
-                                "/verify-password", "/register-driver",
-                                "/login", "/logout").permitAll()
+        return http
+                .csrf(csrf -> csrf
+                        .ignoringRequestMatchers("/mywallet/withdraw", "/mywallet/topup"))
+                .authorizeHttpRequests(auth -> auth
+                        .requestMatchers("/", "/register", "/forgot-password", "/reset-password", "/verify-password", "/register-driver", "/login", "/logout").permitAll()
                         .requestMatchers("/home").hasRole("Customer")
-                        .requestMatchers("/contract","/customer/**").hasRole("Customer")
-                        .requestMatchers("/home-driver","/carowner/**").hasRole("CarOwner")
+                        .requestMatchers("/contract", "/customer/**").hasRole("Customer")
+                        .requestMatchers("/home-driver", "/carowner/**").hasRole("CarOwner")
                         .anyRequest().authenticated())
                 .formLogin(form -> form
                         .loginPage("/login")

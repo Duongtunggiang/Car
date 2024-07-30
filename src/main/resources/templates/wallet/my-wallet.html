@@ -3,8 +3,12 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Home</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <title>My Wallet</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0/dist/css/select2.min.css" rel="stylesheet" />
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0/dist/js/select2.min.js"></script>
 </head>
 <body>
 
@@ -68,13 +72,13 @@
             <div class="row">
                 <div class="col-sm-6">
                     <h4>Your current bablance:</h4>
-                    <h2 class="text-success" th:text="${customer != null ? customer.wallet : (carOwner != null ? carOwner.wallet : 'VND') + 'VND'}">20.000.000 VND</h2>
+                    <h2 class="text-success" th:text="${customer != null ? customer.wallet : (carOwner != null ? carOwner.wallet : '0') + ' VND'}">20.000.000 VND</h2>
                 </div>
                 <div class="col-sm-6">
                     <a type="button" class="btn btn-primary"
                        href="/mywallet/withdraw"   data-bs-toggle="modal" data-bs-target="#myModal">Withdraw</a>
-<!--                    <a class="btn btn-primary me-3" href="/mywallet/withdraw">Withdraw</a>-->
-                    <a class="btn btn-success me-3" href="/mywallet/topup">Top-Up</a>
+<!--                    <a class="btn btn-primary me-3" href="/mywallet/withdraw">Withdraw</a>href="/mywallet/topup"-->
+                    <a class="btn btn-success me-3" data-bs-toggle="modal" data-bs-target="#topup">Top-Up</a>
                 </div>
                 <div class="col-sm-6">
                     <label class="form-label" for="from">From:</label>
@@ -130,26 +134,157 @@
 
                 <!-- Modal body -->
                 <div class="modal-body">
-                    <p class="text-dark mt-3 mb-3">You current balance is <span class="text-dark">1,500,000 .</span>Please select the amount to withdraw from your wallet</p>
-                    <select class="form-select">
-                        <option>5,000,000</option>
-                        <option>10,000,000</option>
-                        <option>All balance</option>
-                    </select>
+                    <p class="text-dark mt-3 mb-3">Your current balance is <span class="text-dark" id="balance" th:text="${customer != null ? customer.wallet : (carOwner != null ? carOwner.wallet : 'VND')}">1,500,000</span> VND. Please select the amount to withdraw from your wallet</p>
+                    <div class="input-group mb-3">
+                        <input type="text" class="form-control" id="withdrawAmount" placeholder="Enter amount">
+                        <button class="btn btn-outline-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-expanded="false">Options</button>
+                        <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                            <li><a class="dropdown-item" href="#">2000000</a></li>
+                            <li><a class="dropdown-item" href="#">5000000</a></li>
+                            <li><a class="dropdown-item" href="#">10000000</a></li>
+                            <li><a class="dropdown-item" href="#">All balance</a></li>
+                        </ul>
+                    </div>
                 </div>
 
                 <!-- Modal footer -->
                 <div class="modal-footer">
                     <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Close</button>
-                    <a class="btn btn" href="/mywallet/withdraw">OK</a>
+                    <button type="button" class="btn btn-primary" id="confirmWithdraw">OK</button>
                 </div>
 
             </div>
         </div>
     </div>
+
+    <script>
+        $(document).ready(function() {
+           $('.dropdown-item').click(function() {
+               var selectedAmount = $(this).text().trim();
+               $('#withdrawAmount').val(selectedAmount);
+           });
+
+           $('#confirmWithdraw').click(function() {
+               var amount = $('#withdrawAmount').val().replace(/,/g, '').replace(/VND/g, '').trim();
+               if (amount === 'All balance') {
+                   amount = $('#balance').text().replace(/,/g, '').replace(/VND/g, '').trim();
+               }
+               var currentBalance = $('#balance').text().replace(/,/g, '').replace(/ VND/g, '').trim();
+
+               currentBalance = parseFloat(currentBalance);
+               amount = parseFloat(amount);
+
+               if (isNaN(amount) || amount <= 0 || amount > currentBalance) {
+                   alert('Please enter a valid amount.');
+                   return;
+               }
+
+               var newBalance = currentBalance - amount;
+
+               console.log('Amount to withdraw:', amount);
+               console.log('New balance after withdrawal:', newBalance);
+
+               $.ajax({
+                   type: 'POST',
+                   url: '/mywallet/withdraw',
+                   data: {
+                       amount: amount
+                   },
+                   success: function(response) {
+                       alert('Withdraw successful!');
+                       $('#balance').text(newBalance.toLocaleString() + ' VND');
+                       window.location.href = '/mywallet/my-wallet';
+                   },
+                   error: function(error) {
+                       alert('Withdraw failed!');
+                       console.log('Error:', error);
+                   }
+               });
+           });
+       });
+    </script>
+    <!-- The Modal Top up -->
+    <div class="modal" id="topup">
+        <div class="modal-dialog">
+            <div class="modal-content">
+
+                <!-- Modal Header -->
+                <div class="modal-header">
+                    <h4 class="modal-title">Top-Up</h4>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+
+                <!-- Modal body -->
+                <div class="modal-body">
+                    <p class="text-dark mt-3 mb-3">Your current balance is <span class="text-dark" id="topupBalance" th:text="${customer != null ? customer.wallet : (carOwner != null ? carOwner.wallet : '0') + ' VND'}">1,500,000 VND</span>. Please enter the amount to top-up.</p>
+                    <div class="input-group mb-3">
+                        <input type="text" class="form-control" id="topupAmount" placeholder="Enter amount">
+                        <button class="btn btn-outline-secondary dropdown-toggle" type="button" id="topupDropdownButton" data-bs-toggle="dropdown" aria-expanded="false">Options</button>
+                        <ul class="dropdown-menu" aria-labelledby="topupDropdownButton">
+                            <li><a class="dropdown-item" href="#">2,000,000</a></li>
+                            <li><a class="dropdown-item" href="#">5,000,000</a></li>
+                            <li><a class="dropdown-item" href="#">10,000,000</a></li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Modal footer -->
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-primary" id="confirmTopup">OK</button>
+                </div>
+
+            </div>
+        </div>
+    </div>
+    <script>
+        $(document).ready(function() {
+            $('#topupDropdownButton').click(function() {
+                $('.dropdown-item').click(function() {
+                    var selectedAmount = $(this).text().trim();
+                    $('#topupAmount').val(selectedAmount);
+                });
+            });
+
+            $('#confirmTopup').click(function() {
+                var amount = $('#topupAmount').val().replace(/,/g, '').replace(/VND/g, '').trim();
+
+                if (isNaN(amount) || amount <= 0) {
+                    alert('Please enter a valid amount.');
+                    return;
+                }
+
+                var currentBalance = $('#topupBalance').text().replace(/,/g, '').replace(/ VND/g, '').trim();
+                currentBalance = parseFloat(currentBalance);
+                amount = parseFloat(amount);
+
+                var newBalance = currentBalance + amount;
+
+                console.log('Amount to top-up:', amount);
+                console.log('New balance after top-up:', newBalance);
+
+                $.ajax({
+                    type: 'POST',
+                    url: '/mywallet/topup',
+                    data: {
+                        amount: amount
+                    },
+                    success: function(response) {
+                        alert('Top-up successful!');
+                        $('#topupBalance').text(newBalance.toLocaleString() + ' VND');
+                        window.location.href = '/mywallet/my-wallet';
+                    },
+                    error: function(error) {
+                        alert('Top-up failed!');
+                        console.log('Error:', error);
+                    }
+                });
+            });
+        });
+
+    </script>
     <footer class="mt-2 bg-dark">
         <p class="text-light">Duoong</p>
     </footer>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
 </body>
 </html>
