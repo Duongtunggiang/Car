@@ -32,7 +32,8 @@ public class CarController {
     public String showRentalCarForm(Model model) {
         return "customer/car-rental-form";
     }
-//    @GetMapping("/car-details/{id}")
+
+    //    @GetMapping("/car-details/{id}")
 //    public String showCarDetails(@PathVariable("id") Long id, Model model) {
 //        Car car = carRepository.findById(id).orElse(null);
 //        if (car == null) {
@@ -42,6 +43,7 @@ public class CarController {
 //        model.addAttribute("car", car);
 //        return "car-details";
 //    }
+
     @GetMapping("/car-details")
     public String showCarDetails(@RequestParam("id") long id, Model model) {
         Car car = carRepository.findById(id).orElse(null);

@@ -41,7 +41,7 @@
     </div>
     <div th:if="${car != null}">
         <div class="breadcrumb">
-            <p class="text-dark"> <a class="text-primary" href="/">Home</a> / Search Results / <a class="text-primary" href="/car-details">Car details</a></p>
+            <p class="text-dark"> <a class="text-primary" href="/">Home</a> / Search Results / Car details</p>
         </div>
 
         <h2>Car Details</h2>
@@ -53,7 +53,7 @@
             <div class="car-info">
                 <h3 th:text="${car.name}">Nissan Navara El 2017</h3>
                <!-- <button class="btn">Rent now</button>-->
-                <a class="btn btn-primary" href="/rent-a-car">Rent now</a>
+                <a class="btn btn-primary" th:href="@{/customer/rent-a-car}">Rent now</a>
                 <p>Ratings: ☆☆☆☆☆ (No ratings yet)</p>
                 <p>No. of rides: 0</p>
                 <p th:text="'Price: ' + ${car.basicPrice} + '/day'">Price: 900k/day</p>

@@ -109,7 +109,8 @@ public class AccountController {
     }
 
     @PostMapping("/register-driver")
-    public String registerDriver(@Valid @ModelAttribute RegisterDto registerDto, BindingResult result, Model model){
+    public String registerDriver(@Valid @ModelAttribute RegisterDto registerDto,
+                                 BindingResult result, Model model){
         if (!registerDto.getPassword().equals(registerDto.getConfirmPassword())){
             result.addError(new FieldError("registerDto", "confirmPassword", "Password and Confirm password do not match"));
         }
@@ -216,41 +217,48 @@ public class AccountController {
     public String forgotPassword(@RequestParam String email, Model model) {
         Account account = accountRepository.findByEmail(email);
         if (account != null) {
+            RegisterDto registerDto = new RegisterDto();
+            model.addAttribute("registerDto", registerDto);
             model.addAttribute("email", email);
-            return "account/verify-password";
+            return "account/reset-password";
         }
         model.addAttribute("errorMessage", "Email không tìm thấy.");
         return "account/forgot-password";
     }
 
-    // Verify password
-    @PostMapping("/verify-password")
-    public String verifyPassword(@RequestParam String email, @RequestParam String oldPassword, Model model) {
-        Account account = accountRepository.findByEmail(email);
-        if (account != null && comparePasswords(oldPassword, account.getPassword())) {
+    @GetMapping("/reset-password")
+    public String showResetPasswordForm(@RequestParam("email") String email, Model model) {
+        RegisterDto registerDto = new RegisterDto();
+        model.addAttribute("registerDto", registerDto);
+        model.addAttribute("email", email);
+        return "account/reset-password";
+    }
+
+    @PostMapping("/reset-password")
+    public String resetPassword(@ModelAttribute("registerDto") RegisterDto registerDto,
+                                @RequestParam String email,
+                                BindingResult result,
+                                Model model) {
+        // Check for matching passwords
+        if (!registerDto.getPassword().equals(registerDto.getConfirmPassword())) {
+            result.rejectValue("confirmPassword", "error.registerDto", "Password and Confirm password do not match");
+        }
+
+        // Check for validation errors
+        if (result.hasErrors()) {
             model.addAttribute("email", email);
             return "account/reset-password";
         }
-        model.addAttribute("errorMessage", "Xác minh mật khẩu thất bại.");
-        model.addAttribute("email", email);
-        return "account/verify-password";
-    }
 
-    private boolean comparePasswords(String inputPassword, String storedPassword) {
-        return passwordEncoder.matches(inputPassword, storedPassword);
-    }
-
-    // Reset password
-    @PostMapping("/reset-password")
-    public String resetPassword(@RequestParam String email, @RequestParam String newPassword, Model model) {
         Account account = accountRepository.findByEmail(email);
         if (account != null) {
-            account.setPassword(passwordEncoder.encode(newPassword));
+            account.setPassword(passwordEncoder.encode(registerDto.getPassword()));
             accountRepository.save(account);
             model.addAttribute("successMessage", "Mật khẩu đã được đặt lại thành công.");
-            return "login";
+            return "account/reset-password";
         }
         model.addAttribute("errorMessage", "Email không tìm thấy.");
+        model.addAttribute("email", email);
         return "account/reset-password";
     }
 
