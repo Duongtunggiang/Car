@@ -4,52 +4,42 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Home</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+          rel="stylesheet"
+          integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH"
+          crossorigin="anonymous">
 </head>
 <body>
 
 <nav class="navbar navbar-expand-lg bg-body-tertiary bg-success border-bottom">
     <div class="container">
-        <a class="navbar-brand" href="#">Navbar</a>
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
-            <span class="navbar-toggler-icon"></span>
-        </button>
         <div class="collapse navbar-collapse" id="navbarSupportedContent">
             <ul class="navbar-nav me-auto mb-2 mb-lg-0">
                 <li class="nav-item">
-                    <a class="nav-link text-dark"  href="/">Home</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link text-dark" href="/contract">Contract</a>
-                </li>
-
-                <li class="nav-item">
-                    <a class="nav-link disabled" aria-disabled="true">Disabled</a>
+                    <a class="nav-link text-dark"  href="/home-driver">Home</a>
                 </li>
             </ul>
-
-            <form class="d-flex m-3" role="search">
-                <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search">
-                <button class="btn btn-outline-success" type="submit">Search</button>
-            </form>
 
             <ul class="navbar-nav me-3"  sec:authorize="isAuthenticated()">
                 <li class="nav-item dropdown">
                     <a class="nav-link dropdown-toggle text-dark" href="#" role="button"
                        data-bs-toggle="dropdown">User</a>
                     <ul class="dropdown-menu">
-                        <li><a class="dropdown-item" href="/profile">Profile</a> </li>
-                        <li><a class="dropdown-item" href="/">Home</a> </li>
+                        <li><a class="dropdown-item" href="/profile">My Profile</a> </li>
+                        <li><a class="dropdown-item" href="/carowner">My Cars</a> </li>
+                        <li><a class="dropdown-item" href="/home-driver">My Wallet</a> </li>
+                        <li><a class="dropdown-item" href="/home-driver">My Repots</a> </li>
+                        <li>
+                            <form sec:authorize="isAuthenticated()" method="post" action="/logout">
+                                <input type="hidden" th:name="${_csrf.parameterName}"
+                                       th:value="${_csrf.token}"/>
+                                <button type="submit" class="dropdown-item"
+                                        onclick="return confirm('Are you sure?')">Logout</button>
+                            </form>
+                        </li>
                     </ul>
                 </li>
             </ul>
-
-            <form sec:authorize="isAuthenticated()" method="post" action="/logout">
-                <input type="hidden" th:name="${_csrf.parameterName}"
-                       th:value="${_csrf.token}"/>
-                <button type="submit" class="btn btn-danger"
-                        onclick="return confirm('Are you sure?')">Logout</button>
-            </form>
 
             <ul class="navbar-nav" sec:authorize="!isAuthenticated()">
                 <li class="nav-item"><a href="/register" class="btn btn-outline-primary me-2">Register</a> </li>
@@ -59,26 +49,104 @@
         </div>
     </div>
 </nav>
+
 <main class="mt-3 mb-3">
     <div class="container">
-        <h1 class="jutify-content-center text-center">Hello, world!</h1>
+    <h1>Have a car for rent? Don't miss out of your benefit</h1>
+        <table>
+            <td class="col-3">
+                <div>
+                    <h3 href="">How the insurance works</h3>
+                    <p>
+                        From the minute you hand the keys </br>
+                        over till the second you get them back </br>
+                        you are covered. Your private insurance </br>
+                        is not affected.
+                    </p>
+                </div>
+                <div>
+                    <h3 href="">Handing over your vehicle</h3>
+                    <p>
+                        You arrange the time and location for</br>
+                        the exchange of your vehicle with the</br>
+                        renter, Both parties will need to agree</br>
+                        and sign the vehicle rental sheet before</br>
+                        and after key handover.
+                    </p>
+                </div>
+            </td>
+            <td class="col-3">
+                <div>
+                    <h3 href="">It's completely free</h3>
+                    <p>
+                        We offer both owners and renters free</br>
+                        sign ups. It's only once a vehicle is</br>
+                        rented out that a share is deducted to</br>
+                        cover admin and insurance
+                    </p>
+                </div>
+                <div>
+                    <h3 href="">You are in charge</h3>
+                    <p>
+                        All renters are pre-screened by us to</br>
+                        ensure safety and get your approval. If</br>
+                        you do not feel comfortable with</br>
+                        someone you are able to decline a</br>
+                        booking
 
-        <a class="btn btn-primary m-5" th:href="@{/carowner}">Car</a>
-        <a class="btn btn-primary m-5" th:href="@{/my-cars}">My Car</a>
+                    </p>
+                </div>
+            </td>
+            <td class="col-3">
+                <div>
+                    <h3 href="">You decide price</h3>
+                    <p>
+                        When you list a car you decide the</br>
+                        price. We can help with</br>
+                        recommendations as to price, but</br>
+                        ultimately you decide!
+                    </p>
+                </div>
+                <div>
+                    <h3 href="">Set payment</h3>
+                    <p>
+                        We pay you once a month and you</br>
+                        can always view how much your</br>
+                        car has eamed under your user</br>
+                        profile
+                    </p>
+                </div>
+            </td>
+        </table>
 
+    <a class="btn btn-primary m-5" th:href="@{/carowner}">Car</a>
+    <a class="btn btn-primary m-5" th:href="@{/my-cars}">My Car</a>
     </div>
 </main>
-<div class="container">
-    <h1 class="text-center">Driver have a new Car</h1>
-    <a class="btn btn-primary" href="/register">Register</a>
-    <a class="btn btn-secondary" href="/register-driver">Register as Driver</a>
-    <a href="/login" class="btn btn-primary">Đăng nhập</a>
-
-
-</div>
 <footer class="mt-2 bg-dark">
-    <p class="text-light">Duoong</p>
+<div class="container">
+  <table>
+    <td class="col-5">
+        <div><a href="/">RENT CARS</a></div>
+        <div><a href="/">Search Cars and Rates</a></div>
+    </td>
+    <td class="col-5">
+        <div><a href="/">CUSTOMER ACCESS</a></div>
+        <div><a href="/">Manage My Booking</a></div>
+        <div><a href="/">My Wallet</a></div>
+        <div><a th:href="@{/carowner}">My Cars</a></div>
+        <div><a href="/login">Login</a></div>
+    </td>
+    <td class="col-5">
+        <div><a href="/">Join US</a></div>
+        <div><a href="/">New User Sign Up</a></div>
+    </td>
+  </table>
+</div>
 </footer>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
+        crossorigin="anonymous">
+</script>
 </body>
 </html>

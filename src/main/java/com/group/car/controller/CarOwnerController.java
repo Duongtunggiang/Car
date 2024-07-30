@@ -190,7 +190,7 @@ public class CarOwnerController {
     public String updateCar(Model model, @RequestParam long id, @Valid @ModelAttribute CarDto carDto, BindingResult result, Principal principal) {
         try {
             Car car = iCarService.findById(id).get();
-            CarOwner carOwner = carOwnerRepository.findByAccountId(Long.valueOf(principal.getName())); // Lấy CarOwner từ phiên đăng nhập hiện tại
+            CarOwner carOwner = carOwnerRepository.findByAccountId(car.getCarOwner().getId()); // Lấy CarOwner từ phiên đăng nhập hiện tại
 
             if (result.hasErrors()) {
                 model.addAttribute("car", car);
