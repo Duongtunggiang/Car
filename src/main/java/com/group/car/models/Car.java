@@ -1,6 +1,8 @@
 package com.group.car.models;
 
 import jakarta.persistence.*;
+
+import java.time.LocalDate;
 import java.util.Date;
 import java.util.List;
 
@@ -17,13 +19,13 @@ public class Car {
     private String model;
     private String color;
     private int numbersOfSeats;
-    private Date productionYears;
+    private LocalDate productionYears;
     private String transmissionType;
     private String fuelType;
     private String mileage;
     private String fuelConsumption;
-    private double basicPrice;
-    private double deposit;
+    private int basicPrice;
+    private int deposit;
     private String address;
 
     @Column(columnDefinition = "TEXT")
@@ -40,11 +42,11 @@ public class Car {
     @OneToMany(mappedBy = "car", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<CarBooking> carBookings;
 
-    public Date getProductionYears() {
+    public LocalDate getProductionYears() {
         return productionYears;
     }
 
-    public void setProductionYears(Date productionYears) {
+    public void setProductionYears(LocalDate productionYears) {
         this.productionYears = productionYears;
     }
 
@@ -89,11 +91,11 @@ public class Car {
         return fuelConsumption;
     }
 
-    public double getBasicPrice() {
+    public int getBasicPrice() {
         return basicPrice;
     }
 
-    public double getDeposit() {
+    public int getDeposit() {
         return deposit;
     }
 
@@ -161,11 +163,11 @@ public class Car {
         this.fuelConsumption = fuelConsumption;
     }
 
-    public void setBasicPrice(double basicPrice) {
+    public void setBasicPrice(int basicPrice) {
         this.basicPrice = basicPrice;
     }
 
-    public void setDeposit(double deposit) {
+    public void setDeposit(int deposit) {
         this.deposit = deposit;
     }
 

@@ -72,8 +72,15 @@
             <div class="row">
                 <div class="col-sm-6">
                     <h4>Your current bablance:</h4>
-                    <h2 class="text-success" th:text="${customer != null ? customer.wallet : (carOwner != null ? carOwner.wallet : '0') + ' VND'}">20.000.000 VND</h2>
+                    <h2 class="text-success" id="wallet-balance" th:text="${customer != null ? customer.wallet : (carOwner != null ? carOwner.wallet : '0') + ' VND'}">20000000 VND</h2>
                 </div>
+                <script>
+                    $(document).ready(function() {
+                        var balanceText = $('#wallet-balance').text();
+                        var formattedBalance = Number(balanceText).toLocaleString('en').replace(/,/g, '.');
+                        $('#wallet-balance').text(formattedBalance + ' VND');
+                    });
+                </script>
                 <div class="col-sm-6">
                     <a type="button" class="btn btn-primary"
                        href="/mywallet/withdraw"   data-bs-toggle="modal" data-bs-target="#myModal">Withdraw</a>
@@ -139,9 +146,9 @@
                         <input type="text" class="form-control" id="withdrawAmount" placeholder="Enter amount">
                         <button class="btn btn-outline-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-expanded="false">Options</button>
                         <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-                            <li><a class="dropdown-item" href="#">2000000</a></li>
-                            <li><a class="dropdown-item" href="#">5000000</a></li>
-                            <li><a class="dropdown-item" href="#">10000000</a></li>
+                            <li><a class="dropdown-item" href="#">2,000,000</a></li>
+                            <li><a class="dropdown-item" href="#">5,000,000</a></li>
+                            <li><a class="dropdown-item" href="#">10,000,000</a></li>
                             <li><a class="dropdown-item" href="#">All balance</a></li>
                         </ul>
                     </div>

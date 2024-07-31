@@ -50,10 +50,11 @@
             <div class="">
                 <img th:src="@{'/img/' + ${car.images}}"  width="300" height="300" alt="${car.name}" />
             </div>
-            <div class="car-info">
+            <div class="car-info" >
                 <h3 th:text="${car.name}">Nissan Navara El 2017</h3>
                <!-- <button class="btn">Rent now</button>-->
-                <a class="btn btn-primary" th:href="@{/customer/rent-a-car}">Rent now</a>
+<!--                <a class="btn btn-primary" th:href="@{/booking/rent-a-car}">Rent now</a>-->
+                <a class="btn btn-primary" th:href="@{/booking/rent-a-car(id=${car.id})}">Rent now</a>
                 <p>Ratings: ☆☆☆☆☆ (No ratings yet)</p>
                 <p>No. of rides: 0</p>
                 <p th:text="'Price: ' + ${car.basicPrice} + '/day'">Price: 900k/day</p>

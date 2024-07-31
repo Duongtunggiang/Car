@@ -1,6 +1,8 @@
 package com.group.car.models;
 
 import jakarta.persistence.*;
+
+import java.time.LocalDate;
 import java.util.Date;
 import java.util.List;
 
@@ -12,7 +14,7 @@ public class Customer {
     private long id;
 
     private String name;
-    private Date dateOfBirth;
+    private LocalDate dateOfBirth;
     private String nationalIdNo;
     private String phoneNo;
 
@@ -22,6 +24,15 @@ public class Customer {
     private String address;
     private String drivingLicense;
     private int wallet;
+
+    //Thêm cái này vào để lưu thông tin khách hàng thuê xe
+    private String renterName;
+    private LocalDate renterDateOfBirth;
+    private String renterPhoneNo;
+    private String renterEmail;
+    private String renterAddress;
+    private String renterDrivingLicense;
+    //------
 
 //    private String coverImage;
 //
@@ -35,6 +46,54 @@ public class Customer {
     private Account account;
 
     // Getters and setters
+    public String getRenterName() {
+        return renterName;
+    }
+
+    public LocalDate getRenterDateOfBirth() {
+        return renterDateOfBirth;
+    }
+
+    public String getRenterPhoneNo() {
+        return renterPhoneNo;
+    }
+
+    public String getRenterEmail() {
+        return renterEmail;
+    }
+
+    public String getRenterAddress() {
+        return renterAddress;
+    }
+
+    public String getRenterDrivingLicense() {
+        return renterDrivingLicense;
+    }
+
+    public void setRenterName(String renterName) {
+        this.renterName = renterName;
+    }
+
+    public void setRenterDateOfBirth(LocalDate renterDateOfBirth) {
+        this.renterDateOfBirth = renterDateOfBirth;
+    }
+
+    public void setRenterPhoneNo(String renterPhoneNo) {
+        this.renterPhoneNo = renterPhoneNo;
+    }
+
+    public void setRenterEmail(String renterEmail) {
+        this.renterEmail = renterEmail;
+    }
+
+    public void setRenterAddress(String renterAddress) {
+        this.renterAddress = renterAddress;
+    }
+
+    public void setRenterDrivingLicense(String renterDrivingLicense) {
+        this.renterDrivingLicense = renterDrivingLicense;
+    }
+
     public Account getAccount() {
         return account;
     }
@@ -59,11 +118,11 @@ public class Customer {
         this.name = name;
     }
 
-    public Date getDateOfBirth() {
+    public LocalDate  getDateOfBirth() {
         return dateOfBirth;
     }
 
-    public void setDateOfBirth(Date dateOfBirth) {
+    public void setDateOfBirth(LocalDate dateOfBirth) {
         this.dateOfBirth = dateOfBirth;
     }
 

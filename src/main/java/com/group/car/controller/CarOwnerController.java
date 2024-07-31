@@ -192,7 +192,9 @@ public class CarOwnerController {
     }
 
     @PostMapping("/edit")
-    public String updateCar(Model model, @RequestParam long id, @Valid @ModelAttribute CarDto carDto, BindingResult result, Principal principal) {
+    public String updateCar(Model model, @RequestParam long id,
+                            @Valid @ModelAttribute CarDto carDto, BindingResult result,
+                            Principal principal) {
         try {
             Car car = iCarService.findById(id).get();
             CarOwner carOwner = carOwnerRepository.findByAccountEmail(principal.getName());

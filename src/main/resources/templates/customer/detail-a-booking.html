@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Booking Details - Rent a Car Today!</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        .image-placeholder {
+            width: 100%;
+            height: 300px;
+            background-color: #eee;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        .status-confirmed {
+            color: green;
+        }
+    </style>
+</head>
+<body>
+<nav class="navbar navbar-expand-lg navbar-light bg-light">
+    <div class="container">
+        <a class="navbar-brand" href="#">Rent a Car Today!</a>
+        <div class="navbar-nav ms-auto">
+            <a class="nav-link" href="#">ABOUT US</a>
+            <a class="nav-link" href="#" sec:authentication="name">Welcome, An ▼</a>
+        </div>
+    </div>
+</nav>
+
+<div class="container mt-4">
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="/">Home</a></li>
+            <li class="breadcrumb-item"><a href="/customer/my-bookings">My Bookings</a></li>
+            <li class="breadcrumb-item active" aria-current="page">Booking Details</li>
+        </ol>
+    </nav>
+
+    <h2>Booking Details</h2>
+
+    <div class="row">
+        <div class="col-md-6">
+            <div class="image-placeholder">
+                Car Image Placeholder
+            </div>
+        </div>
+        <div class="col-md-6">
+            <h3 th:text="${booking.car.brand + ' ' + booking.car.model + ' ' + booking.car.productionYear}">Nissan Navara El 2017</h3>
+            <p>From: <span th:text="${#temporals.format(booking.startDateTime, 'dd/MM/yyyy - HH:mm')}">13/02/2022 - 12:00 PM</span></p>
+            <p>To: <span th:text="${#temporals.format(booking.endDateTime, 'dd/MM/yyyy - HH:mm')}">23/02/2022 - 14:00 PM</span></p>
+            <p>Number of days: <span th:text="${booking.numberOfDays}">10 days</span></p>
+            <p>Base price: $<span th:text="${booking.car.basicPrice}"></span></p>
+            <p>Total: $<span th:text="${booking.totalPrice}"></span></p>
+            <p>Deposit: $<span th:text="${booking.car.deposit}"></span></p>
+            <p>Booking No.: <span th:text="${booking.bookingNo}">012345</span></p>
+            <p>Booking status: <span th:text="${booking.status}" class="status-confirmed">Confirmed</span></p>
+
+            <div class="mt-3">
+                <a th:href="@{/customer/booking/{id}/view-details(id=${booking.id})}" class="btn btn-primary">View Details</a>
+                <form th:action="@{/customer/booking/{id}/confirm-pickup(id=${booking.id})}" method="post" style="display: inline;">
+                    <button type="submit" class="btn btn-secondary" th:if="${booking.status == 'Confirmed'}">Confirm Pickup</button>
+                </form>
+                <form th:action="@{/customer/booking/{id}/cancel(id=${booking.id})}" method="post" style="display: inline;">
+                    <button type="submit" class="btn btn-danger" th:if="${booking.status != 'Cancelled' && booking.status != 'Completed'}">Cancel Booking</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <ul class="nav nav-tabs mt-4" id="myTab" role="tablist">
+        <li class="nav-item" role="presentation">
+            <button class="nav-link active" id="booking-tab" data-bs-toggle="tab" data-bs-target="#booking" type="button" role="tab" aria-controls="booking" aria-selected="true">Booking Information</button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link" id="car-tab" data-bs-toggle="tab" data-bs-target="#car" type="button" role="tab" aria-controls="car" aria-selected="false">Car Information</button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link" id="payment-tab" data-bs-toggle="tab" data-bs-target="#payment" type="button" role="tab" aria-controls="payment" aria-selected="false">Payment Information</button>
+        </li>
+    </ul>
+
+    <div class="tab-content mt-4" id="myTabContent">
+        <div class="tab-pane fade show active" id="booking" role="tabpanel" aria-labelledby="booking-tab">
+            <form th:action="@{/customer/booking/{id}(id=${booking.id})}" method="post" enctype="multipart/form-data">
+                <h4>Renter's Information</h4>
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label for="fullName" class="form-label">Full Name:</label>
+                        <input type="text" class="form-control" id="fullName" name="customer.fullName" th:value="${booking.customer.fullName}" th:disabled="${booking.status == 'Confirmed' || booking.status == 'In-Progress' || booking.status == 'Completed' || booking.status == 'Cancelled'}">
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label for="dateOfBirth" class="form-label">Date of Birth:</label>
+                        <input type="date" class="form-control" id="dateOfBirth" name="customer.dateOfBirth" th:value="${booking.customer.dateOfBirth}" th:disabled="${booking.status == 'Confirmed' || booking.status == 'In-Progress' || booking.status == 'Completed' || booking.status == 'Cancelled'}">
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label for="phoneNumber" class="form-label">Phone Number:</label>
+                        <input type="tel" class="form-control" id="phoneNumber" name="customer.phoneNumber" th:value="${booking.customer.phoneNumber}" th:disabled="${booking.status == 'Confirmed' || booking.status == 'In-Progress' || booking.status == 'Completed' || booking.status == 'Cancelled'}">
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label for="email" class="form-label">Email Address:</label>
+                        <input type="email" class="form-control" id="email" th:value="${booking.customer.account.email}" disabled>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label for="nationalId" class="form-label">National ID No.:</label>
+                        <input type="text" class="form-control" id="nationalId" name="customer.nationalId" th:value="${booking.customer.nationalId}" th:disabled="${booking.status == 'Confirmed' || booking.status == 'In-Progress' || booking.status == 'Completed' || booking.status == 'Cancelled'}">
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label for="drivingLicense" class="form-label">Driving License:</label>
+                        <div class="input-group">
+                            <input type="text" class="form-control" id="drivingLicense" name="customer.drivingLicense" th:value="${booking.customer.drivingLicense}" th:disabled="${booking.status == 'Confirmed' || booking.status == 'In-Progress' || booking.status == 'Completed' || booking.status == 'Cancelled'}">
+                            <input type="file" class="form-control" id="drivingLicenseFile" name="drivingLicenseFile" accept="image/*,.pdf" th:disabled="${booking.status == 'Confirmed' || booking.status == 'In-Progress' || booking.status == 'Completed' || booking.status == 'Cancelled'}">
+                        </div>
+                    </div>
+                </div>
+                <div class="mb-3">
+                    <input type="text" class="form-control mb-2" id="cityProvince" name="customer.address.cityProvince" th:value="${booking.customer.address?.cityProvince}" placeholder="City/Province" th:disabled="${booking.status == 'Confirmed' || booking.status == 'In-Progress' || booking.status == 'Completed' || booking.status == 'Cancelled'}">
+                    <input type="text" class="form-control mb-2" id="district" name="customer.address.district" th:value="${booking.customer.address?.district}" placeholder="District" th:disabled="${booking.status == 'Confirmed' || booking.status == 'In-Progress' || booking.status == 'Completed' || booking.status == 'Cancelled'}">
+                    <input type="text" class="form-control mb-2" id="ward" name="customer.address.ward" th:value="${booking.customer.address?.ward}" placeholder="Ward" th:disabled="${booking.status == 'Confirmed' || booking.status == 'In-Progress' || booking.status == 'Completed' || booking.status == 'Cancelled'}">
+                    <input type="text" class="form-control" id="streetNumber" name="customer.address.streetNumber" th:value="${booking.customer.address?.streetNumber}" placeholder="House number, Street" th:disabled="${booking.status == 'Confirmed' || booking.status == 'In-Progress' || booking.status == 'Completed' || booking.status == 'Cancelled'}">
+                </div>
+            </form>
+        </div>
+        <div class="tab-pane fade" id="car" role="tabpanel" aria-labelledby="car-tab">
+            <div class="mt-4">
+                <h4>Car Information</h4>
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label for="licensePlate" class="form-label">License Plate:</label>
+                        <input type="text" class="form-control" id="licensePlate" th:value="${booking.car.licensePlate}" disabled>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label for="brand" class="form-label">Brand:</label>
+                        <input type="text" class="form-control" id="brand" th:value="${booking.car.brand}" disabled>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label for="model" class="form-label">Model:</label>
+                        <input type="text" class="form-control" id="model" th:value="${booking.car.model}" disabled>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label for="color" class="form-label">Color:</label>
+                        <input type="text" class="form-control" id="color" th:value="${booking.car.color}" disabled>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label for="numberOfSeats" class="form-label">Number of Seats:</label>
+                        <input type="number" class="form-control" id="numberOfSeats" th:value="${booking.car.numberOfSeats}" disabled>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label for="productionYear" class="form-label">Production Year:</label>
+                        <input type="number" class="form-control" id="productionYear" th:value="${booking.car.productionYear}" disabled>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label for="transmissionType" class="form-label">Transmission Type:</label>
+                        <input type="text" class="form-control" id="transmissionType" th:value="${booking.car.transmissionType}" disabled>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label for="fuelType" class="form-label">Fuel Type:</label>
+                        <input type="text" class="form-control" id="fuelType" th:value="${booking.car.fuelType}" disabled>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label for="mileage" class="form-label">Mileage:</label>
+                        <input type="number" class="form-control" id="mileage" th:value="${booking.car.mileage}" disabled>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label for="fuelConsumption" class="form-label">Fuel Consumption:</label>
+                        <input type="text" class="form-control" id="fuelConsumption" th:value="${booking.car.fuelConsumption}" disabled>
+                    </div>
+                </div>
+                <div class="mb-3">
+                    <label for="description" class="form-label">Description:</label>
+                    <textarea class="form-control" id="description" rows="3" th:text="${booking.car.description}" disabled></textarea>
+                </div>
+            </div>
+        </div>
+        <div class="tab-pane fade" id="payment" role="tabpanel" aria-labelledby="payment-tab">
+            <!-- Payment Information Tab Content -->
+            <p>No payment details available.</p>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

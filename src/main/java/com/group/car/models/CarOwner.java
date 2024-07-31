@@ -2,6 +2,7 @@ package com.group.car.models;
 
 import jakarta.persistence.*;
 
+import java.time.LocalDate;
 import java.util.Date;
 import java.util.List;
 
@@ -13,7 +14,7 @@ public class CarOwner {
     private long id;
 
     private String name;
-    private Date dateOfBirth;
+    private LocalDate dateOfBirth;
     private String nationalIdNo;
     private String phoneNo;
 
@@ -24,6 +25,8 @@ public class CarOwner {
     private String drivingLicense;
     private int wallet;
 
+
+
     @OneToMany(mappedBy = "carOwner", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Car> cars;
 
@@ -33,6 +36,8 @@ public class CarOwner {
 
     // Getters and setters
 
+
+
     public long getId() {
         return id;
     }
@@ -41,7 +46,7 @@ public class CarOwner {
         return name;
     }
 
-    public Date getDateOfBirth() {
+    public LocalDate getDateOfBirth() {
         return dateOfBirth;
     }
 
@@ -85,7 +90,7 @@ public class CarOwner {
         this.name = name;
     }
 
-    public void setDateOfBirth(Date dateOfBirth) {
+    public void setDateOfBirth(LocalDate dateOfBirth) {
         this.dateOfBirth = dateOfBirth;
     }
 

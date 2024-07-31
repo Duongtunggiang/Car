@@ -1,6 +1,8 @@
 package com.group.car.models;
 
 import jakarta.persistence.*;
+
+import java.time.LocalDateTime;
 import java.util.Date;
 
 @Entity
@@ -16,7 +18,7 @@ public class Feedback {
     private String content;
 
     @Temporal(TemporalType.TIMESTAMP)
-    private Date dateTime;
+    private LocalDateTime dateTime;
 
     @OneToOne
     @JoinColumn(name = "booking_id", nullable = false)
@@ -47,11 +49,11 @@ public class Feedback {
         this.content = content;
     }
 
-    public Date getDateTime() {
+    public LocalDateTime getDateTime() {
         return dateTime;
     }
 
-    public void setDateTime(Date dateTime) {
+    public void setDateTime(LocalDateTime dateTime) {
         this.dateTime = dateTime;
     }
 

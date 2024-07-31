@@ -1,6 +1,9 @@
 package com.group.car.models;
 
 import jakarta.persistence.*;
+
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.List;
 
@@ -12,11 +15,15 @@ public class Booking {
     private long id;
 
     private String bookingNo;
-    private Date startDateTime;
-    private Date endDateTime;
+    private LocalDateTime startDateTime;
+    private LocalDateTime endDateTime;
     private String driversInformation;
     private String paymentMethod;
     private String status;
+
+    private String pickUpLocation;
+
+
 
     @OneToMany(mappedBy = "booking", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<CarBooking> carBookings;
@@ -28,81 +35,88 @@ public class Booking {
     @OneToOne(mappedBy = "booking", cascade = CascadeType.ALL, orphanRemoval = true)
     private Feedback feedback;
 
-    // Getters and setters
-    public long getId() {
-        return id;
+    public String getPickUpLocation() {
+        return pickUpLocation;
     }
 
-    public void setId(long id) {
-        this.id = id;
+    public void setPickUpLocation(String pickUpLocation) {
+        this.pickUpLocation = pickUpLocation;
+    }
+
+    public long getId() {
+        return id;
     }
 
     public String getBookingNo() {
         return bookingNo;
     }
 
-    public void setBookingNo(String bookingNo) {
-        this.bookingNo = bookingNo;
-    }
-
-    public Date getStartDateTime() {
+    public LocalDateTime getStartDateTime() {
         return startDateTime;
     }
 
-    public void setStartDateTime(Date startDateTime) {
-        this.startDateTime = startDateTime;
-    }
-
-    public Date getEndDateTime() {
+    public LocalDateTime getEndDateTime() {
         return endDateTime;
-    }
-
-    public void setEndDateTime(Date endDateTime) {
-        this.endDateTime = endDateTime;
     }
 
     public String getDriversInformation() {
         return driversInformation;
     }
 
-    public void setDriversInformation(String driversInformation) {
-        this.driversInformation = driversInformation;
-    }
-
     public String getPaymentMethod() {
         return paymentMethod;
-    }
-
-    public void setPaymentMethod(String paymentMethod) {
-        this.paymentMethod = paymentMethod;
     }
 
     public String getStatus() {
         return status;
     }
 
-    public void setStatus(String status) {
-        this.status = status;
-    }
-
     public List<CarBooking> getCarBookings() {
         return carBookings;
-    }
-
-    public void setCarBookings(List<CarBooking> carBookings) {
-        this.carBookings = carBookings;
     }
 
     public Customer getCustomer() {
         return customer;
     }
 
-    public void setCustomer(Customer customer) {
-        this.customer = customer;
-    }
-
     public Feedback getFeedback() {
         return feedback;
+    }
+
+    public void setId(long id) {
+        this.id = id;
+    }
+
+    public void setBookingNo(String bookingNo) {
+        this.bookingNo = bookingNo;
+    }
+
+    public void setStartDateTime(LocalDateTime startDateTime) {
+        this.startDateTime = startDateTime;
+    }
+
+    public void setEndDateTime(LocalDateTime endDateTime) {
+        this.endDateTime = endDateTime;
+    }
+
+    public void setDriversInformation(String driversInformation) {
+        this.driversInformation = driversInformation;
+    }
+
+    public void setPaymentMethod(String paymentMethod) {
+        this.paymentMethod = paymentMethod;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
+    }
+
+    public void setCarBookings(List<CarBooking> carBookings) {
+        this.carBookings = carBookings;
+    }
+
+    public void setCustomer(Customer customer) {
+        this.customer = customer;
     }
 
     public void setFeedback(Feedback feedback) {

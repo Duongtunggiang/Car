@@ -6,7 +6,7 @@ import jakarta.validation.constraints.Size;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.util.Date;
+import java.time.LocalDate;
 
 public class CarDto {
 
@@ -29,7 +29,7 @@ public class CarDto {
     private int numbersOfSeats;
 
     @DateTimeFormat(pattern = "yyyy-MM-dd")
-    private Date productionYears;
+    private LocalDate productionYears;
 
     @NotEmpty(message = "The name is required")
     private String transmissionType;
@@ -44,10 +44,10 @@ public class CarDto {
     private String fuelConsumption;
 
     @Min(0)
-    private double basicPrice;
+    private int basicPrice;
 
     @Min(0)
-    private double deposit;
+    private int deposit;
 
     @NotEmpty(message = "The name is required")
     private String address;
@@ -68,11 +68,11 @@ public class CarDto {
 
     private MultipartFile images;
 
-    public Date getProductionYears() {
+    public LocalDate getProductionYears() {
         return productionYears;
     }
 
-    public void setProductionYears(Date productionYears) {
+    public void setProductionYears(LocalDate productionYears) {
         this.productionYears = productionYears;
     }
 
@@ -121,12 +121,10 @@ public class CarDto {
     String getAddress(){
         return address;
     }
-    @Min(0)
-    public double getBasicPrice(){
+    public int getBasicPrice(){
         return basicPrice;
     }
-    @Min(0)
-    public double getDeposit(){
+    public int getDeposit(){
         return deposit;
     }
     public @Size(min = 10, message = "The description should be at leat 10 characters")
@@ -179,10 +177,10 @@ public class CarDto {
     public void setFuelConsumption(@NotEmpty(message = "The name is required")String fuelConsumption){
         this.fuelConsumption = fuelConsumption;
     }
-    public void setBasicPrice(@Min(0) double basicPrice){
+    public void setBasicPrice(@Min(0) int basicPrice){
         this.basicPrice = basicPrice;
     }
-    public void setDeposit(@Min(0) double deposit){
+    public void setDeposit(@Min(0) int deposit){
         this.deposit = deposit;
     }
     public void setAddress(@NotEmpty(message = "The name is required")String address){

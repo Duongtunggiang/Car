@@ -23,6 +23,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.math.BigDecimal;
 import java.security.Principal;
+import java.time.LocalDate;
 import java.util.Date;
 import java.time.LocalDateTime;
 import java.util.Map;
@@ -310,7 +311,7 @@ public class AccountController {
     @PostMapping("/edit-profile")
     public String updateProfile(@RequestParam String username,
                                 @RequestParam String email,
-                                @RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd") Date dateOfBirth,
+                                @RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate dateOfBirth,
                                 @RequestParam String nationalIdNo,
                                 @RequestParam String phoneNo,
                                 @RequestParam String address,
