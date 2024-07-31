@@ -7,6 +7,7 @@ import com.group.car.models.CarOwner;
 import com.group.car.repository.AccountRepository;
 import com.group.car.repository.CarOwnerRepository;
 import com.group.car.repository.CarRepository;
+import com.group.car.service.CarService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
@@ -25,6 +26,7 @@ import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.security.Principal;
 import java.util.List;
+import java.util.Optional;
 
 
 @Controller
@@ -40,6 +42,9 @@ public class CarOwnerController {
     private CarRepository carRepository;
 
     @Autowired
+    private CarService carService;
+
+    @Autowired
     private AccountRepository accountRepository;
 //    @GetMapping({"", "/"})
 //    public String showAllCar(Model model, Principal principal) {
@@ -48,8 +53,18 @@ public class CarOwnerController {
 //        return "car-owner/car";
 //    }
     @GetMapping({"", "/"})
-    public String showAllCar(Model model){
-        model.addAttribute("cars", iCarService.findAll(Sort.by(Sort.Direction.DESC,"id")));
+    public String showAllCar(Model model, Principal principal) {
+        String email = principal.getName();
+
+        Optional<CarOwner> carOwnerOptional = carOwnerRepository.findByEmail(email);
+
+        if (carOwnerOptional.isPresent()) {
+            CarOwner carOwner = carOwnerOptional.get();
+            List<Car> cars = carService.findAllByCarOwner(carOwner.getId());
+            model.addAttribute("cars", cars);
+        } else {
+            model.addAttribute("error", "No cars found for this user.");
+        }
         return "car-owner/car";
     }
 
@@ -59,16 +74,6 @@ public class CarOwnerController {
         model.addAttribute("carDto", carDto);
         return "car-owner/addCar";
     }
-//    @GetMapping("/my-cars")
-//    public String listCars(Model model, Principal principal) {
-//        CarOwner carOwner = carOwnerRepository.findByAccountEmail(principal.getName());
-//        if (carOwner != null) {
-//            List<Car> cars = carRepository.findByCarOwner(carOwner);
-//            model.addAttribute("cars", cars);
-//        }
-//        return "car-owner/my-cars";
-//    }
-
 
     @PostMapping("/add")
     public String addCar(@Valid @ModelAttribute CarDto carDto, BindingResult result, Principal principal) {
@@ -190,8 +195,7 @@ public class CarOwnerController {
     public String updateCar(Model model, @RequestParam long id, @Valid @ModelAttribute CarDto carDto, BindingResult result, Principal principal) {
         try {
             Car car = iCarService.findById(id).get();
-            CarOwner carOwner = carOwnerRepository.findByAccountId(Long.valueOf(principal.getName())); // Lấy CarOwner từ phiên đăng nhập hiện tại
-
+            CarOwner carOwner = carOwnerRepository.findByAccountEmail(principal.getName());
             if (result.hasErrors()) {
                 model.addAttribute("car", car);
                 return "car-owner/edit";
@@ -217,7 +221,6 @@ public class CarOwnerController {
                 car.setImages(storageFileName);
             }
 
-            // Cập nhật các trường của car từ carDto
             car.setName(carDto.getName());
             car.setLicensePlate(carDto.getLicensePlate());
             car.setBrand(carDto.getBrand());
@@ -236,7 +239,7 @@ public class CarOwnerController {
             car.setAdditionalFunctions(carDto.getAdditionalFunction());
             car.setTermsOfUse(carDto.getTermsOfUse());
 
-            car.setCarOwner(carOwner); // Gán CarOwner vào Car
+            car.setCarOwner(carOwner);
 
             iCarService.save(car);
 

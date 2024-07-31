@@ -14,6 +14,7 @@
             <h1 class="text-center ">Edit Car</h1>
 
             <form th:object="${carDto}" th:action="@{/carowner/edit}" method="post" enctype="multipart/form-data">
+                <input type="hidden" name="carOwnerId" th:value="${car.carOwner.id}">
 
                 <div class="mb-3 row ">
                     <label class="form-label col-sm-4">ID</label>
