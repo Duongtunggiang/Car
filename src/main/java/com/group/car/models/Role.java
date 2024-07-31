@@ -40,4 +40,5 @@ public class Role {
     public void setAccounts(Set<Account> accounts) {
         this.accounts = accounts;
     }
+
 }
