@@ -76,7 +76,7 @@
                     <button type="submit" class="btn btn-danger">Cancel Booking</button>
                 </form>
 
-                <form th:action="@{/customer/my-bookings/{id}/continue-payment(id=${booking.id})}" method="post" style="display: inline;" th:if="${booking.status == 'Pending Payment'} " onsubmit="return continuePayment()">
+                <form th:action="@{/customer/my-bookings/{id}/continue-payment(id=${booking.id})}" method="post" style="display: inline;" th:if="${booking.status == 'Pending Payment'}" onsubmit="return continuePayment()">
                     <button type="submit" class="btn btn-warning">Continue Payment</button>
                 </form>
             </div>
@@ -95,9 +95,6 @@
                     return confirm('Are you sure you want to cancel this booking?');
                 }
 
-                 function continuePayment() {
-                    return confirm('Continue payment?');
-                }
             </script>
 
         </div>
@@ -231,22 +228,132 @@
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="returnCarModalLabel">Confirm Car Return</h5>
+                    <h5 class="modal-title" id="returnCarModalLabel">Return car</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
-                    <p>Are you sure you want to return the car?</p>
+                    <p id="returnCarMessage"></p>
                 </div>
                 <div class="modal-footer">
-                    <form th:action="@{/customer/my-bookings/{id}/confirm-return(id=${booking.id})}" method="post">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                        <button type="submit" class="btn btn-primary">Confirm</button>
+                    <form th:action="@{/customer/my-bookings/{id}/confirm-return(id=${booking.id})}" method="post" id="returnCarForm">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">No</button>
+                        <button type="submit" class="btn btn-primary">Yes</button>
                     </form>
                 </div>
             </div>
         </div>
     </div>
 
+    <!-- Payment Confirmation Modal -->
+    <div class="modal fade" id="paymentConfirmModal" tabindex="-1" aria-labelledby="paymentConfirmModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="paymentConfirmModalLabel">Confirm Payment</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p id="paymentConfirmMessage"></p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-primary" id="confirmPaymentBtn">Confirm Payment</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <script th:inline="javascript">
+        function showReturnCarModal() {
+            var totalAmount = /*[[${booking.carBookings[0].car.basicPrice * T(java.time.temporal.ChronoUnit).DAYS.between(booking.startDateTime.toInstant(), booking.endDateTime.toInstant())}]]*/ 0;
+            var deposit = /*[[${booking.carBookings[0].car.deposit}]]*/ 0;
+            var difference = totalAmount - deposit;
+            var message = '';
+
+            if (difference > 0) {
+                message = `Please confirm to return the car. The remaining amount of ${difference.toFixed(2)} VND will be deducted from your wallet.`;
+            } else if (difference < 0) {
+                message = `Please confirm to return the car. The exceeding amount of ${Math.abs(difference).toFixed(2)} VND will be returned to your wallet.`;
+            } else {
+                message = 'Please confirm to return the car.';
+            }
+
+            document.getElementById('returnCarMessage').textContent = message;
+
+            var returnCarModal = new bootstrap.Modal(document.getElementById('returnCarModal'));
+            returnCarModal.show();
+        }
+
+        document.getElementById('returnCarForm').addEventListener('submit', function(event) {
+            event.preventDefault();
+
+            fetch(this.action, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': /*[[${_csrf.token}]]*/ ''
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert(data.message);
+                    window.location.reload();
+                } else {
+                    alert(data.message);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('An error occurred. Please try again.');
+            });
+        });
+    </script>
+
+
+    <script th:inline="javascript">
+        function continuePayment() {
+            var totalAmount = /*[[${booking.carBookings[0].car.basicPrice * T(java.time.temporal.ChronoUnit).DAYS.between(booking.startDateTime.toInstant(), booking.endDateTime.toInstant())}]]*/ 0;
+            var deposit = /*[[${booking.carBookings[0].car.deposit}]]*/ 0;
+            var difference = totalAmount - deposit;
+            var message = `Please confirm the payment of ${difference.toFixed(2)} VND to complete your booking.`;
+
+            document.getElementById('paymentConfirmMessage').textContent = message;
+
+            var paymentConfirmModal = new bootstrap.Modal(document.getElementById('paymentConfirmModal'));
+            paymentConfirmModal.show();
+
+            document.getElementById('confirmPaymentBtn').onclick = function() {
+                submitPayment(/*[[${booking.id}]]*/ 0);
+            };
+
+            return false; // Prevent form submission
+        }
+
+        function submitPayment(bookingId) {
+            fetch(`/customer/my-bookings/${bookingId}/continue-payment`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': /*[[${_csrf.token}]]*/ ''
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert(data.message);
+                    window.location.reload();
+                } else {
+                    alert(data.message);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('An error occurred. Please try again.');
+            });
+        }
+    </script>
 </div>
 
 
