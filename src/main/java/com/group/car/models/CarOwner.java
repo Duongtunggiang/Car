@@ -14,7 +14,7 @@ public class CarOwner {
     private long id;
 
     private String name;
-    private LocalDate dateOfBirth;
+    private Date dateOfBirth;
     private String nationalIdNo;
     private String phoneNo;
 
@@ -46,9 +46,6 @@ public class CarOwner {
         return name;
     }
 
-    public LocalDate getDateOfBirth() {
-        return dateOfBirth;
-    }
 
     public String getNationalIdNo() {
         return nationalIdNo;
@@ -90,7 +87,11 @@ public class CarOwner {
         this.name = name;
     }
 
-    public void setDateOfBirth(LocalDate dateOfBirth) {
+    public Date getDateOfBirth() {
+        return dateOfBirth;
+    }
+
+    public void setDateOfBirth(Date dateOfBirth) {
         this.dateOfBirth = dateOfBirth;
     }
 

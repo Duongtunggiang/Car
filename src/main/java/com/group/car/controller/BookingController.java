@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
 import java.time.LocalDateTime;
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
@@ -82,12 +83,12 @@ public class BookingController {
     }
 
     @PostMapping("/booking-detail")
-    public String submitBooking(@RequestParam("startDateTime") LocalDateTime startDateTime,
-                                @RequestParam("endDateTime") LocalDateTime endDateTime,
+    public String submitBooking(@RequestParam("startDateTime") Date startDateTime,
+                                @RequestParam("endDateTime") Date endDateTime,
                                 @RequestParam("pickUpLocation") String pickUpLocation,
                                 Model model) {
         try {
-            if (endDateTime.isBefore(startDateTime)) {
+            if (endDateTime.before(startDateTime)) {
                 model.addAttribute("error", "End date must be after start date.");
                 return "customer/car-rental-form";
             }

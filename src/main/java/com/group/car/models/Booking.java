@@ -15,8 +15,8 @@ public class Booking {
     private long id;
 
     private String bookingNo;
-    private LocalDateTime startDateTime;
-    private LocalDateTime endDateTime;
+    private Date startDateTime;
+    private Date endDateTime;
     private String driversInformation;
     private String paymentMethod;
     private String status;
@@ -106,14 +106,6 @@ public class Booking {
         return bookingNo;
     }
 
-    public LocalDateTime getStartDateTime() {
-        return startDateTime;
-    }
-
-    public LocalDateTime getEndDateTime() {
-        return endDateTime;
-    }
-
     public String getDriversInformation() {
         return driversInformation;
     }
@@ -146,11 +138,19 @@ public class Booking {
         this.bookingNo = bookingNo;
     }
 
-    public void setStartDateTime(LocalDateTime startDateTime) {
+    public Date getStartDateTime() {
+        return startDateTime;
+    }
+
+    public void setStartDateTime(Date startDateTime) {
         this.startDateTime = startDateTime;
     }
 
-    public void setEndDateTime(LocalDateTime endDateTime) {
+    public Date getEndDateTime() {
+        return endDateTime;
+    }
+
+    public void setEndDateTime(Date endDateTime) {
         this.endDateTime = endDateTime;
     }
 

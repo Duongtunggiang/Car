@@ -7,6 +7,7 @@ import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDate;
+import java.util.Date;
 
 public class CarDto {
 
@@ -29,7 +30,7 @@ public class CarDto {
     private int numbersOfSeats;
 
     @DateTimeFormat(pattern = "yyyy-MM-dd")
-    private LocalDate productionYears;
+    private Date productionYears;
 
     @NotEmpty(message = "The name is required")
     private String transmissionType;
@@ -68,11 +69,8 @@ public class CarDto {
 
     private MultipartFile images;
 
-    public LocalDate getProductionYears() {
-        return productionYears;
-    }
 
-    public void setProductionYears(LocalDate productionYears) {
+    public void setProductionYears(Date productionYears) {
         this.productionYears = productionYears;
     }
 
@@ -207,4 +205,7 @@ public class CarDto {
     }
 
 
+    public Date getProductionYears() {
+        return productionYears;
+    }
 }

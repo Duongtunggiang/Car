@@ -21,7 +21,7 @@ import org.springframework.validation.*;
 import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
-import java.time.LocalDate;
+import java.util.Date;
 import java.util.Set;
 
 @Controller
@@ -305,7 +305,7 @@ public class AccountController {
     @PostMapping("/edit-profile")
     public String updateProfile(@RequestParam String username,
                                 @RequestParam String email,
-                                @RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate dateOfBirth,
+                                @RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd") Date dateOfBirth,
                                 @RequestParam String nationalIdNo,
                                 @RequestParam String phoneNo,
                                 @RequestParam String address,
