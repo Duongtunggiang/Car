@@ -2,6 +2,7 @@ package com.group.car.controller;
 
 import com.group.car.models.*;
 
+import com.group.car.models.Dto.RegisterDto;
 import com.group.car.repository.AccountRepository;
 import com.group.car.repository.CarOwnerRepository;
 import com.group.car.repository.CustomerRepository;
@@ -10,8 +11,6 @@ import com.group.car.repository.RoleRepository;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -21,14 +20,9 @@ import org.springframework.ui.Model;
 import org.springframework.validation.*;
 import org.springframework.web.bind.annotation.*;
 
-import java.math.BigDecimal;
 import java.security.Principal;
 import java.time.LocalDate;
-import java.util.Date;
-import java.time.LocalDateTime;
-import java.util.Map;
 import java.util.Set;
-import java.util.UUID;
 
 @Controller
 public class AccountController {

@@ -1,8 +1,7 @@
 package com.group.car.controller;
 
-import com.group.car.models.Account;
 import com.group.car.models.Car;
-import com.group.car.models.CarDto;
+import com.group.car.models.Dto.CarDto;
 import com.group.car.models.CarOwner;
 import com.group.car.repository.AccountRepository;
 import com.group.car.repository.CarOwnerRepository;
@@ -10,7 +9,6 @@ import com.group.car.repository.CarRepository;
 import com.group.car.service.CarService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -122,13 +120,12 @@ public class CarOwnerController {
         car.setTermsOfUse(carDto.getTermsOfUse());
         car.setImages(storageFile);
 
-        // Lấy CarOwner từ phiên đăng nhập hiện tại
         CarOwner carOwner = carOwnerRepository.findByAccountEmail(principal.getName());
         if (carOwner == null) {
             result.rejectValue("carOwner", "error.carOwner", "Car owner not found");
             return "car-owner/addCar";
         }
-        car.setCarOwner(carOwner); // Gán CarOwner vào Car
+        car.setCarOwner(carOwner);
 
         iCarService.save(car);
 

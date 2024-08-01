@@ -1,4 +1,4 @@
-package com.group.car.models;
+package com.group.car.models.Dto;
 
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotEmpty;

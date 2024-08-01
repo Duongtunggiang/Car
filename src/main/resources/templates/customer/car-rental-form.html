@@ -36,45 +36,41 @@
 <div class="modal" id="topup">
     <div class="modal-dialog">
         <div class="modal-content">
-
-            <!-- Modal Header -->
-            <div class="modal-header">
-                <h4 class="modal-title">Change details</h4>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-            </div>
-
-            <!-- Modal body -->
-            <div class="modal-body">
-                <div class="input-group mb-3">
-                    <input type="text" class="form-control" id="topupAmount" placeholder="Enter amount">
-                    <button class="btn btn-outline-secondary dropdown-toggle" type="button" id="topupDropdownButton" data-bs-toggle="dropdown" aria-expanded="false">Options</button>
-                    <ul class="dropdown-menu" aria-labelledby="topupDropdownButton">
-                        <li><a class="dropdown-item" href="#">Thanh Xuân, Hà Nội</a></li>
-                        <li><a class="dropdown-item" href="#">Cầu Giấy, Hà Nội</a></li>
-                        <li><a class="dropdown-item" href="#">Nam Từ Liêm, Hà Nội</a></li>
-                        <li><a class="dropdown-item" href="#">Đống Đa, Hà Nội</a></li>
-                        <li><a class="dropdown-item" href="#">Hà Đông, Hà Nội</a></li>
-                        <li><a class="dropdown-item" href="#">Ba Đình, Hà Nội</a></li>
-                    </ul>
+            <form class="form-control" th:action="@{/booking/booking-detail}" method="post">
+                <div class="modal-header">
+                    <h4 class="modal-title">Change details</h4>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
-                <div class="row">
-                    <div class="col-sm-6">
-                        <label class="form-label" for="from">Pick up date and time:</label>
-                        <input class="form-control" id="from" type="datetime-local">
+                <div class="modal-body">
+                    <input type="hidden" name="_csrf" value="${_csrf.token}">
+                    <div class="input-group mb-3">
+                        <input type="text" class="form-control" id="topupAmount" name="pickUpLocation" placeholder="Enter location">
+                        <button class="btn btn-outline-secondary dropdown-toggle" type="button" id="topupDropdownButton" data-bs-toggle="dropdown" aria-expanded="false">Options</button>
+                        <ul class="dropdown-menu" aria-labelledby="topupDropdownButton">
+                            <li><a class="dropdown-item" href="#">Thanh Xuân, Hà Nội</a></li>
+                            <li><a class="dropdown-item" href="#">Cầu Giấy, Hà Nội</a></li>
+                            <li><a class="dropdown-item" href="#">Nam Từ Liêm, Hà Nội</a></li>
+                            <li><a class="dropdown-item" href="#">Đống Đa, Hà Nội</a></li>
+                            <li><a class="dropdown-item" href="#">Hà Đông, Hà Nội</a></li>
+                            <li><a class="dropdown-item" href="#">Ba Đình, Hà Nội</a></li>
+                        </ul>
                     </div>
-                    <div class="col-sm-6">
-                        <label class="form-label" for="to">Return date and time:</label>
-                        <input class="form-control" id="to" type="datetime-local">
+                    <div class="row">
+                        <div class="col-sm-6">
+                            <label class="form-label" for="from">Pick up date and time:</label>
+                            <input class="form-control" id="from" name="startDateTime" type="datetime-local">
+                        </div>
+                        <div class="col-sm-6">
+                            <label class="form-label" for="to">Return date and time:</label>
+                            <input class="form-control" id="to" name="endDateTime" type="datetime-local">
+                        </div>
                     </div>
                 </div>
-            </div>
-
-            <!-- Modal footer -->
-            <div class="modal-footer">
-                <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Close</button>
-                <button type="button" class="btn btn-primary" id="confirmTopup">OK</button>
-            </div>
-
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-primary">OK</button>
+                </div>
+            </form>
         </div>
     </div>
 </div>
@@ -91,11 +87,11 @@
 <div class="container">
     <div class="booking-details">
         <h3>Booking Details <span style="float: right;"><a class="text-dark me-3" data-bs-toggle="modal" data-bs-target="#topup">Change details</a></span></h3>
-
-        <p>Pick-up location: Thang Kiet, Cau Giay, Hanoi</p>
-        <p th:text="'Pick-up location: ' + ${booking.pickUpLocation}">Locations: Cau Giay, Hanoi</p>
-        <p th:text="'Pick up date and time: ' + ${booking.startDateTime}">Pick up date and time: 13/03/2022 - 12:00 PM</p>
-        <p th:text="'Return date and time: ' + ${booking.endDateTime}">Return date and time: 22/03/2022 - 14:00 PM</p>
+        <p th:text="${booking != null ? 'Booking exists' : 'Booking is null'}"></p>
+        <p th:text="${booking.pickUpLocation}"></p>
+        <p th:text="'Pick-up location: ' + (${booking.pickUpLocation} != null ? booking.pickUpLocation : 'N/A')">Pick-up location</p>
+        <p th:text="'Pick up date and time: ' + (${booking.startDateTime} != null ? booking.startDateTime : 'N/A')">Pick up date and time</p>
+        <p th:text="'Return date and time: ' + (${booking.endDateTime} != null ? booking.endDateTime : 'N/A')">Return date and time</p>
     </div>
 
     <div class="steps">
@@ -105,16 +101,15 @@
     </div>
 
     <div style="display: flex;">
-        <div class="car-info" style="flex: 1; margin-right: 20px;" >
-
-            <div style=" margin-bottom: 10px;">
-                <img th:src="@{'/img/' + ${car.images}}"  width="300" height="300" alt="${car.name}" />
+        <div class="car-info" style="flex: 1; margin-right: 20px;">
+            <div style="margin-bottom: 10px;">
+                <img th:src="@{'/img/' + ${car.images}}" width="300" height="300" alt="${car.name}" />
             </div>
-            <h3 th:text="${car.name}">Nissan Navara El 2017</h3>
+            <h3 th:text="${car.name}">Car name</h3>
             <p>Rating: ☆☆☆☆☆</p>
             <p>No. of rides: 0</p>
-            <p th:text="'Price: ' + ${car.basicPrice} + '/day'">Price: 900k/day</p>
-            <p th:text="'Locations: ' + ${car.address}">Locations: Cau Giay, Hanoi</p>
+            <p th:text="'Price: ' + ${car.basicPrice} + '/day'">Price</p>
+            <p th:text="'Locations: ' + ${car.address}">Locations</p>
             <p>Status: <span style="color: green;">Available</span></p>
         </div>
         <div class="booking-summary" style="flex: 1;">
@@ -126,94 +121,26 @@
         </div>
     </div>
 
-    <form>
+    <form action="/booking/submit-booking" method="post">
         <h3>Renter's Information</h3>
         <div style="display: flex; flex-wrap: wrap;">
             <div class="form-group" style="flex: 1; margin-right: 10px;">
                 <label>Full name:</label>
-                <input type="text" class="form-control">
+                <input type="text" class="form-control" name="renterName">
             </div>
             <div class="form-group" style="flex: 1;">
-                <label>Date of birth:</label>
-                <input type="date" class="form-control">
+                <label>Email:</label>
+                <input type="email" class="form-control" name="renterEmail">
             </div>
-        </div>
-        <div style="display: flex; flex-wrap: wrap;">
-            <div class="form-group" style="flex: 1; margin-right: 10px;">
+            <div class="form-group" style="flex: 1; margin-top: 10px;">
                 <label>Phone number:</label>
-                <input type="tel" class="form-control">
-            </div>
-            <div class="form-group" style="flex: 1;">
-                <label>Email address:</label>
-                <input type="email" class="form-control">
+                <input type="tel" class="form-control" name="renterPhone">
             </div>
         </div>
-        <div style="display: flex; flex-wrap: wrap;">
-            <div class="form-group" style="flex: 1; margin-right: 10px;">
-                <label>National ID No.:</label>
-                <input type="text" class="form-control">
-            </div>
-            <div class="form-group" style="flex: 1;">
-                <label>Driving license:</label>
-                <input type="text" class="form-control">
-                <button style="background-color: #e9ecef; border: none; padding: 5px 10px; margin-top: 5px;">Upload</button>
-            </div>
-        </div>
-        <div class="form-group">
-            <label>Address:</label>
-            <select class="form-control">
-                <option>City/Province</option>
-            </select>
-        </div>
-        <div class="form-group">
-            <select class="form-control">
-                <option>District</option>
-            </select>
-        </div>
-        <div class="form-group">
-            <select class="form-control">
-                <option>Ward</option>
-            </select>
-        </div>
-        <div class="form-group">
-            <input type="text" class="form-control" placeholder="House number, Street">
-        </div>
-
-        <h3>Driver's Information</h3>
-        <div class="form-group">
-            <label class="checkbox-inline">
-                <input type="checkbox"> Same as Renter's information
-            </label>
-        </div>
-        <!-- Driver's information fields (similar to Renter's) -->
-
-        <div style="text-align: right; margin-top: 20px;">
-            <button type="button" class="btn" style="background-color: #6c757d; margin-right: 10px;">Cancel</button>
-            <button type="submit" class="btn">Next</button>
+        <div class="form-group" style="margin-top: 10px;">
+            <button type="submit" class="btn">Confirm Booking</button>
         </div>
     </form>
 </div>
-
-<footer style="background-color: #f8f9fa; padding: 20px 0; margin-top: 20px;">
-    <div class="container">
-        <div style="display: flex; justify-content: space-between;">
-            <div>
-                <h4>RENT CARS</h4>
-                <p>Search Cars and Rates</p>
-            </div>
-            <div>
-                <h4>CUSTOMER ACCESS</h4>
-                <p>Manage My Booking</p>
-                <p>My Profile</p>
-                <p>My Car</p>
-                <p>Login</p>
-            </div>
-            <div>
-                <h4>JOIN US</h4>
-                <p>New User Sign Up</p>
-            </div>
-        </div>
-    </div>
-</footer>
 </body>
 </html>
