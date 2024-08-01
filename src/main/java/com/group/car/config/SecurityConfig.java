@@ -24,7 +24,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/", "/register", "/forgot-password", "/reset-password", "/verify-password", "/register-driver", "/login", "/logout").permitAll()
                         .requestMatchers("/home").hasRole("Customer")
-                        .requestMatchers("/contract", "/customer/**","/booking/**").hasRole("Customer")
+                        .requestMatchers( "/customer/**","/booking/**").hasRole("Customer")
                         .requestMatchers("/home-driver", "/carowner/**").hasRole("CarOwner")
                         .anyRequest().authenticated())
                 .formLogin(form -> form

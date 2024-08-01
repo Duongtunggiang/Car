@@ -12,6 +12,7 @@ import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -22,6 +23,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
 import java.time.LocalDate;
+import java.util.Date;
 import java.util.Set;
 
 @Controller
@@ -74,13 +76,11 @@ public class AccountController {
             newAccount.setPassword(bCryptEncoder.encode(registerDto.getPassword()));
             newAccount.setEnabled(true);
 
-            // Xét role mặc định là Customer
             Role customerRole = roleRepository.findByName("Customer");
             newAccount.setRoles(Set.of(customerRole));
 
             accountRepository.save(newAccount);
 
-            // Tạo Customer và gán Account
             Customer customer = new Customer();
             customer.setName(registerDto.getUsername());
             customer.setEmail(registerDto.getEmail());
@@ -130,13 +130,11 @@ public class AccountController {
             newAccount.setPassword(bCryptEncoder.encode(registerDto.getPassword()));
             newAccount.setEnabled(true);
 
-            // Xét role là CarOwner
             Role carOwnerRole = roleRepository.findByName("CarOwner");
             newAccount.setRoles(Set.of(carOwnerRole));
 
             accountRepository.save(newAccount);
 
-            // Tạo CarOwner và gán Account
             CarOwner carOwner = new CarOwner();
             carOwner.setName(registerDto.getUsername());
             carOwner.setEmail(registerDto.getEmail());
@@ -235,27 +233,73 @@ public class AccountController {
                                 @RequestParam String email,
                                 BindingResult result,
                                 Model model) {
-        // Check for matching passwords
+        try {
+            if (!registerDto.getPassword().equals(registerDto.getConfirmPassword())) {
+                result.rejectValue("confirmPassword", "error.registerDto", "Password and Confirm password do not match");
+            }
+
+            if (result.hasErrors()) {
+                model.addAttribute("email", email);
+                return "account/reset-password";
+            }
+            var bCryptEncoder = new BCryptPasswordEncoder();
+            Account account = accountRepository.findByEmail(email);
+            if (account != null) {
+                account.setPassword(bCryptEncoder.encode(registerDto.getPassword()));
+//                account.setPassword(passwordEncoder.encode(registerDto.getPassword()));
+                accountRepository.save(account);
+                model.addAttribute("successMessage", "Mật khẩu đã được đặt lại thành công.");
+                return "account/reset-password";
+            }
+            model.addAttribute("errorMessage", "Email không tìm thấy.");
+            model.addAttribute("email", email);
+        }catch (Exception e){
+            result.addError(new FieldError("registerDto", "password", e.getMessage()));
+        }
+        return "account/reset-password";
+    }
+
+    @GetMapping("/change")
+    public String change(Model model) {
+        model.addAttribute("registerDto", new RegisterDto());
+        setUpUserRole(model);
+        model.addAttribute("currentPage", "change-password");
+        return "account/change-password";
+    }
+
+    @PostMapping("/change-password")
+    public String changePassword(
+            @ModelAttribute("registerDto") RegisterDto registerDto,
+            BindingResult result,
+            Model model) {
+    try {
+        String email = SecurityContextHolder.getContext().getAuthentication().getName();
+
         if (!registerDto.getPassword().equals(registerDto.getConfirmPassword())) {
             result.rejectValue("confirmPassword", "error.registerDto", "Password and Confirm password do not match");
+            model.addAttribute("registerDto", registerDto);
+            return "account/change-password";
         }
-
-        // Check for validation errors
         if (result.hasErrors()) {
-            model.addAttribute("email", email);
-            return "account/reset-password";
+            model.addAttribute("registerDto", registerDto);
+            return "account/change-password";
         }
-
         Account account = accountRepository.findByEmail(email);
+        var bCryptEncoder = new BCryptPasswordEncoder();
         if (account != null) {
-            account.setPassword(passwordEncoder.encode(registerDto.getPassword()));
+            account.setPassword(bCryptEncoder.encode(registerDto.getPassword()));
+//            account.setPassword(passwordEncoder.encode(registerDto.getPassword()));
             accountRepository.save(account);
             model.addAttribute("successMessage", "Mật khẩu đã được đặt lại thành công.");
-            return "account/reset-password";
+            model.addAttribute("registerDto", new RegisterDto());
+            return "account/change-password";
         }
-        model.addAttribute("errorMessage", "Email không tìm thấy.");
-        model.addAttribute("email", email);
-        return "account/reset-password";
+
+        model.addAttribute("registerDto", registerDto);
+    }catch (Exception e){
+        result.addError(new FieldError("registerDto", "password", e.getMessage()));
+    }
+        return "account/change-password";
     }
 
     @GetMapping("/profile")
@@ -283,7 +327,8 @@ public class AccountController {
 //        System.out.println("Email Account: " + emailAccount);
 //        System.out.println("Customer: " + model.getAttribute("customer"));
 //        System.out.println("CarOwner: " + model.getAttribute("carOwner"));
-
+        setUpUserRole(model);
+        model.addAttribute("currentPage", "profile");
         return "account/profile";
     }
 
@@ -299,18 +344,20 @@ public class AccountController {
             model.addAttribute("customer", null);
             model.addAttribute("carOwner", account.getCarOwner());
         }
+        setUpUserRole(model);
+        model.addAttribute("currentPage", "edit-profile");
         return "account/edit-profile";
     }
 
     @PostMapping("/edit-profile")
     public String updateProfile(@RequestParam String username,
                                 @RequestParam String email,
-                                @RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate dateOfBirth,
+                                @RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd") Date dateOfBirth,
                                 @RequestParam String nationalIdNo,
                                 @RequestParam String phoneNo,
                                 @RequestParam String address,
                                 @RequestParam String drivingLicense,
-                                @RequestParam int wallet,
+//                                @RequestParam int wallet,
                                 Principal principal) {
         try {
             Account existingAccount = accountRepository.findByEmail(principal.getName());
@@ -325,7 +372,7 @@ public class AccountController {
                 existingCustomer.setPhoneNo(phoneNo);
                 existingCustomer.setAddress(address);
                 existingCustomer.setDrivingLicense(drivingLicense);
-                existingCustomer.setWallet(wallet);
+//                existingCustomer.setWallet(wallet);
                 customerRepository.save(existingCustomer);
             } else if (existingAccount.getRoles().stream().anyMatch(role -> role.getName().equals("CarOwner"))) {
                 CarOwner existingCarOwner = carOwnerRepository.findByAccountId(existingAccount.getId());
@@ -335,7 +382,7 @@ public class AccountController {
                 existingCarOwner.setPhoneNo(phoneNo);
                 existingCarOwner.setAddress(address);
                 existingCarOwner.setDrivingLicense(drivingLicense);
-                existingCarOwner.setWallet(wallet);
+//                existingCarOwner.setWallet(wallet);
                 carOwnerRepository.save(existingCarOwner);
             }
 
@@ -353,40 +400,29 @@ public class AccountController {
         model.addAttribute("errorMessage", ex.getMessage());
         return "error";
     }
+    private void setUpUserRole(Model model) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication != null && authentication.isAuthenticated() && authentication.getPrincipal() instanceof UserDetails) {
+            UserDetails userDetails = (UserDetails) authentication.getPrincipal();
+            String username = userDetails.getUsername();
 
-
-    @GetMapping("/change")
-    public String change(){
-        return "account/change-password";
-    }
-    @PostMapping("/change")
-    public String changePassword(@RequestParam String currentPassword,
-                                 @RequestParam String newPassword,
-                                 @RequestParam String confirmPassword,
-                                 Authentication authentication,
-                                 Model model) {
-        UserDetails userDetails = (UserDetails) authentication.getPrincipal();
-        Account account = accountRepository.findByEmail(userDetails.getUsername());
-
-        // Check current password
-        if (!passwordEncoder.matches(currentPassword, account.getPassword())) {
-            model.addAttribute("currentPasswordError", "Current password is incorrect.");
-            return "account/change-password";
+            // Tìm tài khoản và vai trò của người dùng dựa trên username hoặc email
+            Account account = accountRepository.findByEmail(username);
+            if (account != null) {
+                Set<Role> roles = account.getRoles();
+                model.addAttribute("userRoles", roles);
+                if (roles.stream().anyMatch(role -> role.getName().equals("CarOwner"))) {
+                    model.addAttribute("userRole", "CarOwner");
+                } else if (roles.stream().anyMatch(role -> role.getName().equals("Customer"))) {
+                    model.addAttribute("userRole", "Customer");
+                }
+            } else {
+                model.addAttribute("userRole", "Guest");
+            }
+        } else {
+            model.addAttribute("userRole", "Guest");
         }
-
-        // Check if new password matches confirm password
-        if (!newPassword.equals(confirmPassword)) {
-            model.addAttribute("confirmPasswordError", "New passwords do not match.");
-            return "account/change-password";
-        }
-
-        // Update password
-        account.setPassword(passwordEncoder.encode(newPassword));
-        accountRepository.save(account);
-
-        return "redirect:/profile";
     }
-
 
 
 }

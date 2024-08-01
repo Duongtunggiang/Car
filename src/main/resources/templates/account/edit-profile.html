@@ -88,10 +88,10 @@
                     <label for="drivingLicense" class="form-label">Driving License</label>
                     <input type="text" class="form-control" id="drivingLicense" name="drivingLicense" th:value="${customer != null ? customer.drivingLicense : carOwner.drivingLicense}">
                 </div>
-                <div class="mb-3">
-                    <label for="wallet" class="form-label">Wallet</label>
-                    <input type="number" class="form-control" id="wallet" name="wallet" th:value="${customer != null ? customer.wallet : carOwner.wallet}" >
-                </div>
+<!--                <div class="mb-3">-->
+<!--                    <label for="wallet" class="form-label">Wallet</label>-->
+<!--                    <input type="number" class="form-control" id="wallet" name="wallet" th:value="${customer != null ? customer.wallet : carOwner.wallet}" >-->
+<!--                </div>-->
                 <button type="submit" class="btn btn-primary">Update</button>
                 <a class="btn btn-outline-danger" href="/profile">Cancel</a>
             </form>

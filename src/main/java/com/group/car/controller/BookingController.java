@@ -8,14 +8,19 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
 import java.time.LocalDateTime;
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 @Controller
 @RequestMapping("/booking")
@@ -47,6 +52,8 @@ public class BookingController {
 
         model.addAttribute("car", car);
         model.addAttribute("booking", booking);
+        setUpUserRole(model);
+        model.addAttribute("currentPage", "car-rental-form");
         return "customer/car-rental-form";
     }
 
@@ -77,17 +84,41 @@ public class BookingController {
         } else {
             model.addAttribute("error", "Booking not found.");
         }
-
+        setUpUserRole(model);
+        model.addAttribute("currentPage", "car-rental-form");
         return "customer/car-rental-form";
+    }
+    private void setUpUserRole(Model model) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication != null && authentication.isAuthenticated() && authentication.getPrincipal() instanceof UserDetails) {
+            UserDetails userDetails = (UserDetails) authentication.getPrincipal();
+            String username = userDetails.getUsername();
+
+            // Tìm tài khoản và vai trò của người dùng dựa trên username hoặc email
+            Account account = accountRepository.findByEmail(username);
+            if (account != null) {
+                Set<Role> roles = account.getRoles();
+                model.addAttribute("userRoles", roles);
+                if (roles.stream().anyMatch(role -> role.getName().equals("CarOwner"))) {
+                    model.addAttribute("userRole", "CarOwner");
+                } else if (roles.stream().anyMatch(role -> role.getName().equals("Customer"))) {
+                    model.addAttribute("userRole", "Customer");
+                }
+            } else {
+                model.addAttribute("userRole", "Guest");
+            }
+        } else {
+            model.addAttribute("userRole", "Guest");
+        }
     }
 
     @PostMapping("/booking-detail")
-    public String submitBooking(@RequestParam("startDateTime") LocalDateTime startDateTime,
-                                @RequestParam("endDateTime") LocalDateTime endDateTime,
+    public String submitBooking(@RequestParam("startDateTime") Date startDateTime,
+                                @RequestParam("endDateTime") Date endDateTime,
                                 @RequestParam("pickUpLocation") String pickUpLocation,
                                 Model model) {
         try {
-            if (endDateTime.isBefore(startDateTime)) {
+            if (endDateTime.before(startDateTime)) {
                 model.addAttribute("error", "End date must be after start date.");
                 return "customer/car-rental-form";
             }

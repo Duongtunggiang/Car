@@ -1,14 +1,14 @@
 package com.group.car.controller;
 
-import com.group.car.models.Account;
-import com.group.car.models.Booking;
-import com.group.car.models.Car;
-import com.group.car.models.Customer;
+import com.group.car.models.*;
 import com.group.car.repository.AccountRepository;
 import com.group.car.repository.BookingRepository;
 import com.group.car.repository.CarRepository;
 import com.group.car.repository.CustomerRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -17,6 +17,7 @@ import java.security.Principal;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 @Controller()
 @RequestMapping("/customer")
@@ -29,6 +30,8 @@ public class CarController {
         model.addAttribute("");
         List<Car> cars = carRepository.findAll();
         model.addAttribute("cars", cars);
+        setUpUserRole(model);
+        model.addAttribute("currentPage", "home");
         return "home";
     }
 
@@ -52,7 +55,31 @@ public class CarController {
             return "car-not-found";
         }
         model.addAttribute("car", car);
+        setUpUserRole(model);
+        model.addAttribute("currentPage", "car-details");
         return "customer/car-details";
+    }
+    private void setUpUserRole(Model model) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication != null && authentication.isAuthenticated() && authentication.getPrincipal() instanceof UserDetails) {
+            UserDetails userDetails = (UserDetails) authentication.getPrincipal();
+            String username = userDetails.getUsername();
+
+            Account account = accountRepository.findByEmail(username);
+            if (account != null) {
+                Set<Role> roles = account.getRoles();
+                model.addAttribute("userRoles", roles);
+                if (roles.stream().anyMatch(role -> role.getName().equals("CarOwner"))) {
+                    model.addAttribute("userRole", "CarOwner");
+                } else if (roles.stream().anyMatch(role -> role.getName().equals("Customer"))) {
+                    model.addAttribute("userRole", "Customer");
+                }
+            } else {
+                model.addAttribute("userRole", "Guest");
+            }
+        } else {
+            model.addAttribute("userRole", "Guest");
+        }
     }
 
 
@@ -79,9 +106,10 @@ public class CarController {
             List<Booking> bookings = customer.getBookings();  // Ensure getBookings() is defined in Customer class
             model.addAttribute("bookings", bookings);
         } else {
-            model.addAttribute("bookings", null);  // No bookings if not a customer
+            model.addAttribute("bookings", null);
         }
-
+        setUpUserRole(model);
+        model.addAttribute("currentPage", "my-bookings");
         return "customer/my-bookings";
     }
 
@@ -102,6 +130,9 @@ public class CarController {
         Customer customer = booking.getCustomer(); // Assuming there's a Customer object in Booking
         model.addAttribute("booking", booking);
         model.addAttribute("customer", customer);
+
+        setUpUserRole(model);
+        model.addAttribute("currentPage", "detail-a-booking-example");
         return "customer/detail-a-booking-example";
     }
 

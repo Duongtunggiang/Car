@@ -18,7 +18,7 @@ public class Feedback {
     private String content;
 
     @Temporal(TemporalType.TIMESTAMP)
-    private LocalDateTime dateTime;
+    private Date dateTime;
 
     @OneToOne
     @JoinColumn(name = "booking_id", nullable = false)
@@ -49,11 +49,11 @@ public class Feedback {
         this.content = content;
     }
 
-    public LocalDateTime getDateTime() {
+    public Date getDateTime() {
         return dateTime;
     }
 
-    public void setDateTime(LocalDateTime dateTime) {
+    public void setDateTime(Date dateTime) {
         this.dateTime = dateTime;
     }
 

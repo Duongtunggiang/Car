@@ -1,31 +1,10 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
-<head>
-    <title>Rent a car today!</title>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <style>
-        body { font-family: Arial, sans-serif; margin: 0; padding: 0; }
-        .header { background-color: #f8f9fa; padding: 10px; border-bottom: 1px solid #dee2e6; }
-        .container { width: 80%; margin: 0 auto; }
-        .booking-details { background-color: #e9ecef; padding: 15px; margin-top: 20px; }
-        .steps { display: flex; justify-content: space-between; margin: 20px 0; }
-        .step { flex: 1; text-align: center; padding: 10px; background-color: #e9ecef; }
-        .step.active { background-color: #007bff; color: white; }
-        .car-info, .booking-summary { border: 1px solid #dee2e6; padding: 15px; margin-bottom: 20px; }
-        .form-group { margin-bottom: 15px; }
-        .form-control { width: 100%; padding: 5px; }
-        .btn { padding: 10px 20px; background-color: #007bff; color: white; border: none; cursor: pointer; }
-        .checkbox-inline { display: inline-block; margin-right: 10px; }
-    </style>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0/dist/css/select2.min.css" rel="stylesheet" />
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0/dist/js/select2.min.js"></script>
-</head>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:insert="header-footer/header :: head"></head>
 <body>
-<div class="header">
+<!-- Header -->
+<div th:insert="header-footer/header :: nav"></div>
+<div class="">
     <div class="container">
         <h1>Rent a car today!</h1>
         <div class="breadcrumb">
@@ -129,18 +108,59 @@
                 <input type="text" class="form-control" name="renterName">
             </div>
             <div class="form-group" style="flex: 1;">
-                <label>Email:</label>
+                <label>Date of birth:</label>
+                <input type="date" class="form-control" name="renterDateOfBirth">
+            </div>
+        </div>
+        <div style="display: flex; flex-wrap: wrap;">
+            <div class="form-group" style="flex: 1; margin-right: 10px;">
+                <label>Phone number:</label>
+                <input type="tel" class="form-control" name="renterPhoneNo">
+            </div>
+            <div class="form-group" style="flex: 1;">
+                <label>Email address:</label>
                 <input type="email" class="form-control" name="renterEmail">
             </div>
-            <div class="form-group" style="flex: 1; margin-top: 10px;">
-                <label>Phone number:</label>
-                <input type="tel" class="form-control" name="renterPhone">
+        </div>
+        <div style="display: flex; flex-wrap: wrap;">
+            <div class="form-group" style="flex: 1; margin-right: 10px;">
+                <label>National ID No.:</label>
+                <input type="text" class="form-control">
+            </div>
+            <div class="form-group" style="flex: 1;">
+                <label>Driving license:</label>
+                <input type="text" class="form-control" name="renterDrivingLicense">
+                <button style="background-color: #e9ecef; border: none; padding: 5px 10px; margin-top: 5px;">Upload</button>
             </div>
         </div>
-        <div class="form-group" style="margin-top: 10px;">
-            <button type="submit" class="btn">Confirm Booking</button>
+        <div class="form-group">
+            <label>Address:</label>
+            <select class="form-control">
+                <option>City/Province</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <select class="form-control">
+                <option>District</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <select class="form-control">
+                <option>Ward</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <input type="text" class="form-control" placeholder="House number, Street" name="renterAddress">
+        </div>
+
+        <div style="text-align: right; margin-top: 20px;">
+            <button type="button" class="btn" style="background-color: #6c757d; margin-right: 10px;">Cancel</button>
+            <button type="submit" class="btn">Next</button>
         </div>
     </form>
+
 </div>
+<!-- Footer -->
+<div th:insert="header-footer/footer :: footer"></div>
 </body>
 </html>

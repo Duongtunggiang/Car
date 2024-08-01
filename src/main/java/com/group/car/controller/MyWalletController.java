@@ -3,6 +3,7 @@ package com.group.car.controller;
 import com.group.car.models.Account;
 import com.group.car.models.CarOwner;
 import com.group.car.models.Customer;
+import com.group.car.models.Role;
 import com.group.car.repository.AccountRepository;
 import com.group.car.repository.CarOwnerRepository;
 import com.group.car.repository.CustomerRepository;
@@ -11,11 +12,13 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
+import java.util.Set;
 
 @Controller
 @RequestMapping("/mywallet")
@@ -49,9 +52,34 @@ public class MyWalletController {
             model.addAttribute("carOwner", carOwner);
             model.addAttribute("customer", null);
         }
-
+        setUpUserRole(model);
+        model.addAttribute("currentPage", "wallet");
         return "wallet/my-wallet";
     }
+    private void setUpUserRole(Model model) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication != null && authentication.isAuthenticated() && authentication.getPrincipal() instanceof UserDetails) {
+            UserDetails userDetails = (UserDetails) authentication.getPrincipal();
+            String username = userDetails.getUsername();
+
+            // Tìm tài khoản và vai trò của người dùng dựa trên username hoặc email
+            Account account = accountRepository.findByEmail(username);
+            if (account != null) {
+                Set<Role> roles = account.getRoles();
+                model.addAttribute("userRoles", roles);
+                if (roles.stream().anyMatch(role -> role.getName().equals("CarOwner"))) {
+                    model.addAttribute("userRole", "CarOwner");
+                } else if (roles.stream().anyMatch(role -> role.getName().equals("Customer"))) {
+                    model.addAttribute("userRole", "Customer");
+                }
+            } else {
+                model.addAttribute("userRole", "Guest");
+            }
+        } else {
+            model.addAttribute("userRole", "Guest");
+        }
+    }
+
 
     @PostMapping("/withdraw")
     public ResponseEntity<String> withdraw(@RequestParam String amount, Principal principal) {

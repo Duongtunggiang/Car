@@ -17,14 +17,12 @@ public class DataInitializer {
     public CommandLineRunner initData() {
         return args -> {
 
-            // Create "CarOwner" role
             if (roleRepository.findByName("CarOwner") == null) {
                 Role carOwnerRole = new Role();
                 carOwnerRole.setName("CarOwner");
                 roleRepository.save(carOwnerRole);
             }
 
-            // Create "Customer" role
             if (roleRepository.findByName("Customer") == null) {
                 Role customerRole = new Role();
                 customerRole.setName("Customer");

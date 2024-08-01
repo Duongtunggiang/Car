@@ -1,14 +1,19 @@
 package com.group.car.controller;
 
+import com.group.car.models.Account;
 import com.group.car.models.Car;
 import com.group.car.models.Dto.CarDto;
 import com.group.car.models.CarOwner;
+import com.group.car.models.Role;
 import com.group.car.repository.AccountRepository;
 import com.group.car.repository.CarOwnerRepository;
 import com.group.car.repository.CarRepository;
 import com.group.car.service.CarService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -25,6 +30,7 @@ import java.nio.file.StandardCopyOption;
 import java.security.Principal;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 
 @Controller
@@ -50,6 +56,30 @@ public class CarOwnerController {
 //        model.addAttribute("cars", iCarService.findById(carOwner.getId(), Sort.by(Sort.Direction.DESC, "id")));
 //        return "car-owner/car";
 //    }
+    private void setUpUserRole(Model model) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication != null && authentication.isAuthenticated() && authentication.getPrincipal() instanceof UserDetails) {
+            UserDetails userDetails = (UserDetails) authentication.getPrincipal();
+            String username = userDetails.getUsername();
+
+            // Tìm tài khoản và vai trò của người dùng dựa trên username hoặc email
+            Account account = accountRepository.findByEmail(username);
+            if (account != null) {
+                Set<Role> roles = account.getRoles();
+                model.addAttribute("userRoles", roles);
+                if (roles.stream().anyMatch(role -> role.getName().equals("CarOwner"))) {
+                    model.addAttribute("userRole", "CarOwner");
+                } else if (roles.stream().anyMatch(role -> role.getName().equals("Customer"))) {
+                    model.addAttribute("userRole", "Customer");
+                }
+            } else {
+                model.addAttribute("userRole", "Guest");
+            }
+        } else {
+            model.addAttribute("userRole", "Guest");
+        }
+    }
+
     @GetMapping({"", "/"})
     public String showAllCar(Model model, Principal principal) {
         String email = principal.getName();
@@ -63,6 +93,8 @@ public class CarOwnerController {
         } else {
             model.addAttribute("error", "No cars found for this user.");
         }
+        setUpUserRole(model);
+        model.addAttribute("currentPage", "car");
         return "car-owner/car";
     }
 
@@ -70,6 +102,9 @@ public class CarOwnerController {
     public String showCreateCar(Model model) {
         CarDto carDto = new CarDto();
         model.addAttribute("carDto", carDto);
+        setUpUserRole(model);
+        model.addAttribute("currentPage", "addCar");
+
         return "car-owner/addCar";
     }
 
@@ -185,6 +220,9 @@ public class CarOwnerController {
             System.out.println("Exception: " + e.getMessage());
             return "redirect:/carowner";
         }
+        setUpUserRole(model);
+        model.addAttribute("currentPage", "edit");
+
         return "car-owner/edit";
     }
 

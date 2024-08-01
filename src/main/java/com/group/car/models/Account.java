@@ -1,6 +1,8 @@
 package com.group.car.models;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Size;
+
 import java.util.Set;
 
 @Entity
