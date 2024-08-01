@@ -25,14 +25,7 @@ public class Customer {
     private String drivingLicense;
     private int wallet;
 
-    //Thêm cái này vào để lưu thông tin khách hàng thuê xe
-    private String renterName;
-    private LocalDate renterDateOfBirth;
-    private String renterPhoneNo;
-    private String renterEmail;
-    private String renterAddress;
-    private String renterDrivingLicense;
-    //------
+
 
 //    private String coverImage;
 //
@@ -46,53 +39,7 @@ public class Customer {
     private Account account;
 
     // Getters and setters
-    public String getRenterName() {
-        return renterName;
-    }
 
-    public LocalDate getRenterDateOfBirth() {
-        return renterDateOfBirth;
-    }
-
-    public String getRenterPhoneNo() {
-        return renterPhoneNo;
-    }
-
-    public String getRenterEmail() {
-        return renterEmail;
-    }
-
-    public String getRenterAddress() {
-        return renterAddress;
-    }
-
-    public String getRenterDrivingLicense() {
-        return renterDrivingLicense;
-    }
-
-    public void setRenterName(String renterName) {
-        this.renterName = renterName;
-    }
-
-    public void setRenterDateOfBirth(LocalDate renterDateOfBirth) {
-        this.renterDateOfBirth = renterDateOfBirth;
-    }
-
-    public void setRenterPhoneNo(String renterPhoneNo) {
-        this.renterPhoneNo = renterPhoneNo;
-    }
-
-    public void setRenterEmail(String renterEmail) {
-        this.renterEmail = renterEmail;
-    }
-
-    public void setRenterAddress(String renterAddress) {
-        this.renterAddress = renterAddress;
-    }
-
-    public void setRenterDrivingLicense(String renterDrivingLicense) {
-        this.renterDrivingLicense = renterDrivingLicense;
-    }
 
     public Account getAccount() {
         return account;
