@@ -1,28 +1,24 @@
 package com.group.car.controller;
 
-import com.group.car.models.Account;
-import com.group.car.models.Booking;
-import com.group.car.models.Car;
-import com.group.car.models.Customer;
-import com.group.car.repository.AccountRepository;
-import com.group.car.repository.BookingRepository;
-import com.group.car.repository.CarRepository;
-import com.group.car.repository.CustomerRepository;
+import com.group.car.models.*;
+import com.group.car.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
+import java.time.temporal.ChronoUnit;
+import java.util.*;
 
 @Controller()
 @RequestMapping("/customer")
 public class CarController {
     @Autowired
     private CarRepository carRepository;
+
+    @Autowired
+    private FeedbackRepository feedbackRepository;
 
     @GetMapping("/")
     public String homeCustomer(Model model){
@@ -32,6 +28,144 @@ public class CarController {
         return "home";
     }
 
+    @PostMapping("/my-bookings/{id}/confirm-return")
+    @ResponseBody
+    public Map<String, Object> confirmReturnCar(@PathVariable Long id, Principal principal) {
+        Map<String, Object> response = new HashMap<>();
+
+        String email = principal.getName();
+        Account emailAccount = accountRepository.findByEmail(email);
+
+        if (emailAccount == null) {
+            response.put("success", false);
+            response.put("message", "User not found");
+            return response;
+        }
+
+        Booking booking = bookingRepository.findById(id).orElse(null);
+        if (booking == null || !booking.getStatus().equals("In-Progress")) {
+            response.put("success", false);
+            response.put("message", "Invalid booking or status");
+            return response;
+        }
+
+        double totalAmount = calculateTotalAmount(booking);
+        double deposit = booking.getCarBookings().get(0).getCar().getDeposit();
+        double difference = totalAmount - deposit;
+
+        // Update user's wallet balance
+        Customer customer = booking.getCustomer();
+        if (difference > 0) {
+            if (customer.getWallet() < difference) {
+                booking.setStatus("Pending Payment");
+                bookingRepository.save(booking);
+                response.put("success", false);
+                response.put("message", "Insufficient funds in wallet");
+                return response;
+            }
+            customer.setWallet((int) (customer.getWallet() - difference));
+        } else {
+            customer.setWallet((int) (customer.getWallet() + Math.abs(difference)));
+        }
+        customerRepository.save(customer);
+
+        // Update booking status
+        booking.setStatus("Completed");
+        bookingRepository.save(booking);
+
+        response.put("success", true);
+        response.put("message", "Car returned successfully");
+        return response;
+    }
+
+
+    @PostMapping("/my-bookings/{id}/continue-payment")
+    @ResponseBody
+    public Map<String, Object> continuePayment(@PathVariable Long id, Principal principal) {
+        Map<String, Object> response = new HashMap<>();
+
+        String email = principal.getName();
+        Account emailAccount = accountRepository.findByEmail(email);
+
+        if (emailAccount == null) {
+            response.put("success", false);
+            response.put("message", "User not found");
+            return response;
+        }
+
+        Booking booking = bookingRepository.findById(id).orElse(null);
+        if (booking == null || !booking.getStatus().equals("Pending Payment")) {
+            response.put("success", false);
+            response.put("message", "Invalid booking or status");
+            return response;
+        }
+
+        Customer customer = booking.getCustomer();
+        double totalAmount = calculateTotalAmount(booking);
+        double deposit = booking.getCarBookings().get(0).getCar().getDeposit();
+        double difference = totalAmount - deposit;
+
+        if (customer.getWallet() < difference) {
+            response.put("success", false);
+            response.put("message", "Insufficient funds in wallet");
+            return response;
+        }
+
+        customer.setWallet((int) (customer.getWallet() - difference));
+        customerRepository.save(customer);
+
+        booking.setStatus("Completed");
+        bookingRepository.save(booking);
+
+        response.put("success", true);
+        response.put("message", "Payment completed successfully");
+        return response;
+    }
+
+
+
+    private double calculateTotalAmount(Booking booking) {
+        return booking.getCarBookings().get(0).getCar().getBasicPrice() *
+                ChronoUnit.DAYS.between(booking.getStartDateTime().toInstant(), booking.getEndDateTime().toInstant());
+    }
+
+
+    @PostMapping("/my-bookings/{id}/rate")
+    @ResponseBody
+    public Map<String, Object> rateBooking(@PathVariable Long id, @RequestBody Map<String, Object> payload, Principal principal) {
+        Map<String, Object> response = new HashMap<>();
+
+        String email = principal.getName();
+        Account emailAccount = accountRepository.findByEmail(email);
+
+        if (emailAccount == null) {
+            response.put("success", false);
+            response.put("message", "User not found");
+            return response;
+        }
+
+        Booking booking = bookingRepository.findById(id).orElse(null);
+        if (booking == null || !booking.getStatus().equals("Completed")) {
+            response.put("success", false);
+            response.put("message", "Invalid booking or status");
+            return response;
+        }
+
+        int rating = Integer.parseInt(payload.get("rating").toString());
+        String review = (String) payload.get("review");
+
+        Feedback feedback = new Feedback();
+        feedback.setRatings(rating);
+        feedback.setContent(review);
+        feedback.setDateTime(new Date());
+        feedback.setBooking(booking);
+        feedbackRepository.save(feedback);
+
+
+        response.put("success", true);
+        response.put("message", "Rating submitted successfully");
+        return response;
+    }
 
     //    @GetMapping("/car-details/{id}")
 //    public String showCarDetails(@PathVariable("id") Long id, Model model) {
