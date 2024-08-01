@@ -21,12 +21,48 @@
     </style>
 </head>
 <body>
-<nav class="navbar navbar-expand-lg navbar-light bg-light">
+<nav class="navbar navbar-expand-lg text-light bg-dark border-bottom">
     <div class="container">
-        <a class="navbar-brand" href="#">Rent a Car Today!</a>
-        <div class="navbar-nav ms-auto">
-            <a class="nav-link" href="#">ABOUT US</a>
-            <a class="nav-link" href="#" sec:authentication="name">Welcome, User ▼</a>
+        <a class="navbar-brand text-light" href="#">Rent a car today!</a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarSupportedContent">
+            <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                <li class="nav-item">
+                    <a class="nav-link text-light" href="/">Home</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link text-light" href="/contract">Contract</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link text-light" href="/customer/my-bookings">My Bookings</a>
+                </li>
+            </ul>
+
+            <form class="d-flex m-3" role="search">
+                <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search">
+                <button class="btn btn-outline-success" type="submit">Search</button>
+            </form>
+
+            <ul class="navbar-nav me-3" sec:authorize="isAuthenticated()">
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle text-light" href="#" role="button" data-bs-toggle="dropdown">User</a>
+                    <ul class="dropdown-menu">
+                        <li><a class="dropdown-item" href="/profile">Profile</a></li>
+                        <li><a class="dropdown-item" href="/mywallet/my-wallet">My Wallet</a></li>
+                        <li><a class="dropdown-item" href="#" onclick="confirmLogout(event)">Logout</a></li>
+                    </ul>
+                </li>
+            </ul>
+            <form id="logoutForm" sec:authorize="isAuthenticated()" method="post" action="/logout" style="display: none;">
+                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+            </form>
+            <ul class="navbar-nav" sec:authorize="!isAuthenticated()">
+                <a class="nav-item btn btn-secondary me-2" href="/register-driver">Register as Driver</a>
+                <li class="nav-item"><a href="/register" class="btn btn-outline-primary me-2">Register</a></li>
+                <li class="nav-item"><a href="/login" class="btn btn-primary me-2">Login</a></li>
+            </ul>
         </div>
     </div>
 </nav>
@@ -193,35 +229,14 @@
         <div class="tab-pane fade" id="payment" role="tabpanel" aria-labelledby="payment-tab">
             <div class="mt-4">
                 <h4>Payment Information</h4>
-                <table class="table table-bordered">
-                    <thead>
-                    <tr>
-                        <th scope="col">Description</th>
-                        <th scope="col">Amount</th>
-                        <th scope="col">Date</th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                    <tr>
-                        <td>Booking Fee</td>
-                        <td>$100</td>
-                        <td>2023-01-01</td>
-                    </tr>
-                    <tr>
-                        <td>Deposit</td>
-                        <td>$200</td>
-                        <td>2023-01-01</td>
-                    </tr>
-                    <tr>
-                        <td>Rental Fee</td>
-                        <td>$500</td>
-                        <td>2023-01-10</td>
-                    </tr>
-                    </tbody>
-                </table>
+                <div class="mb-3">
+                    <strong>My wallet</strong>
+                    <p>Current balance: <span th:text="${#numbers.formatDecimal(customer.wallet, 0, 'COMMA', 0, 'POINT')} + ' VND'"></span></p>
+                    <p>Please make sure to have sufficient balance when you return the car</p>
+                    <a href="/mywallet/my-wallet" class="btn btn-primary btn-sm">Go to My wallet</a>
+                </div>
             </div>
         </div>
-    </div>
 
     <!-- Return Car Modal -->
     <div class="modal fade" id="returnCarModal" tabindex="-1" aria-labelledby="returnCarModalLabel" aria-hidden="true">
