@@ -19,7 +19,7 @@
                 <p>Wallet: <span th:text="${customer != null ? customer.wallet : (carOwner != null ? carOwner.wallet : 'N/A')}"></span></p>
                 <div class="d-flex mt-4">
                     <a href="/edit-profile" class="btn btn-primary me-3">Edit</a>
-                    <a href="/" class="btn btn-secondary me-3">Back to Home</a>
+                    <a th:href="${homeUrl}" class="btn btn-secondary me-3">Back to Home</a>
                     <a class="btn btn-outline-success me-3"  href="/change">Change Password</a>
                 </div>
             </div>

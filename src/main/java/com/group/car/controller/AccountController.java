@@ -311,6 +311,8 @@ public class AccountController {
             return "redirect:/login";
         }
 
+        String homeUrl = "/";
+
         if (emailAccount.getRoles().stream().anyMatch(role -> role.getName().equals("Customer"))) {
             Customer customer = customerRepository.findByAccountId(emailAccount.getId());
             model.addAttribute("account", emailAccount);
@@ -321,16 +323,15 @@ public class AccountController {
             model.addAttribute("account", emailAccount);
             model.addAttribute("carOwner", carOwner);
             model.addAttribute("customer", null);  // Explicitly set customer to null
+            homeUrl = "/home-driver"; 
         }
 
-//        // Logging for debugging
-//        System.out.println("Email Account: " + emailAccount);
-//        System.out.println("Customer: " + model.getAttribute("customer"));
-//        System.out.println("CarOwner: " + model.getAttribute("carOwner"));
+        model.addAttribute("homeUrl", homeUrl);
         setUpUserRole(model);
         model.addAttribute("currentPage", "profile");
         return "account/profile";
     }
+
 
     @GetMapping("/edit-profile")
     public String showEditProfile(Model model, Principal principal) {
