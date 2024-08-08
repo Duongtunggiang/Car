@@ -17,7 +17,17 @@ public class RegisterDto {
     @Size( message = "Password and Confirm password do not match")
     private String confirmPassword;
 
+    private boolean isCarOwner;
+
     private boolean enabled ;
+
+    public boolean isCarOwner() {
+        return isCarOwner;
+    }
+
+    public void setCarOwner(boolean carOwner) {
+        isCarOwner = carOwner;
+    }
 
     public @NotEmpty String getUsername() {
         return username;

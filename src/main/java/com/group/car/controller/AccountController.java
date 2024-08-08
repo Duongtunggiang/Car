@@ -43,116 +43,10 @@ public class AccountController {
     @Autowired
     private PasswordEncoder passwordEncoder;
 
-    @GetMapping("/register")
-    public String register(Model model){
-        RegisterDto registerDto = new RegisterDto();
-        model.addAttribute(registerDto);
-        model.addAttribute("success", false);
-        return "account/register";
-    }
-
-    @PostMapping("/register")
-    public String register(@Valid @ModelAttribute RegisterDto registerDto, BindingResult result, Model model){
-        if (!registerDto.getPassword().equals(registerDto.getConfirmPassword())){
-            result.addError(new FieldError("registerDto", "confirmPassword", "Password and Confirm password do not match"));
-        }
-        Account account = accountRepository.findByEmail(registerDto.getEmail());
-        if (account != null){
-            result.addError(new FieldError("registerDto", "email", "Email address is already used"));
-        }
-        Account user = accountRepository.findByUsername(registerDto.getUsername());
-        if (user != null){
-            result.addError(new FieldError("registerDto", "username", "User name is already used"));
-        }
-        if (result.hasErrors()){
-            return "account/register";
-        }
-        try{
-            var bCryptEncoder = new BCryptPasswordEncoder();
-
-            Account newAccount = new Account();
-            newAccount.setUsername(registerDto.getUsername());
-            newAccount.setEmail(registerDto.getEmail());
-            newAccount.setPassword(bCryptEncoder.encode(registerDto.getPassword()));
-            newAccount.setEnabled(true);
-
-            Role customerRole = roleRepository.findByName("Customer");
-            newAccount.setRoles(Set.of(customerRole));
-
-            accountRepository.save(newAccount);
-
-            Customer customer = new Customer();
-            customer.setName(registerDto.getUsername());
-            customer.setEmail(registerDto.getEmail());
-            customer.setAccount(newAccount);
-
-            customerRepository.save(customer);
-
-            model.addAttribute("registerDto", new RegisterDto());
-            model.addAttribute("success", true);
-        }catch (Exception e){
-            result.addError(new FieldError("registerDto", "username", e.getMessage()));
-        }
-        return "account/register";
-    }
-
-    @GetMapping("/register-driver")
-    public String registerDriver(Model model){
-        RegisterDto registerDto = new RegisterDto();
-        model.addAttribute(registerDto);
-        model.addAttribute("success", false);
-        return "account/register-driver";
-    }
-
-    @PostMapping("/register-driver")
-    public String registerDriver(@Valid @ModelAttribute RegisterDto registerDto,
-                                 BindingResult result, Model model){
-        if (!registerDto.getPassword().equals(registerDto.getConfirmPassword())){
-            result.addError(new FieldError("registerDto", "confirmPassword", "Password and Confirm password do not match"));
-        }
-        Account account = accountRepository.findByEmail(registerDto.getEmail());
-        if (account != null){
-            result.addError(new FieldError("registerDto", "email", "Email address is already used"));
-        }
-        Account user = accountRepository.findByUsername(registerDto.getUsername());
-        if (user != null){
-            result.addError(new FieldError("registerDto", "username", "User name is already used"));
-        }
-        if (result.hasErrors()){
-            return "account/register-driver";
-        }
-        try{
-            var bCryptEncoder = new BCryptPasswordEncoder();
-
-            Account newAccount = new Account();
-            newAccount.setUsername(registerDto.getUsername());
-            newAccount.setEmail(registerDto.getEmail());
-            newAccount.setPassword(bCryptEncoder.encode(registerDto.getPassword()));
-            newAccount.setEnabled(true);
-
-            Role carOwnerRole = roleRepository.findByName("CarOwner");
-            newAccount.setRoles(Set.of(carOwnerRole));
-
-            accountRepository.save(newAccount);
-
-            CarOwner carOwner = new CarOwner();
-            carOwner.setName(registerDto.getUsername());
-            carOwner.setEmail(registerDto.getEmail());
-            carOwner.setAccount(newAccount);
-
-            carOwnerRepository.save(carOwner);
-
-            model.addAttribute("registerDto", new RegisterDto());
-            model.addAttribute("success", true);
-        }catch (Exception e){
-            result.addError(new FieldError("registerDto", "username", e.getMessage()));
-        }
-        return "account/register-driver";
-    }
-    @GetMapping("/login")
-    public String login() {
-        return "account/login";
-    }
+//    @GetMapping("/login")
+//    public String login() {
+//        return "account/login";
+//    }
     @GetMapping("/contract")
     public String contract(){
         return "contract";
@@ -165,6 +59,14 @@ public class AccountController {
     @GetMapping("/home-driver")
     public String homeDriver() {
         return "home-driver";
+    }
+
+    @GetMapping("/login")
+    public String login(Model model) {
+        RegisterDto registerDto = new RegisterDto();
+        model.addAttribute("registerDto", registerDto);
+        model.addAttribute("error", null);
+        return "account/login";
     }
 
     @PostMapping("/login")
@@ -182,6 +84,7 @@ public class AccountController {
         }
 
         model.addAttribute("error", "Invalid email or password");
+        model.addAttribute("email", email);
         return "account/login";
     }
 
@@ -201,6 +104,119 @@ public class AccountController {
     }
 
 
+
+    @PostMapping("/register")
+    public String registerCustomer(@Valid @ModelAttribute RegisterDto registerDto, BindingResult result, Model model) {
+        if (!registerDto.getPassword().equals(registerDto.getConfirmPassword())) {
+            result.addError(new FieldError("registerDto", "confirmPassword", "Password and Confirm password do not match"));
+        }
+        Account account = accountRepository.findByEmail(registerDto.getEmail());
+        if (account != null) {
+            result.addError(new FieldError("registerDto", "email", "Email address is already used"));
+        }
+        Account user = accountRepository.findByUsername(registerDto.getUsername());
+        if (user != null) {
+            result.addError(new FieldError("registerDto", "username", "User name is already used"));
+        }
+//        if (result.hasErrors()) {
+//            return "account/login";
+//        }
+        if (result.hasErrors()) {
+            model.addAttribute("success", false);
+            return "account/login";
+        }
+        try {
+            var bCryptEncoder = new BCryptPasswordEncoder();
+
+            Account newAccount = new Account();
+            newAccount.setUsername(registerDto.getUsername());
+            newAccount.setEmail(registerDto.getEmail());
+            newAccount.setPassword(bCryptEncoder.encode(registerDto.getPassword()));
+            newAccount.setEnabled(true);
+
+            Role role = roleRepository.findByName("Customer");
+            newAccount.setRoles(Set.of(role));
+
+            accountRepository.save(newAccount);
+
+            Customer customer = new Customer();
+            customer.setName(registerDto.getUsername());
+            customer.setEmail(registerDto.getEmail());
+            customer.setAccount(newAccount);
+
+            customerRepository.save(customer);
+
+            model.addAttribute("registerDto", new RegisterDto());
+            model.addAttribute("success", true);
+        } catch (Exception e) {
+            result.addError(new FieldError("registerDto", "username", e.getMessage()));
+        }
+        return "account/login";
+    }
+
+    @PostMapping("/register-driver")
+    public String registerCarOwner(@Valid @ModelAttribute RegisterDto registerDto, BindingResult result, Model model) {
+        if (!registerDto.getPassword().equals(registerDto.getConfirmPassword())) {
+            result.addError(new FieldError("registerDto", "confirmPassword", "Password and Confirm password do not match"));
+        }
+        Account account = accountRepository.findByEmail(registerDto.getEmail());
+        if (account != null) {
+            result.addError(new FieldError("registerDto", "email", "Email address is already used"));
+        }
+        Account user = accountRepository.findByUsername(registerDto.getUsername());
+        if (user != null) {
+            result.addError(new FieldError("registerDto", "username", "User name is already used"));
+        }
+        if (result.hasErrors()) {
+            model.addAttribute("success", false);
+            return "account/login";
+        }
+        try {
+            var bCryptEncoder = new BCryptPasswordEncoder();
+
+            Account newAccount = new Account();
+            newAccount.setUsername(registerDto.getUsername());
+            newAccount.setEmail(registerDto.getEmail());
+            newAccount.setPassword(bCryptEncoder.encode(registerDto.getPassword()));
+            newAccount.setEnabled(true);
+
+            Role role = roleRepository.findByName("CarOwner");
+            newAccount.setRoles(Set.of(role));
+
+            accountRepository.save(newAccount);
+
+            CarOwner carOwner = new CarOwner();
+            carOwner.setName(registerDto.getUsername());
+            carOwner.setEmail(registerDto.getEmail());
+            carOwner.setAccount(newAccount);
+
+            carOwnerRepository.save(carOwner);
+
+            model.addAttribute("registerDto", new RegisterDto());
+            model.addAttribute("success", true);
+        } catch (Exception e) {
+            result.addError(new FieldError("registerDto", "username", e.getMessage()));
+        }
+        return "account/login";
+    }
+
+//    @GetMapping("/register")
+//    public String register(Model model){
+//        RegisterDto registerDto = new RegisterDto();
+//        model.addAttribute(registerDto);
+//        model.addAttribute("success", false);
+//        return "account/register";
+//    }
+
+//    @GetMapping("/register-driver")
+//    public String registerDriver(Model model){
+//        RegisterDto registerDto = new RegisterDto();
+//        model.addAttribute(registerDto);
+//        model.addAttribute("success", false);
+//        return "account/register-driver";
+//    }
+
+
     // Forgot password
     @GetMapping("/forgot-password")
     public String forgot() {
@@ -216,7 +232,7 @@ public class AccountController {
             model.addAttribute("email", email);
             return "account/reset-password";
         }
-        model.addAttribute("errorMessage", "Email không tìm thấy.");
+        model.addAttribute("errorMessage", "Email cannot find.");
         return "account/forgot-password";
     }
 
@@ -235,7 +251,7 @@ public class AccountController {
                                 Model model) {
         try {
             if (!registerDto.getPassword().equals(registerDto.getConfirmPassword())) {
-                result.rejectValue("confirmPassword", "error.registerDto", "Password and Confirm password do not match");
+                result.rejectValue("confirmPassword", "registerDto", "Password and Confirm password do not match!!");
             }
 
             if (result.hasErrors()) {
@@ -248,10 +264,10 @@ public class AccountController {
                 account.setPassword(bCryptEncoder.encode(registerDto.getPassword()));
 //                account.setPassword(passwordEncoder.encode(registerDto.getPassword()));
                 accountRepository.save(account);
-                model.addAttribute("successMessage", "Mật khẩu đã được đặt lại thành công.");
+                model.addAttribute("successMessage", "The password has been successfully reseted.");
                 return "account/reset-password";
             }
-            model.addAttribute("errorMessage", "Email không tìm thấy.");
+            model.addAttribute("errorMessage", "Email cannot find.");
             model.addAttribute("email", email);
         }catch (Exception e){
             result.addError(new FieldError("registerDto", "password", e.getMessage()));
