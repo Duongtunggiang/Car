@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Rent a car today!</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f0f0f0;
+        }
+        .header {
+            background-color: #333;
+            color: white;
+            padding: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .header span {
+            margin-left: 20px;
+        }
+        .container {
+            width: 80%;
+            margin: 0 auto;
+        }
+        .search-form {
+            background-color: white;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        .search-form h3 {
+            margin-top: 0;
+        }
+        .search-form div {
+            margin-bottom: 10px;
+        }
+        .search-form label {
+            display: block;
+            margin-bottom: 5px;
+        }
+        .search-form input {
+            width: calc(100% - 10px);
+            padding: 5px;
+        }
+        .search-form button {
+            padding: 10px 20px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+        .search-results {
+            background-color: white;
+            padding: 20px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        .search-results h2 {
+            margin-top: 0;
+        }
+        .car-item {
+            border: 1px solid #ddd;
+            margin: 10px 0;
+            padding: 10px;
+            display: flex;
+        }
+        .car-image {
+            width: 200px;
+            height: 150px;
+            background-color: #ddd;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-right: 20px;
+        }
+        .car-info {
+            flex-grow: 1;
+        }
+        .car-info h3 {
+            margin-top: 0;
+        }
+        .btn {
+            padding: 5px 10px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            cursor: pointer;
+            margin-right: 5px;
+        }
+        .footer {
+            background-color: #333;
+            color: white;
+            padding: 20px 0;
+            margin-top: 20px;
+        }
+        .footer .container {
+            display: flex;
+            justify-content: space-between;
+        }
+        .footer div {
+            width: 30%;
+        }
+        .footer h4 {
+            margin-top: 0;
+        }
+        .footer a {
+            color: white;
+            display: block;
+            margin-bottom: 5px;
+        }
+    </style>
+</head>
+<body>
+<header class="header">
+    <div>
+        <span>🚗 Rent a car today!</span>
+    </div>
+    <div>
+        <span>ABOUT US</span>
+        <span>Welcome, An ▼</span>
+    </div>
+</header>
+
+<div class="container">
+    <div class="search-form">
+        <h3>Find the ideal car rental for your trip</h3>
+        <form th:action="@{/customer/search}" method="post">
+            <div>
+                <label>PICK-UP LOCATION:</label>
+                <input type="text" name="pickupLocation" required>
+            </div>
+            <div>
+                <label>PICK-UP DATE AND TIME:</label>
+                <input type="date" name="pickupDate" required>
+                <input type="time" name="pickupTime" required>
+            </div>
+            <div>
+                <label>DROP-OFF DATE AND TIME:</label>
+                <input type="date" name="dropoffDate" required>
+                <input type="time" name="dropoffTime" required>
+            </div>
+            <button type="submit" class="btn">SEARCH</button>
+        </form>
+    </div>
+
+    <div th:if="${searchResults != null}" class="search-results">
+        <h2>Search Results</h2>
+        <p th:text="'There are ' + ${searchResults.size()} + ' cars that are available for you!'"></p>
+
+        <div th:each="car : ${searchResults}" class="car-item">
+            <div class="car-image">Car Image Placeholder</div>
+            <div class="car-info">
+                <h3 th:text="${car.brand} + ' ' + ${car.model} + ' (' + ${#dates.format(car.productionYears, 'yyyy')} + ')'"></h3>
+                <p>Ratings: ☆☆☆☆☆ (No ratings yet)</p>
+                <p th:text="'No. of rides: ' + (${car.carBookings.size()} ?: 0)"></p>
+                <p th:text="'Price: ' + ${car.basicPrice} + '/day'"></p>
+                <p th:text="'Location: ' + ${car.address}"></p>
+                <p>Status: <span th:style="${car.carBookings.size() > 0} ? 'color: orange;' : 'color: green;'">
+            <span th:text="${car.carBookings.size() > 0} ? 'Booked' : 'Available'"></span>
+        </span></p>
+                <a href="#" th:href="@{/customer/car-details(id=${car.id})}" class="btn">View details</a>
+                <a href="#" class="btn">Rent now</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<footer class="footer">
+    <div class="container">
+        <div>
+            <h4>RENT CARS</h4>
+            <a href="#">Search Cars and Rates</a>
+        </div>
+        <div>
+            <h4>CUSTOMER ACCESS</h4>
+            <a href="#">Manage My Booking</a>
+            <a href="#">My Rental</a>
+            <a href="#">My Car</a>
+            <a href="#">Log in</a>
+        </div>
+        <div>
+            <h4>JOIN US</h4>
+            <a href="#">New User Sign Up</a>
+        </div>
+    </div>
+</footer>
+</body>
+</html>

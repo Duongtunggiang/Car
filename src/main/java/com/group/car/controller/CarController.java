@@ -179,18 +179,18 @@ public class CarController {
 //        return "car-details";
 //    }
 
-    @GetMapping("/car-details")
-    public String showCarDetails(@RequestParam("id") long id, Model model) {
-        Car car = carRepository.findById(id).orElse(null);
-        if (car == null) {
-            model.addAttribute("message", "Car not found");
-            return "car-not-found";
-        }
-        model.addAttribute("car", car);
-        setUpUserRole(model);
-        model.addAttribute("currentPage", "car-details");
-        return "customer/car-details";
-    }
+    //    @GetMapping("/car-details")
+//    public String showCarDetails(@RequestParam("id") long id, Model model) {
+//        Car car = carRepository.findById(id).orElse(null);
+//        if (car == null) {
+//            model.addAttribute("message", "Car not found");
+//            return "car-not-found";
+//        }
+//        model.addAttribute("car", car);
+//        setUpUserRole(model);
+//        model.addAttribute("currentPage", "car-details");
+//        return "customer/car-details";
+//    }
     private void setUpUserRole(Model model) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication != null && authentication.isAuthenticated() && authentication.getPrincipal() instanceof UserDetails) {
