@@ -23,17 +23,10 @@ public class Booking {
 
     private String pickUpLocation;
 
-    //Thêm cái này vào để lưu thông tin khách hàng thuê xe
-//    private String renterName;
-//    private LocalDate renterDateOfBirth;
-//    private String renterPhoneNo;
-//    private String renterEmail;
-//    private String renterAddress;
-//    private String renterDrivingLicense;
-    //------
 
     @OneToMany(mappedBy = "booking", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<CarBooking> carBookings;
+
 
     @ManyToOne
     @JoinColumn(name = "customer_id", nullable = false)
@@ -42,53 +35,24 @@ public class Booking {
     @OneToOne(mappedBy = "booking", cascade = CascadeType.ALL, orphanRemoval = true)
     private Feedback feedback;
 
-//    public String getRenterName() {
-//        return renterName;
-//    }
-//
-//    public LocalDate getRenterDateOfBirth() {
-//        return renterDateOfBirth;
-//    }
-//
-//    public String getRenterPhoneNo() {
-//        return renterPhoneNo;
-//    }
-//
-//    public String getRenterEmail() {
-//        return renterEmail;
-//    }
-//
-//    public String getRenterAddress() {
-//        return renterAddress;
-//    }
-//
-//    public String getRenterDrivingLicense() {
-//        return renterDrivingLicense;
-//    }
-//
-//    public void setRenterName(String renterName) {
-//        this.renterName = renterName;
-//    }
-//
-//    public void setRenterDateOfBirth(LocalDate renterDateOfBirth) {
-//        this.renterDateOfBirth = renterDateOfBirth;
-//    }
-//
-//    public void setRenterPhoneNo(String renterPhoneNo) {
-//        this.renterPhoneNo = renterPhoneNo;
-//    }
-//
-//    public void setRenterEmail(String renterEmail) {
-//        this.renterEmail = renterEmail;
-//    }
-//
-//    public void setRenterAddress(String renterAddress) {
-//        this.renterAddress = renterAddress;
-//    }
-//
-//    public void setRenterDrivingLicense(String renterDrivingLicense) {
-//        this.renterDrivingLicense = renterDrivingLicense;
-//    }
+    public void addCarBooking(CarBooking carBooking) {
+        this.carBookings.add(carBooking);
+        carBooking.setBooking(this);
+    }
+
+    public void removeCarBooking(CarBooking carBooking) {
+        this.carBookings.remove(carBooking);
+        carBooking.setBooking(null);
+    }
+
+    //Thêm cái này vào để lưu thông tin khách hàng thuê xe
+//    private String renterName;
+//    private LocalDate renterDateOfBirth;
+//    private String renterPhoneNo;
+//    private String renterEmail;
+//    private String renterAddress;
+//    private String renterDrivingLicense;
+    //------
 
     public String getPickUpLocation() {
         return pickUpLocation;

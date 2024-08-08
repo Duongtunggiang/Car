@@ -23,6 +23,8 @@
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0/dist/js/select2.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+    <meta name="_csrf" content="${_csrf.token}"/>
 </head>
 <body>
 <div th:insert="header-footer/header :: nav"></div>
@@ -37,15 +39,16 @@
 <div class="modal" id="topup">
     <div class="modal-dialog">
         <div class="modal-content">
-            <form class="form-control" th:action="@{/booking/booking-detail}" method="post">
+            <form class="form-control" id="addBooking">
+                <input type="hidden" id="carId" name="carId" th:value="${car.id}">
                 <div class="modal-header">
-                    <h4 class="modal-title">Change details</h4>
+                    <h4 class="modal-title">Create Booking</h4>
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body">
-                    <input type="hidden" name="_csrf" value="${_csrf.token}">
+                    <input type="hidden" name="_csrf" th:value="${_csrf.token}">
                     <div class="input-group mb-3">
-                        <input type="text" class="form-control" id="topupAmount" name="pickUpLocation" placeholder="Enter location">
+                        <input type="text" class="form-control" id="pickUpLocation" name="pickUpLocation" placeholder="Enter location">
                         <button class="btn btn-outline-secondary dropdown-toggle" type="button" id="topupDropdownButton" data-bs-toggle="dropdown" aria-expanded="false">Options</button>
                         <ul class="dropdown-menu" aria-labelledby="topupDropdownButton">
                             <li><a class="dropdown-item" href="#">Thanh Xuân, Hà Nội</a></li>
@@ -58,130 +61,256 @@
                     </div>
                     <div class="row">
                         <div class="col-sm-6">
-                            <label class="form-label" for="from">Pick up date and time:</label>
-                            <input class="form-control" id="from" name="startDateTime" type="datetime-local">
+                            <label class="form-label" for="startDateTime">Pick up date and time:</label>
+                            <input class="form-control" id="startDateTime" name="startDateTime" type="datetime-local">
                         </div>
                         <div class="col-sm-6">
-                            <label class="form-label" for="to">Return date and time:</label>
-                            <input class="form-control" id="to" name="endDateTime" type="datetime-local">
+                            <label class="form-label" for="endDateTime">Return date and time:</label>
+                            <input class="form-control" id="endDateTime" name="endDateTime" type="datetime-local">
                         </div>
                     </div>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Close</button>
-                    <button type="submit" class="btn btn-primary">OK</button>
+                    <button type="button" class="btn btn-primary" id="saveChanges">OK</button>
                 </div>
             </form>
         </div>
     </div>
 </div>
 
+
 <script>
     $(document).ready(function() {
-        $('.dropdown-item').click(function() {
-            var selectedLocation = $(this).text().trim();
-            $('#topupAmount').val(selectedLocation);
-        });
+    // Cập nhật địa điểm pick-up từ dropdown
+    $('.dropdown-item').click(function() {
+        var selectedLocation = $(this).text().trim();
+        $('#pickUpLocation').val(selectedLocation);
     });
+
+    // Hiển thị modal và cập nhật carId khi mở modal
+    $('a[data-bs-toggle="modal"]').click(function() {
+        var carId = $(this).data('car-id');
+        $('#carId').val(carId);
+    });
+
+    // Lưu thông tin từ modal vào các trường input khi nhấn OK
+    $('#saveChanges').click(function() {
+        var pickUpLocation = $('#pickUpLocation').val();
+        var startDateTime = $('#startDateTime').val();
+        var endDateTime = $('#endDateTime').val();
+
+        if (startDateTime && endDateTime) {
+            var startDate = new Date(startDateTime);
+            var endDate = new Date(endDateTime);
+
+            if (endDate <= startDate) {
+                alert('Return date must be greater than pick up date!');
+                return;
+            }
+
+            var differenceInTime = endDate.getTime() - startDate.getTime();
+            var numberOfDays = Math.ceil(differenceInTime / (1000 * 3600 * 24));
+
+            $('#pickUp').val(pickUpLocation);
+            $('#from').val(startDateTime);
+            $('#to').val(endDateTime);
+            $('#dateForReturn').text(numberOfDays);
+
+            // Lấy giá tiền từ phần tử HTML và chuyển đổi thành số nguyên
+            var pricePerDay = parseInt($('#pricePerDay').text().replace(/[^0-9]/g, ''), 10);
+
+            $.ajax({
+                url: '/calculate-total',
+                type: 'POST',
+                contentType: 'application/json',
+                headers: {
+                    'X-CSRF-TOKEN': $('meta[name="_csrf"]').attr('content')
+                },
+                data: JSON.stringify({
+                    numberOfDays: numberOfDays,
+                    pricePerDay: pricePerDay
+                }),
+                success: function(response) {
+                    $('#sumMonet').text(response.totalPrice);
+                },
+                error: function() {
+                    alert('Error calculating total price.');
+                }
+            });
+
+
+            // Đóng modal
+            $('#topup').modal('hide');
+        } else {
+            alert('Please select both pick up and return dates!');
+        }
+    });
+});
+
 </script>
 
-<div class="container">
-    <div class="booking-details">
-        <h3>Booking Details <span style="float: right;"><a class="text-dark me-3" data-bs-toggle="modal" data-bs-target="#topup">Change details</a></span></h3>
-        <p th:text="${booking != null ? 'Booking exists' : 'Booking is null'}"></p>
-        <p th:text="${booking.pickUpLocation}"></p>
-        <p th:text="'Pick-up location: ' + (${booking.pickUpLocation} != null ? booking.pickUpLocation : 'N/A')">Pick-up location</p>
-        <p th:text="'Pick up date and time: ' + (${booking.startDateTime} != null ? booking.startDateTime : 'N/A')">Pick up date and time</p>
-        <p th:text="'Return date and time: ' + (${booking.endDateTime} != null ? booking.endDateTime : 'N/A')">Return date and time</p>
-    </div>
+<div class="container mb-3">
+    <form th:action="@{/booking/create-booking}" method="post">
+        <!-- Booking Details -->
+        <div class="booking-details">
+            <h3>Booking Details <span style="float: right; cursor: pointer; text-decoration: none;"><a class="text-dark me-3" data-bs-toggle="modal" data-bs-target="#topup"><i class="bi-pencil-square"></i> Change details</a></span></h3>
 
-    <div class="steps">
-        <div class="step active">Step 1: Booking Information</div>
-        <div class="step">Step 2: Payment</div>
-        <div class="step">Step 3: Finish</div>
-    </div>
+            <label class="form-label" for="pickUp">Pick-up location:</label>
+            <input id="pickUp" name="pickUpLocation" type="text" placeholder="Location" readonly><br>
 
-    <div style="display: flex;">
-        <div class="car-info" style="flex: 1; margin-right: 20px;">
-            <div style="margin-bottom: 10px;">
-                <img th:src="@{'/img/' + ${car.images}}" width="300" height="300" alt="${car.name}" />
+            <label class="form-label" for="from">Pick up date and time:</label>
+            <input id="from" name="startDateTime" type="datetime-local" placeholder="Date and Time" readonly><br>
+
+            <label class="form-label" for="to">Return date and time:</label>
+            <input id="to" name="endDateTime" type="datetime-local" placeholder="Date and Time" readonly><br>
+        </div>
+
+        <!-- Car Information -->
+        <div class="steps">
+            <div class="step active">Step 1: Booking Information</div>
+            <div class="step">Step 2: Payment</div>
+            <div class="step">Step 3: Finish</div>
+        </div>
+
+        <div style="display: flex;">
+            <div class="car-info" style="flex: 1; margin-right: 20px;">
+                <div style="margin-bottom: 10px;">
+                    <img th:src="@{'/img/' + ${car.images}}" width="300" height="300" alt="${car.name}" />
+                </div>
+                <h3 th:text="${car.name}">Car name</h3>
+                <p>Rating: ☆☆☆☆☆</p>
+                <p>No. of rides: 0</p>
+                <p th:text="'Price: ' + ${car.basicPrice} + '/day'">Price</p>
+                <p th:text="'Locations: ' + ${car.address}">Locations</p>
+                <p>Status: <span style="color: green;">Available</span></p>
             </div>
-            <h3 th:text="${car.name}">Car name</h3>
-            <p>Rating: ☆☆☆☆☆</p>
-            <p>No. of rides: 0</p>
-            <p th:text="'Price: ' + ${car.basicPrice} + '/day'">Price</p>
-            <p th:text="'Locations: ' + ${car.address}">Locations</p>
-            <p>Status: <span style="color: green;">Available</span></p>
+            <div class="booking-summary" style="flex: 1;">
+                <h3>Booking Summary</h3>
+                <p>Number of days: <span id="dateForReturn">0</span></p>
+                <p>Price per day: <span id="pricePerDay" th:text="${car.basicPrice}">900,000 VND</span></p>
+                <p>Total: <span id="sumMonet">0 VND</span></p>
+                <p>Deposit: 15,000,000 VND</p>
+            </div>
         </div>
-        <div class="booking-summary" style="flex: 1;">
-            <h3>Booking Summary</h3>
-            <p>Number of days: 15</p>
-            <p>Price per day: 900,000 VND</p>
-            <p>Total: 13,500,000 VND</p>
-            <p>Deposit: 15,000,000 VND</p>
-        </div>
-    </div>
 
-    <form action="/booking/submit-booking" method="post">
+        <!-- Renter's Information -->
         <h3>Renter's Information</h3>
+        <p class="text-secondary" th:text="${account.roles[0].name}" style="display:none;"></p>
         <div style="display: flex; flex-wrap: wrap;">
             <div class="form-group" style="flex: 1; margin-right: 10px;">
                 <label>Full name:</label>
-                <input type="text" class="form-control" name="renterName">
+                <input type="text" class="form-control" name="renterName" th:value="${account.username}">
             </div>
             <div class="form-group" style="flex: 1;">
                 <label>Date of birth:</label>
-                <input type="date" class="form-control" name="renterDateOfBirth">
+                <input type="datetime-local" class="form-control" name="renterDateOfBirth" th:value="${customer.dateOfBirth}">
             </div>
         </div>
         <div style="display: flex; flex-wrap: wrap;">
             <div class="form-group" style="flex: 1; margin-right: 10px;">
                 <label>Phone number:</label>
-                <input type="tel" class="form-control" name="renterPhoneNo">
+                <input type="tel" class="form-control" name="renterPhoneNo" th:value="${customer.phoneNo}">
             </div>
             <div class="form-group" style="flex: 1;">
                 <label>Email address:</label>
-                <input type="email" class="form-control" name="renterEmail">
+                <input type="email" class="form-control" name="renterEmail" th:value="${account.username}">
             </div>
         </div>
         <div style="display: flex; flex-wrap: wrap;">
             <div class="form-group" style="flex: 1; margin-right: 10px;">
                 <label>National ID No.:</label>
-                <input type="text" class="form-control">
+                <input type="text" class="form-control" name="renterNationalId" th:value="${customer.nationalIdNo}">
             </div>
             <div class="form-group" style="flex: 1;">
                 <label>Driving license:</label>
-                <input type="text" class="form-control" name="renterDrivingLicense">
-                <button style="background-color: #e9ecef; border: none; padding: 5px 10px; margin-top: 5px;">Upload</button>
+                <input type="text" class="form-control" name="renterDrivingLicense" th:value="${customer.drivingLicense}">
             </div>
         </div>
         <div class="form-group">
             <label>Address:</label>
-            <select class="form-control">
-                <option>City/Province</option>
-            </select>
+<!--            <select class="form-control" name="renterCity">-->
+<!--                <option>City/Province</option>-->
+<!--            </select>-->
         </div>
+<!--        <div class="form-group">-->
+<!--            <select class="form-control" name="renterDistrict">-->
+<!--                <option>District</option>-->
+<!--            </select>-->
+<!--        </div>-->
+<!--        <div class="form-group">-->
+<!--            <select class="form-control" name="renterWard">-->
+<!--                <option>Ward</option>-->
+<!--            </select>-->
+<!--        </div>-->
         <div class="form-group">
-            <select class="form-control">
-                <option>District</option>
-            </select>
+            <input type="text" class="form-control" placeholder="House number, Street" name="renterAddress" th:value="${customer.address}">
         </div>
-        <div class="form-group">
-            <select class="form-control">
-                <option>Ward</option>
-            </select>
+        <div class="form-group mt-3 mb-3">
+            <a class="btn btn-secondary" href="/booking/upload">Upload</a>
+<!--            <button id="uploadBtn" type="button" class="btn btn-secondary" style="padding: 5px 10px;">Upload</button>-->
         </div>
-        <div class="form-group">
-            <input type="text" class="form-control" placeholder="House number, Street" name="renterAddress">
-        </div>
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                const uploadButton = document.getElementById('uploadBtn');
+                const userEmail = '<%= userEmail %>'; // Sử dụng email từ session
+
+                uploadButton.addEventListener('click', function() {
+
+                    fetch(`/api/customer/${userEmail}`)
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data) {
+                                document.querySelector('input[name="renterName"]').value = data.name || '';
+                                document.querySelector('input[name="renterDateOfBirth"]').value = formatDate(data.dateOfBirth) || '';
+                                document.querySelector('input[name="renterPhoneNo"]').value = data.phoneNo || '';
+                                document.querySelector('input[name="renterEmail"]').value = data.email || '';
+                                document.querySelector('input[name="renterNationalId"]').value = data.nationalIdNo || '';
+                                document.querySelector('input[name="renterDrivingLicense"]').value = data.drivingLicense || '';
+                                document.querySelector('input[name="renterAddress"]').value = data.address || '';
+                            }
+                        })
+                        .catch(error => {
+                            console.error('Error fetching customer data:', error);
+                        });
+
+                    // Đoạn mã này nên được đặt trong sự kiện `uploadButton.addEventListener('click', ...)`
+                    fetch(`/api/booking/saveDriverInfo`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/x-www-form-urlencoded',
+                        },
+                        body: new URLSearchParams({
+                            email: userEmail,
+                            bookingId: '123'  // Thay thế bằng ID Booking thực tế
+                        })
+                    })
+                    .then(response => response.text())
+                    .then(result => {
+                        console.log(result); // In kết quả phản hồi từ server
+                    })
+                    .catch(error => {
+                        console.error('Error saving driver information:', error);
+                    });
+
+                });
+
+                function formatDate(date) {
+                    if (!date) return '';
+                    const d = new Date(date);
+                    return d.toISOString().split('T')[0];
+                }
+            });
+        </script>
+
 
         <div style="text-align: right; margin-top: 20px;">
             <button type="button" class="btn" style="background-color: #6c757d; margin-right: 10px;">Cancel</button>
             <button type="submit" class="btn">Next</button>
         </div>
     </form>
-
 </div>
+
 <!-- Footer -->
 <div th:insert="header-footer/footer :: footer"></div>
 </body>
