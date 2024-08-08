@@ -1,12 +1,10 @@
 package com.group.car.controller;
 
-import com.group.car.models.Account;
-import com.group.car.models.CarOwner;
-import com.group.car.models.Customer;
-import com.group.car.models.Role;
+import com.group.car.models.*;
 import com.group.car.repository.AccountRepository;
 import com.group.car.repository.CarOwnerRepository;
 import com.group.car.repository.CustomerRepository;
+import com.group.car.repository.TransactionRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -18,6 +16,8 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
+import java.util.Date;
+import java.util.List;
 import java.util.Set;
 
 @Controller
@@ -32,30 +32,38 @@ public class MyWalletController {
     @Autowired
     CarOwnerRepository carOwnerRepository;
 
+    @Autowired
+    private TransactionRepository transactionRepository;
+
     @GetMapping("/my-wallet")
-    public String tomyWallet(Model model, Principal principal){
+    public String tomyWallet(Model model, Principal principal) {
         String email = principal.getName();
         Account emailAccount = accountRepository.findByEmail(email);
 
-        if (emailAccount == null){
+        if (emailAccount == null) {
             return "redirect:/login";
         }
 
         if (emailAccount.getRoles().stream().anyMatch(role -> role.getName().equals("Customer"))) {
             Customer customer = customerRepository.findByAccountId(emailAccount.getId());
+            List<Transaction> transactions = transactionRepository.findByCustomerOrderByTransactionDateTimeDesc(customer);
             model.addAttribute("account", emailAccount);
             model.addAttribute("customer", customer);
             model.addAttribute("carOwner", null);
+            model.addAttribute("transactions", transactions);
         } else if (emailAccount.getRoles().stream().anyMatch(role -> role.getName().equals("CarOwner"))) {
             CarOwner carOwner = carOwnerRepository.findByAccountId(emailAccount.getId());
+            List<Transaction> transactions = transactionRepository.findByCarOwnerOrderByTransactionDateTimeDesc(carOwner);
             model.addAttribute("account", emailAccount);
             model.addAttribute("carOwner", carOwner);
             model.addAttribute("customer", null);
+            model.addAttribute("transactions", transactions);
         }
         setUpUserRole(model);
         model.addAttribute("currentPage", "wallet");
         return "wallet/my-wallet";
     }
+
     private void setUpUserRole(Model model) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication != null && authentication.isAuthenticated() && authentication.getPrincipal() instanceof UserDetails) {
@@ -82,90 +90,102 @@ public class MyWalletController {
 
 
     @PostMapping("/withdraw")
-    public ResponseEntity<String> withdraw(@RequestParam String amount, Principal principal) {
+    public String withdrawWallet(@RequestParam("amount") int amount, Principal principal, Model model) {
         String email = principal.getName();
-        Account account = accountRepository.findByEmail(email);
+        Account emailAccount = accountRepository.findByEmail(email);
 
-        if (account != null) {
-            int currentBalance = 0;
-            boolean isCustomer = false;
+        if (emailAccount == null) {
+            model.addAttribute("errorMessage", "User not found. Please login again.");
+            return "wallet/my-wallet";
+        }
 
-            if (account.getCustomer() != null) {
-                currentBalance = account.getCustomer().getWallet();
-                isCustomer = true;
-            } else if (account.getCarOwner() != null) {
-                currentBalance = account.getCarOwner().getWallet();
+        if (emailAccount.getRoles().stream().anyMatch(role -> role.getName().equals("Customer"))) {
+            Customer customer = customerRepository.findByAccountId(emailAccount.getId());
+            if (customer.getWallet() >= amount) {
+                customer.setWallet(customer.getWallet() - amount);
+                customerRepository.save(customer);
+
+                // Lưu giao dịch
+                Transaction transaction = new Transaction();
+                transaction.setAmount(amount);
+                transaction.setType("Withdraw");
+                transaction.setCustomer(customer);
+                transaction.setTransactionDateTime(new Date());
+                transactionRepository.save(transaction);
+
+                model.addAttribute("successMessage", "Withdrawal successful!");
+            } else {
+                model.addAttribute("errorMessage", "Insufficient wallet balance.");
             }
+        } else if (emailAccount.getRoles().stream().anyMatch(role -> role.getName().equals("CarOwner"))) {
+            CarOwner carOwner = carOwnerRepository.findByAccountId(emailAccount.getId());
+            if (carOwner.getWallet() >= amount) {
+                carOwner.setWallet(carOwner.getWallet() - amount);
+                carOwnerRepository.save(carOwner);
 
-            try {
-                int amountToWithdraw = Integer.parseInt(amount.replace(",", "").replaceAll("[^0-9]", ""));
-                System.out.println("Current Balance: " + currentBalance);
-                System.out.println("Amount to Withdraw: " + amountToWithdraw);
+                // Lưu giao dịch
+                Transaction transaction = new Transaction();
+                transaction.setAmount(amount);
+                transaction.setType("Withdraw");
+                transaction.setCarOwner(carOwner);
+                transaction.setTransactionDateTime(new Date());
+                transactionRepository.save(transaction);
 
-                if (amountToWithdraw <= currentBalance) {
-                    int newBalance = currentBalance - amountToWithdraw;
-
-                    if (isCustomer) {
-                        Customer customer = account.getCustomer();
-                        customer.setWallet(newBalance);
-                        customerRepository.save(customer);
-                    } else {
-                        CarOwner carOwner = account.getCarOwner();
-                        carOwner.setWallet(newBalance);
-                        carOwnerRepository.save(carOwner);
-                    }
-                    return ResponseEntity.ok("Withdraw successful");
-                } else {
-                    return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Insufficient balance");
-                }
-            } catch (NumberFormatException e) {
-                System.err.println("Invalid amount format: " + amount);
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid amount format");
+                model.addAttribute("successMessage", "Withdrawal successful!");
+            } else {
+                model.addAttribute("errorMessage", "Insufficient wallet balance.");
             }
         }
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Account not found");
+
+        return "wallet/my-wallet";
     }
 
-
     @PostMapping("/topup")
-    public ResponseEntity<String> topUp(@RequestParam String amount, Principal principal) {
+    public String topUpWallet(@RequestParam("amount") int amount, Principal principal, Model model) {
         String email = principal.getName();
-        Account account = accountRepository.findByEmail(email);
+        Account emailAccount = accountRepository.findByEmail(email);
 
-        if (account != null) {
-            int currentBalance = 0;
-            boolean isCustomer = false;
-
-            if (account.getCustomer() != null) {
-                currentBalance = account.getCustomer().getWallet();
-                isCustomer = true;
-            } else if (account.getCarOwner() != null) {
-                currentBalance = account.getCarOwner().getWallet();
-            }
-
-            try {
-                int amountToTopUp = Integer.parseInt(amount.replace(",", "").replaceAll("[^0-9]", ""));
-                System.out.println("Current Balance: " + currentBalance);
-                System.out.println("Amount to Top-Up: " + amountToTopUp);
-
-                int newBalance = currentBalance + amountToTopUp;
-
-                if (isCustomer) {
-                    Customer customer = account.getCustomer();
-                    customer.setWallet(newBalance);
-                    customerRepository.save(customer);
-                } else {
-                    CarOwner carOwner = account.getCarOwner();
-                    carOwner.setWallet(newBalance);
-                    carOwnerRepository.save(carOwner);
-                }
-                return ResponseEntity.ok("Top-up successful");
-            } catch (NumberFormatException e) {
-                System.err.println("Invalid amount format: " + amount);
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid amount format");
-            }
+        if (emailAccount == null) {
+            model.addAttribute("errorMessage", "User not found. Please login again.");
+            return "wallet/my-wallet";
         }
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Account not found");
+
+        if (amount <= 0) {
+            model.addAttribute("errorMessage", "Invalid amount. Please enter a positive value.");
+            return "wallet/my-wallet";
+        }
+
+        if (emailAccount.getRoles().stream().anyMatch(role -> role.getName().equals("Customer"))) {
+            Customer customer = customerRepository.findByAccountId(emailAccount.getId());
+            customer.setWallet(customer.getWallet() + amount);
+            customerRepository.save(customer);
+
+            // Lưu giao dịch
+            Transaction transaction = new Transaction();
+            transaction.setAmount(amount);
+            transaction.setType("Top-Up");
+            transaction.setCustomer(customer);
+            transaction.setTransactionDateTime(new Date());
+            transactionRepository.save(transaction);
+
+            model.addAttribute("successMessage", "Top-Up successful!");
+        } else if (emailAccount.getRoles().stream().anyMatch(role -> role.getName().equals("CarOwner"))) {
+            CarOwner carOwner = carOwnerRepository.findByAccountId(emailAccount.getId());
+            carOwner.setWallet(carOwner.getWallet() + amount);
+            carOwnerRepository.save(carOwner);
+
+            // Lưu giao dịch
+            Transaction transaction = new Transaction();
+            transaction.setAmount(amount);
+            transaction.setType("Top-Up");
+            transaction.setCarOwner(carOwner);
+            transaction.setTransactionDateTime(new Date());
+            transactionRepository.save(transaction);
+
+            model.addAttribute("successMessage", "Top-Up successful!");
+        }
+
+        return "wallet/my-wallet";
     }
 
     //Them search Date from - to

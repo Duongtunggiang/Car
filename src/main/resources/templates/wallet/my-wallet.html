@@ -4,7 +4,17 @@
 <body>
 <!-- Header -->
 <div th:insert="header-footer/header :: nav"></div>
-    <main class="mt-3 mb-3">
+<!-- Hiển thị thông báo lỗi -->
+<div th:if="${errorMessage}" class="alert alert-danger" role="alert">
+    <span th:text="${errorMessage}"></span>
+</div>
+
+<!-- Hiển thị thông báo thành công -->
+<div th:if="${successMessage}" class="alert alert-success" role="alert">
+    <span th:text="${successMessage}"></span>
+</div>
+
+    <main class="mt-3 mb-5">
         <div class="container">
             <p class="text-dark mt-3 mb-3"><a class="text-primary" href="/">Home</a> / My Wallet</p>
             <h1 class="jutify-content-center ">My Wallet</h1>
@@ -27,42 +37,43 @@
 <!--                    <a class="btn btn-primary me-3" href="/mywallet/withdraw">Withdraw</a>href="/mywallet/topup"-->
                     <a class="btn btn-success me-3" data-bs-toggle="modal" data-bs-target="#topup">Top-Up</a>
                 </div>
-                <div class="col-sm-6">
-                    <label class="form-label" for="from">From:</label>
-                    <input id="from" name="from" type="date">
-                </div>
-                <div class="col-sm-6">
-                    <label class="form-label" for="to">To:</label>
-                    <input id="to" name="from" type="date">
-                </div>
+                <form>
+                    <div class="row mt-3 mb-3">
+                        <div class="col-sm-6">
+                            <label class="form-label" for="from">From:</label>
+                            <input id="from" name="from" type="date">
+                        </div>
+                        <div class="col-sm-6">
+                            <label class="form-label" for="to">To:</label>
+                            <input id="to" name="from" type="date">
+                        </div>
+                        <div class="col-sm-6 justify-content-end">
+                            <a class="btn btn-primary" href="#">Search</a>
+                        </div>
+                    </div>
+                </form>
             </div>
             <table class="table table-striped">
                 <thead>
                 <tr>
-                    <th scope="col">#</th>
-                    <th scope="col">First</th>
-                    <th scope="col">Last</th>
-                    <th scope="col">Handle</th>
+                    <th scope="col">No</th>
+                    <th scope="col">Amount</th>
+                    <th scope="col">Type</th>
+                    <th scope="col">Date time</th>
+                    <th scope="col">Booking No</th>
+                    <th scope="col">Car Name</th>
                 </tr>
                 </thead>
                 <tbody>
-                <tr>
-                    <th scope="row">1</th>
-                    <td>Mark</td>
-                    <td>Otto</td>
-                    <td>@mdo</td>
+                <tr th:each="transaction : ${transactions}">
+                    <th scope="row" th:text="${transaction.id}"></th>
+                    <td th:text="${transaction.amount}"></td>
+                    <td th:text="${transaction.type}"></td>
+                    <td th:text="${#dates.format(transaction.transactionDateTime, 'dd/MM/yyyy HH:mm:ss')}"></td>
+                    <td th:text="${transaction.bookingNo != null ? transaction.bookingNo : 'N/A'}"></td>
+                    <td th:text="${transaction.carName != null ? transaction.carName : 'N/A'}"></td>
                 </tr>
-                <tr>
-                    <th scope="row">2</th>
-                    <td>Jacob</td>
-                    <td>Thornton</td>
-                    <td>@fat</td>
-                </tr>
-                <tr>
-                    <th scope="row">3</th>
-                    <td colspan="2">Larry the Bird</td>
-                    <td>@twitter</td>
-                </tr>
+
                 </tbody>
             </table>
         </div>

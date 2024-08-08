@@ -33,7 +33,7 @@
     </div>
     <div th:if="${car != null}">
         <div class="breadcrumb">
-            <p class="text-dark"> <a class="text-primary" href="/">Home</a> / Search Results / Car details</p>
+            <p class="text-dark"> <a class="text-primary" href="/">Home</a> / <a class="text-primary" th:href="@{'/customer/car-details?id=' + ${car.id}}">Car details</a></p>
         </div>
 
         <h2>Car Details</h2>
