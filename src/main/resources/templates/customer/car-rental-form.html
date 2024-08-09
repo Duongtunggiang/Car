@@ -48,7 +48,7 @@
                 <div class="modal-body">
                     <input type="hidden" name="_csrf" th:value="${_csrf.token}">
                     <div class="input-group mb-3">
-                        <input type="text" class="form-control" id="pickUpLocation" name="pickUpLocation" placeholder="Enter location">
+                        <input type="text" class="form-control" id="pickUpLocation" name="pickUpLocation" th:value="${pickupLocation}" placeholder="Enter location">
                         <button class="btn btn-outline-secondary dropdown-toggle" type="button" id="topupDropdownButton" data-bs-toggle="dropdown" aria-expanded="false">Options</button>
                         <ul class="dropdown-menu" aria-labelledby="topupDropdownButton">
                             <li><a class="dropdown-item" href="#">Thanh Xuân, Hà Nội</a></li>
@@ -62,11 +62,13 @@
                     <div class="row">
                         <div class="col-sm-6">
                             <label class="form-label" for="startDateTime">Pick up date and time:</label>
-                            <input class="form-control" id="startDateTime" name="startDateTime" type="datetime-local">
+                            <input class="form-control" id="startDateTime" name="startDateTime"
+                                   th:value="${#temporals.format(pickupDateTime, 'yyyy-MM-dd''T''HH:mm')}" type="datetime-local">
                         </div>
                         <div class="col-sm-6">
                             <label class="form-label" for="endDateTime">Return date and time:</label>
-                            <input class="form-control" id="endDateTime" name="endDateTime" type="datetime-local">
+                            <input class="form-control" id="endDateTime" name="endDateTime"
+                                   th:value="${#temporals.format(returnDateTime, 'yyyy-MM-dd''T''HH:mm')}" type="datetime-local">
                         </div>
                     </div>
                 </div>
@@ -151,19 +153,19 @@
 </script>
 
 <div class="container mb-3">
-    <form th:action="@{/booking/create-booking}" method="post">
+    <form th:action="@{/booking/payment}" method="post">
         <!-- Booking Details -->
         <div class="booking-details">
             <h3>Booking Details <span style="float: right; cursor: pointer; text-decoration: none;"><a class="text-dark me-3" data-bs-toggle="modal" data-bs-target="#topup"><i class="bi-pencil-square"></i> Change details</a></span></h3>
 
             <label class="form-label" for="pickUp">Pick-up location:</label>
-            <input id="pickUp" name="pickUpLocation" type="text" placeholder="Location" readonly><br>
+            <input id="pickUp" name="pickUpLocation" type="text" placeholder="Location" th:value="${pickupLocation}" readonly><br>
 
             <label class="form-label" for="from">Pick up date and time:</label>
-            <input id="from" name="startDateTime" type="datetime-local" placeholder="Date and Time" readonly><br>
+            <input id="from" name="startDateTime" type="datetime-local" placeholder="Date and Time" th:value="${#temporals.format(pickupDateTime, 'yyyy-MM-dd''T''HH:mm')}" readonly><br>
 
             <label class="form-label" for="to">Return date and time:</label>
-            <input id="to" name="endDateTime" type="datetime-local" placeholder="Date and Time" readonly><br>
+            <input id="to" name="endDateTime" type="datetime-local" placeholder="Date and Time" th:value="${#temporals.format(returnDateTime, 'yyyy-MM-dd''T''HH:mm')}" readonly><br>
         </div>
 
         <!-- Car Information -->
@@ -176,7 +178,7 @@
         <div style="display: flex;">
             <div class="car-info" style="flex: 1; margin-right: 20px;">
                 <div style="margin-bottom: 10px;">
-                    <img th:src="@{'/img/' + ${car.images}}" width="300" height="300" alt="${car.name}" />
+                    <img th:src="@{'/img/' + ${car.images}}" width="300" height="300" alt="car image" />
                 </div>
                 <h3 th:text="${car.name}">Car name</h3>
                 <p>Rating: ☆☆☆☆☆</p>
@@ -185,14 +187,31 @@
                 <p th:text="'Locations: ' + ${car.address}">Locations</p>
                 <p>Status: <span style="color: green;">Available</span></p>
             </div>
+
+
             <div class="booking-summary" style="flex: 1;">
                 <h3>Booking Summary</h3>
                 <p>Number of days: <span id="dateForReturn">0</span></p>
                 <p>Price per day: <span id="pricePerDay" th:text="${car.basicPrice}">900,000 VND</span></p>
+                <br>
                 <p>Total: <span id="sumMonet">0 VND</span></p>
-                <p>Deposit: 15,000,000 VND</p>
+                <p>Deposit: <span th:text="${car.deposit}">15,000,000 VND</span></p>
             </div>
         </div>
+
+        <script>
+            const pickupDateTime = document.getElementById('startDateTime').value;
+            const returnDateTime = document.getElementById('endDateTime').value;
+
+            const oneDay = 24 * 60 * 60 * 1000; // Hours * Minutes * Seconds * Milliseconds
+            const diffDays = Math.round(Math.abs((new Date(pickupDateTime) - new Date(returnDateTime)) / oneDay));
+            document.getElementById('dateForReturn').textContent = diffDays;
+
+            const pricePerDay = parseFloat(document.getElementById('pricePerDay').textContent);
+
+            const totalPrice = diffDays * pricePerDay;
+            document.getElementById('sumMonet').textContent = totalPrice.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' });
+        </script>
 
         <!-- Renter's Information -->
         <h3>Renter's Information</h3>
@@ -204,7 +223,8 @@
             </div>
             <div class="form-group" style="flex: 1;">
                 <label>Date of birth:</label>
-                <input type="datetime-local" class="form-control" name="renterDateOfBirth" th:value="${customer.dateOfBirth}">
+                <input type="date" class="form-control" name="renterDateOfBirth"
+                       th:value="${#dates.format(customer.dateOfBirth, 'yyyy-MM-dd')}">
             </div>
         </div>
         <div style="display: flex; flex-wrap: wrap;">

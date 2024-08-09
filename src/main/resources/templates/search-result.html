@@ -128,17 +128,17 @@
         <form th:action="@{/customer/search}" method="post">
             <div>
                 <label>PICK-UP LOCATION:</label>
-                <input type="text" name="pickupLocation" required>
+                <input type="text" name="pickupLocation" th:value="${pickupLocation}" required>
             </div>
             <div>
                 <label>PICK-UP DATE AND TIME:</label>
-                <input type="date" name="pickupDate" required>
-                <input type="time" name="pickupTime" required>
+                <input type="date" name="pickupDate" th:value="${#temporals.format(pickupDate, 'yyyy-MM-dd')}" required>
+                <input type="time" name="pickupTime" th:value="${#temporals.format(pickupTime, 'HH:mm')}" required>
             </div>
             <div>
                 <label>DROP-OFF DATE AND TIME:</label>
-                <input type="date" name="dropoffDate" required>
-                <input type="time" name="dropoffTime" required>
+                <input type="date" name="dropoffDate" th:value="${#temporals.format(dropoffDate, 'yyyy-MM-dd')}" required>
+                <input type="time" name="dropoffTime" th:value="${#temporals.format(dropoffTime, 'HH:mm')}" required>
             </div>
             <button type="submit" class="btn">SEARCH</button>
         </form>

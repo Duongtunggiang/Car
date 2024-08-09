@@ -2,6 +2,8 @@ package com.group.car.controller;
 
 import com.group.car.models.Car;
 import com.group.car.repository.CarRepository;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -29,9 +31,23 @@ public class SearchController {
                              @RequestParam LocalTime pickupTime,
                              @RequestParam LocalDate dropoffDate,
                              @RequestParam LocalTime dropoffTime,
+                             HttpServletRequest request,
                              Model model) {
         List<Car> searchResults = carRepository.findByAddressContainingIgnoreCase(pickupLocation);
         model.addAttribute("searchResults", searchResults);
+        model.addAttribute("pickupLocation", pickupLocation);
+        model.addAttribute("pickupDate", pickupDate);
+        model.addAttribute("pickupTime", pickupTime);
+        model.addAttribute("dropoffDate", dropoffDate);
+        model.addAttribute("dropoffTime", dropoffTime);
+
+        // Store the search parameters in the session
+        HttpSession session = request.getSession();
+        session.setAttribute("pickupLocation", pickupLocation);
+        session.setAttribute("pickupDate", pickupDate);
+        session.setAttribute("pickupTime", pickupTime);
+        session.setAttribute("dropoffDate", dropoffDate);
+        session.setAttribute("dropoffTime", dropoffTime);
         return "search-result";
     }
 

@@ -1,30 +1,27 @@
 package com.group.car.controller;
 
 import com.group.car.models.*;
-import com.group.car.models.Dto.BookingDto;
-import com.group.car.models.Dto.BookingFormDTO;
 import com.group.car.repository.*;
 import com.group.car.service.BookingService;
-import com.group.car.service.CarService;
 import com.group.car.service.CarServiceImpl;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.security.Principal;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.Date;
 import java.util.List;
-import java.util.Optional;
 import java.util.Set;
 
 @Controller
@@ -61,7 +58,10 @@ public class BookingController {
     }
 
     @GetMapping("/rent-a-car")
-    public String showRentalCarForm(@RequestParam("id") long id, Model model,Principal principal) {
+    public String showRentalCarForm(@RequestParam("id") long id,
+                                    Model model,
+                                    Principal principal,
+                                    HttpServletRequest request) {
         Car car = carRepository.findById(id).orElse(null);
         if (car == null) {
             model.addAttribute("message", "Car not found");
@@ -76,27 +76,38 @@ public class BookingController {
             Customer customer = customerRepository.findByAccountId(emailAccount.getId());
             model.addAttribute("account", emailAccount);
             model.addAttribute("customer", customer);
-//            model.addAttribute("carOwner", null);
         }
 
         Booking booking = new Booking();
-        // Lấy thông tin khách hàng hiện tại
         Customer customer = getCurrentCustomer();
 
+        // Retrieve the search parameters from the session
+        HttpSession session = request.getSession();
+        String pickupLocation = (String) session.getAttribute("pickupLocation");
+        LocalDate pickupDate = (LocalDate) session.getAttribute("pickupDate");
+        LocalTime pickupTime = (LocalTime) session.getAttribute("pickupTime");
+        LocalDate dropoffDate = (LocalDate) session.getAttribute("dropoffDate");
+        LocalTime dropoffTime = (LocalTime) session.getAttribute("dropoffTime");
+
+        // Combine LocalDate and LocalTime into LocalDateTime
+        LocalDateTime pickupDateTime = LocalDateTime.of(pickupDate, pickupTime);
+        LocalDateTime returnDateTime = LocalDateTime.of(dropoffDate, dropoffTime);
+
         model.addAttribute("car", car);
-        model.addAttribute("booking", booking);
-        model.addAttribute("customer", customer);
+        model.addAttribute("pickupLocation", pickupLocation);
+        model.addAttribute("pickupDateTime", pickupDateTime);
+        model.addAttribute("returnDateTime", returnDateTime);
         setUpUserRole(model);
-        model.addAttribute("currentPage", "car-rental-form");
         return "customer/car-rental-form";
     }
+
+
     @GetMapping("/upload")
-    public String uploadProfile(Model model){
+    public String uploadProfile(Model model) {
 
 
         return "customer/car-rental-form";
     }
-
 
 
     @PostMapping("/create-booking")
@@ -245,7 +256,6 @@ public class BookingController {
     }
 
 
-
     @PostMapping("/rent")
     public String rentCard(@ModelAttribute Booking booking, @RequestParam("carIds") List<Long> carIds, Model model) {
         List<Car> cars = carRepository.findAllById(carIds);
@@ -263,13 +273,14 @@ public class BookingController {
             return "booking";
         }
     }
+
     @PostMapping("/update-booking")
     public String updateBookings(@RequestParam Long bookingId,
-                                @RequestParam Long carId,
-                                @RequestParam String pickUpLocation,
-                                @RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss") Date startDateTime,
-                                @RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss") Date endDateTime,
-                                RedirectAttributes redirectAttributes) {
+                                 @RequestParam Long carId,
+                                 @RequestParam String pickUpLocation,
+                                 @RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss") Date startDateTime,
+                                 @RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss") Date endDateTime,
+                                 RedirectAttributes redirectAttributes) {
         try {
             Booking booking = bookingRepository.findById(bookingId).orElseThrow();
             booking.setPickUpLocation(pickUpLocation);
@@ -302,7 +313,7 @@ public class BookingController {
 //        return "customer/change-details";
 //    }
 
-//
+    //
     @GetMapping("/change-details")
     public String showChangeDetailsForm(@RequestParam("bookingId") Long bookingId,
                                         @PathVariable("carId") Long carId,
@@ -363,13 +374,13 @@ public class BookingController {
 
     @PostMapping("/create-bookings")
     public String createBookings(@RequestParam("carId") Long carId,
-                                @RequestParam("pickUpLocation") String pickUpLocation,
-                                @RequestParam("startDateTime") @DateTimeFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss") Date startDateTime,
-                                @RequestParam("endDateTime") @DateTimeFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss") Date endDateTime,
+                                 @RequestParam("pickUpLocation") String pickUpLocation,
+                                 @RequestParam("startDateTime") @DateTimeFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss") Date startDateTime,
+                                 @RequestParam("endDateTime") @DateTimeFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss") Date endDateTime,
 
 //                                @RequestParam LocalDateTime startDateTime,
 //                                @RequestParam LocalDateTime endDateTime,
-                                Model model) {
+                                 Model model) {
         // Lấy xe từ carId
         Car car = carService.findById(carId);
         if (car == null) {
@@ -396,8 +407,7 @@ public class BookingController {
 
     private void setUpUserRole(Model model) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if (authentication != null && authentication.isAuthenticated() && authentication.getPrincipal() instanceof UserDetails) {
-            UserDetails userDetails = (UserDetails) authentication.getPrincipal();
+        if (authentication != null && authentication.isAuthenticated() && authentication.getPrincipal() instanceof UserDetails userDetails) {
             String username = userDetails.getUsername();
 
             Account account = accountRepository.findByEmail(username);
@@ -416,7 +426,6 @@ public class BookingController {
             model.addAttribute("userRole", "Guest");
         }
     }
-
 
 
 //    @PostMapping("/submit-booking")
