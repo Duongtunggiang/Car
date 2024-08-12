@@ -2,69 +2,190 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
     <title>Booking Information</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 20px;
+        }
+        h1, h2 {
+            color: #333;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: #fff;
+            padding: 20px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        .header, .footer {
+            text-align: center;
+            background: #333;
+            color: white;
+            padding: 10px 0;
+        }
+        .header h1 {
+            margin: 0;
+        }
+        .steps {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 20px;
+            background: #f4f4f4;
+            padding: 10px;
+            border-radius: 4px;
+        }
+        .step {
+            flex: 1;
+            text-align: center;
+            padding: 10px;
+            background: #ccc;
+            margin-right: 10px;
+            border-radius: 4px;
+            font-weight: bold;
+        }
+        .step.active {
+            background: #2c7be5;
+            color: white;
+        }
+        .step:last-child {
+            margin-right: 0;
+        }
+        .booking-summary, .car-info, .renter-info, .driver-info {
+            border: 1px solid #ddd;
+            padding: 10px;
+            margin-bottom: 20px;
+            border-radius: 4px;
+        }
+        .booking-summary h3, .car-info h3, .renter-info h3, .driver-info h3 {
+            margin-top: 0;
+        }
+        .input-group {
+            margin-bottom: 15px;
+        }
+        .input-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        .input-group input, .input-group select, .input-group textarea {
+            width: calc(100% - 10px);
+            padding: 8px;
+            font-size: 14px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+        .buttons {
+            text-align: right;
+        }
+        .buttons button {
+            background: #2c7be5;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        .buttons button:hover {
+            background: #1a5bb8;
+        }
+    </style>
 </head>
 <body>
-<h1>Rent a car today!</h1>
-<h2>Step 1: Booking Information</h2>
+<div class="container">
+    <div class="header">
+        <h1>Rent a car today!</h1>
+    </div>
 
-<form th:action="@{/booking/step1}" method="post" th:object="${booking}">
-    <input type="hidden" name="carId" th:value="${car.id}" />
+    <div class="steps">
+        <div class="step active">Step 1: Booking Information</div>
+        <div class="step">Step 2: Payment</div>
+        <div class="step">Step 3: Finish</div>
+    </div>
 
-    <h3>Booking Details</h3>
-    <p>
-        Pick-up location:
-        <input type="text" th:field="*{pickUpLocation}" required />
-    </p>
-    <p>
-        Pick-up date and time:
-        <input type="datetime-local" th:field="*{startDateTime}" th:value="${#temporals.format(pickupDateTime, 'yyyy-MM-dd''T''HH:mm')}" required />
-    </p>
-    <p>
-        Return date and time:
-        <input type="datetime-local" th:field="*{endDateTime}" th:value="${#temporals.format(returnDateTime, 'yyyy-MM-dd''T''HH:mm')}" required />
-    </p>
+    <form th:action="@{/booking/step1}" method="post" th:object="${booking}">
+        <input type="hidden" name="carId" th:value="${car.id}"/>
 
-    <h3>Car Information</h3>
-    <p>Model: <span th:text="${car.name}"></span></p>
-    <p>Price: <span th:text="${car.basicPrice}"></span> VND/day</p>
+        <div class="booking-summary">
+            <h3>Booking Summary</h3>
+            <p>
+                Pick-up location: <strong th:text="${booking.pickUpLocation}"></strong>
+            </p>
+            <p>
+                Pick-up date and time: <strong th:text="${#temporals.format(pickupDateTime, 'dd/MM/yyyy - HH:mm')}"></strong>
+            </p>
+            <p>
+                Return date and time: <strong th:text="${#temporals.format(returnDateTime, 'dd/MM/yyyy - HH:mm')}"></strong>
+            </p>
+            <p>
+                Number of days: <strong th:text="${booking.numberOfDays}"></strong>
+            </p>
+            <p>
+                Total: <strong th:text="${booking.totalPrice}"></strong> VND
+            </p>
+            <p>
+                Deposit: <strong th:text="${car.deposit}"></strong> VND
+            </p>
+        </div>
 
-    <h3>Booking Summary</h3>
-    <p>Number of days: <span th:text="${booking.numberOfDays}"></span></p>
-    <p>Total: <span th:text="${booking.totalPrice}"></span> VND</p>
-    <p>Deposit: <span th:text="${car.deposit}"></span> VND</p>
+        <div class="car-info">
+            <h3>Car Information</h3>
+            <p>Model: <strong th:text="${car.name}"></strong></p>
+            <p>Price: <strong th:text="${car.basicPrice}"></strong> VND/day</p>
+        </div>
 
-    <h3>Renter's Information</h3>
-    <p>
-        Full Name:
-        <input type="text" th:field="*{customer.name}" required />
-    </p>
-    <p>
-        Date of Birth:
-        <input type="date" class="form-control" name="renterDateOfBirth"
-               th:value="${#dates.format(customer.dateOfBirth, 'yyyy-MM-dd')}">
-    </p>
-    <p>
-        Phone number:
-        <input type="tel" th:field="*{customer.phoneNo}" required />
-    </p>
-    <p>
-        Email address:
-        <input type="email" th:field="*{customer.email}" required />
-    </p>
-    <p>
-        National ID No.:
-        <input type="text" th:field="*{customer.nationalIdNo}" required />
-    </p>
-    <p>
-        Driving license:
-        <input type="text" th:field="*{customer.drivingLicense}" required />
-    </p>
-    <p>
-        Address:
-        <textarea th:field="*{customer.address}" required></textarea>
-    </p>
+        <div class="renter-info">
+            <h3>Renter's Information</h3>
+            <div class="input-group">
+                <label for="fullName">Full Name:</label>
+                <input type="text" id="fullName" th:field="*{customer.name}" required/>
+            </div>
+            <div class="input-group">
+                <label for="dob">Date of Birth:</label>
+<!--                <input type="date" id="dob" th:field="*{customer.dateOfBirth}" required/>-->
+                <p>
+                    <input type="date" id="dob"  name="renterDateOfBirth"
+                           th:value="${#dates.format(customer.dateOfBirth, 'yyyy-MM-dd')}">
+                </p>
+            </div>
+            <div class="input-group">
+                <label for="phone">Phone number:</label>
+                <input type="tel" id="phone" th:field="*{customer.phoneNo}" required/>
+            </div>
+            <div class="input-group">
+                <label for="email">Email address:</label>
+                <input type="email" id="email" th:field="*{customer.email}" required/>
+            </div>
+            <div class="input-group">
+                <label for="nid">National ID No.:</label>
+                <input type="text" id="nid" th:field="*{customer.nationalIdNo}" required/>
+            </div>
+            <div class="input-group">
+                <label for="license">Driving license:</label>
+                <input type="text" id="license" th:field="*{customer.drivingLicense}" required/>
+            </div>
+            <div class="input-group">
+                <label for="address">Address:</label>
+                <textarea id="address" th:field="*{customer.address}" required></textarea>
+            </div>
+        </div>
 
-    <button type="submit">Next</button>
-</form>
+<!--        <div class="driver-info">-->
+<!--            <h3>Driver's Information</h3>-->
+<!--            <p>If different from renter's information.</p>-->
+<!--            &lt;!&ndash; Repeat input groups for driver's information if necessary &ndash;&gt;-->
+<!--        </div>-->
+
+        <div class="buttons">
+            <button type="submit">Next</button>
+        </div>
+    </form>
+
+    <div class="footer">
+        <p>&copy; 2024 Rent a Car</p>
+    </div>
+</div>
 </body>
 </html>

@@ -8,6 +8,7 @@ import com.group.car.repository.CarRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
@@ -63,5 +64,10 @@ public class CarServiceImpl implements CarService {
     @Override
     public List<Car> findAllByCarOwner(long carOwnerId) {
         return List.of();
+    }
+
+
+    public List<Car> searchAvailableCars(String location, Date startDateTime, Date endDateTime) {
+        return carRepository.findAvailableCars(location, startDateTime, endDateTime);
     }
 }

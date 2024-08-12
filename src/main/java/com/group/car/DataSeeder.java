@@ -181,6 +181,26 @@ public class DataSeeder {
             calendar.set(2024, Calendar.AUGUST, 12, 8, 0);
             Date endDate3 = calendar.getTime();
 
+            calendar.set(2024, Calendar.AUGUST, 13, 8, 0);
+            Date startDate4 = calendar.getTime();
+            calendar.set(2024, Calendar.AUGUST, 14, 8, 0);
+            Date endDate4 = calendar.getTime();
+
+            calendar.set(2024, Calendar.AUGUST, 13, 8, 0);
+            Date startDate11 = calendar.getTime();
+            calendar.set(2024, Calendar.AUGUST, 14, 8, 0);
+            Date endDate11 = calendar.getTime();
+
+            calendar.set(2024, Calendar.AUGUST, 12, 9, 0);
+            Date startDate22 = calendar.getTime();
+            calendar.set(2024, Calendar.AUGUST, 17, 8, 0);
+            Date endDate22 = calendar.getTime();
+
+            calendar.set(2024, Calendar.AUGUST, 11, 9, 0);
+            Date startDate33 = calendar.getTime();
+            calendar.set(2024, Calendar.AUGUST, 12, 8, 0);
+            Date endDate33 = calendar.getTime();
+
             Booking booking1 = new Booking();
             booking1.setBookingNo("B001");
             booking1.setStartDateTime(startDate1);
@@ -188,6 +208,8 @@ public class DataSeeder {
             booking1.setDriversInformation("John Doe, License: DL123456");
             booking1.setPaymentMethod("Credit Card");
             booking1.setStatus("Confirmed");
+            booking1.setTotalPrice(10000);
+            booking1.setPickUpLocation(car1.getAddress());
             booking1.setCustomer(customer1);
             bookingRepository.save(booking1);
 
@@ -197,7 +219,9 @@ public class DataSeeder {
             booking2.setEndDateTime(endDate2);
             booking2.setDriversInformation("Jane Smith, License: DL789456");
             booking2.setPaymentMethod("Debit Card");
+            booking2.setTotalPrice(10000);
             booking2.setStatus("Confirmed");
+            booking2.setPickUpLocation(car2.getAddress());
             booking2.setCustomer(customer1);
             bookingRepository.save(booking2);
 
@@ -206,26 +230,95 @@ public class DataSeeder {
             booking3.setStartDateTime(startDate3);
             booking3.setEndDateTime(endDate3);
             booking3.setDriversInformation("Alice Brown, License: DL321654");
+            booking3.setTotalPrice(10000);
             booking3.setPaymentMethod("Cash");
+            booking3.setPickUpLocation(car3.getAddress());
             booking3.setStatus("Cancelled");
             booking3.setCustomer(customer1);
             bookingRepository.save(booking3);
 
+            Booking booking4 = new Booking();
+            booking4.setBookingNo("B004");
+            booking4.setStartDateTime(startDate4);
+            booking4.setTotalPrice(10000);
+            booking4.setEndDateTime(endDate4);
+            booking4.setDriversInformation("Alice Brown, License: DL321654");
+            booking4.setPaymentMethod("Cash");
+            booking4.setPickUpLocation(car3.getAddress());
+            booking4.setStatus("Cancelled");
+            booking4.setCustomer(customer1);
+            bookingRepository.save(booking4);
+
+            Booking booking11 = new Booking();
+            booking11.setBookingNo("B011");
+            booking11.setStartDateTime(startDate11);
+            booking11.setEndDateTime(endDate11);
+            booking11.setDriversInformation("Alice Brown, License: DL321654");
+            booking11.setTotalPrice(10000);
+            booking11.setPaymentMethod("Cash");
+            booking11.setPickUpLocation(car2.getAddress());
+            booking11.setStatus("Cancelled");
+            booking11.setCustomer(customer1);
+            bookingRepository.save(booking11);
+
+            Booking booking22 = new Booking();
+            booking22.setBookingNo("B022");
+            booking22.setStartDateTime(startDate22);
+            booking22.setTotalPrice(10000);
+            booking22.setEndDateTime(endDate22);
+            booking22.setDriversInformation("Alice Brown, License: DL321654");
+            booking22.setPaymentMethod("Cash");
+            booking22.setPickUpLocation(car3.getAddress());
+            booking22.setStatus("Cancelled");
+            booking22.setCustomer(customer1);
+            bookingRepository.save(booking22);
+
+            Booking booking33 = new Booking();
+            booking33.setBookingNo("B033");
+            booking33.setStartDateTime(startDate33);
+            booking33.setTotalPrice(10000);
+            booking33.setEndDateTime(endDate33);
+            booking33.setDriversInformation("Alice Brown, License: DL321654");
+            booking33.setPaymentMethod("Cash");
+            booking33.setPickUpLocation(car1.getAddress());
+            booking33.setStatus("Cancelled");
+            booking33.setCustomer(customer1);
+            bookingRepository.save(booking33);
             // Create car bookings
             CarBooking carBooking1 = new CarBooking();
             carBooking1.setCar(car1);
             carBooking1.setBooking(booking1);
             carBookingRepository.save(carBooking1);
 
+            CarBooking carBooking11 = new CarBooking();
+            carBooking11.setCar(car2);
+            carBooking11.setBooking(booking11);
+            carBookingRepository.save(carBooking11);
+
             CarBooking carBooking2 = new CarBooking();
-            carBooking2.setCar(car1);
+            carBooking2.setCar(car2);
             carBooking2.setBooking(booking2);
             carBookingRepository.save(carBooking2);
 
+            CarBooking carBooking22 = new CarBooking();
+            carBooking22.setCar(car3);
+            carBooking22.setBooking(booking22);
+            carBookingRepository.save(carBooking22);
+
             CarBooking carBooking3 = new CarBooking();
-            carBooking3.setCar(car1);
+            carBooking3.setCar(car3);
             carBooking3.setBooking(booking3);
             carBookingRepository.save(carBooking3);
+
+            CarBooking carBooking33 = new CarBooking();
+            carBooking33.setCar(car1);
+            carBooking33.setBooking(booking33);
+            carBookingRepository.save(carBooking33);
+
+            CarBooking carBooking4 = new CarBooking();
+            carBooking4.setCar(car3);
+            carBooking4.setBooking(booking4);
+            carBookingRepository.save(carBooking4);
 
             // Create feedback
             Feedback feedback1 = new Feedback();

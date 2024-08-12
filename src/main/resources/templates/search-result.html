@@ -145,8 +145,11 @@
     </div>
 
     <div th:if="${searchResults != null}" class="search-results">
-        <h2>Search Results</h2>
-        <p th:text="'There are ' + ${searchResults.size()} + ' cars that are available for you!'"></p>
+<!--        <h2>Search Results</h2>-->
+<!--        <p th:text="'There are ' + ${searchResults.size()} + ' cars that are available for you!'"></p>-->
+        <p th:if="${searchResults.isEmpty()}">No cars match your criteria, please try again.</p>
+        <p th:unless="${searchResults.isEmpty()}" th:text="'There are ' + ${searchResults.size()} + ' cars that are available for you!'"></p>
+
 
         <div th:each="car : ${searchResults}" class="car-item">
             <div class="car-image">Car Image Placeholder</div>
@@ -156,10 +159,13 @@
                 <p th:text="'No. of rides: ' + (${car.carBookings.size()} ?: 0)"></p>
                 <p th:text="'Price: ' + ${car.basicPrice} + '/day'"></p>
                 <p th:text="'Location: ' + ${car.address}"></p>
-                <p>Status: <span th:style="${car.carBookings.size() > 0} ? 'color: orange;' : 'color: green;'">
-            <span th:text="${car.carBookings.size() > 0} ? 'Booked' : 'Available'"></span>
-        </span></p>
-                <a href="#" th:href="@{/customer/car-details(id=${car.id})}" class="btn">View details</a>
+<!--                <p>Status: <span th:style="${car.carBookings.size() > 0} ? 'color: orange;' : 'color: green;'">-->
+<!--            <span th:text="${car.carBookings.size() > 0} ? 'Booked' : 'Available'"></span>-->
+<!--        </span></p>-->
+                <p>Status: <span style="color: green;">Available</span></p>
+<!--                <a href="#" th:href="@{/customer/car-details(id=${car.id})}" class="btn">View details</a>-->
+                <a th:href="@{/customer/car-details(id=${car.id})}" class="btn">View details</a>
+                <a th:href="@{/booking/rent-a-car(id=${car.id})}" class="btn">Rent now</a>
                 <a href="#" class="btn">Rent now</a>
             </div>
         </div>

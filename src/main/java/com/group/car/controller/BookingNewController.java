@@ -7,6 +7,7 @@ import com.group.car.repository.CustomerRepository;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
@@ -53,7 +54,7 @@ public class BookingNewController {
         booking.setCustomer(customer);
 
         HttpSession session = request.getSession();
-        String pickupLocation = (String) session.getAttribute("pickupLocation");
+        String pickupLocation = (String) car.getAddress();
         LocalDate pickupDate = (LocalDate) session.getAttribute("pickupDate");
         LocalTime pickupTime = (LocalTime) session.getAttribute("pickupTime");
         LocalDate dropoffDate = (LocalDate) session.getAttribute("dropoffDate");
@@ -100,7 +101,7 @@ public class BookingNewController {
             return "redirect:/login";
         }
 
-        String pickupLocation = (String) session.getAttribute("pickupLocation");
+        String pickupLocation = (String) car.getAddress();
         LocalDate pickupDate = (LocalDate) session.getAttribute("pickupDate");
         LocalTime pickupTime = (LocalTime) session.getAttribute("pickupTime");
         LocalDate dropoffDate = (LocalDate) session.getAttribute("dropoffDate");
@@ -126,7 +127,9 @@ public class BookingNewController {
         booking.setTotalPrice(totalPrice);
 
         // Save the booking in the session for step 2
-        session.setAttribute("booking", booking);
+        session.setAttribute("startDateTime", booking.getStartDateTime());
+        session.setAttribute("endDateTime", booking.getEndDateTime());
+
 
         model.addAttribute("booking", booking);
         model.addAttribute("car", car);
@@ -136,7 +139,13 @@ public class BookingNewController {
     }
 
     @PostMapping("/step2")
-    public String processStep2(@ModelAttribute Booking booking, @RequestParam("paymentMethod") String paymentMethod, @RequestParam("carId") long carId, Model model) {
+    public String processStep2(@ModelAttribute Booking booking,
+                               @RequestParam("paymentMethod") String paymentMethod,
+                               @RequestParam("carId") long carId,
+                               @RequestParam("startDateTime") @DateTimeFormat(pattern = "yyyy-MM-dd'T'HH:mm") Date startDateTime,
+                               @RequestParam("endDateTime") @DateTimeFormat(pattern = "yyyy-MM-dd'T'HH:mm") Date endDateTime,
+                                Model model)
+    {
         Optional<Car> carOptional = carRepository.findById(carId);
         if (!carOptional.isPresent()) {
             return "redirect:/car-not-found";
@@ -171,6 +180,9 @@ public class BookingNewController {
         // Generate a unique booking number
         String bookingNumber = generateBookingNumber();
         booking.setBookingNo(bookingNumber);
+        booking.setPickUpLocation(car.getAddress());
+        booking.setStartDateTime(startDateTime);
+        booking.setEndDateTime(endDateTime);
 
         // Set the status to "Confirmed"
         booking.setStatus("Confirmed");
@@ -203,6 +215,7 @@ public class BookingNewController {
         return "booking/step3-finish";
     }
 
+
     private boolean processPayment(Booking booking, Customer customer, Car car) {
         int deposit = car.getDeposit();
 
@@ -220,8 +233,10 @@ public class BookingNewController {
     }
 
     private String generateBookingNumber() {
-        return UUID.randomUUID().toString();
+        int randomNum = (int) (Math.random() * 100000);
+        return String.format("BK%05d", randomNum);
     }
+
 
     private Customer getCurrentCustomer() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
