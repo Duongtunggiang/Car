@@ -25,7 +25,7 @@ import java.util.List;
 import java.util.Set;
 
 @Controller
-@RequestMapping("/booking")
+@RequestMapping("/booking_old")
 public class BookingController {
     @Autowired
     private CarOwnerRepository carOwnerRepository;

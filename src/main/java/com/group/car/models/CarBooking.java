@@ -17,7 +17,7 @@ public class CarBooking {
     @JoinColumn(name = "booking_id", nullable = false)
     private Booking booking;
 
-    // getters and setters
+    // Getters and Setters
 
     public long getId() {
         return id;

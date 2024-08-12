@@ -1,0 +1,58 @@
+
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Payment</title>
+</head>
+<body>
+<h1>Rent a car today!</h1>
+<h2>Step 2: Payment</h2>
+
+<form th:action="@{/booking/step2}" method="post" th:object="${booking}">
+    <input type="hidden" th:name="carId" th:value="${car.id}" />
+    <!-- Booking Information -->
+    <h3>Booking Details</h3>
+    <p>
+        Pick-up location: <span th:text="*{pickUpLocation}"></span>
+    </p>
+    <p>
+        Pick-up date and time: <span th:text="${#dates.format(booking.startDateTime, 'yyyy-MM-dd HH:mm')}"></span>
+    </p>
+    <p>
+        Return date and time: <span th:text="${#dates.format(booking.endDateTime, 'yyyy-MM-dd HH:mm')}"></span>
+    </p>
+
+    <h3>Car Information</h3>
+    <p>Model: <span th:text="${car.name}"></span></p>
+    <p>Price: <span th:text="${car.basicPrice}"></span> VND/day</p>
+
+    <h3>Booking Summary</h3>
+    <p>Number of days: <span th:text="${booking.numberOfDays}"></span></p>
+    <p>Total: <span th:text="${booking.totalPrice}"></span> VND</p>
+    <p>Deposit: <span th:text="${car.deposit}"></span> VND</p>
+
+    <!-- Payment Section -->
+    <h3>Please select your payment method</h3>
+    <label>
+        <input type="radio" name="paymentMethod" value="wallet" required />
+        My wallet
+        <span th:text="${customer.wallet}"></span> VND
+        <span th:if="${customer.wallet < car.deposit}">(Insufficient)</span>
+    </label>
+    <br />
+    <label>
+        <input type="radio" name="paymentMethod" value="cash" required />
+        Cash
+    </label>
+    <br />
+    <label>
+        <input type="radio" name="paymentMethod" value="bankTransfer" required />
+        Bank transfer
+    </label>
+
+    <p>The deposit amount of <span th:text="${car.deposit}"></span> VND will be deducted from your wallet!</p>
+
+    <button type="submit">Confirm payment</button>
+</form>
+</body>
+</html>

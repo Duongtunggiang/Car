@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Booking Confirmation</title>
+</head>
+<body>
+<h1>Rent a car today!</h1>
+<h2>Step 3: Booking Confirmation</h2>
+
+<h3>Booking Details</h3>
+<p>Booking Number: <span th:text="${booking.bookingNo}"></span></p>
+<p>Status: <span th:text="${booking.status}"></span></p>
+<p>Car Model: <span th:text="${car.name}"></span></p>
+<p>Pick-up Location: <span th:text="${booking.pickUpLocation}"></span></p>
+<p>Pick-up Date and Time: <span th:text="${#dates.format(booking.startDateTime, 'yyyy-MM-dd HH:mm')}"></span></p>
+<p>Return Date and Time: <span th:text="${#dates.format(booking.endDateTime, 'yyyy-MM-dd HH:mm')}"></span></p>
+<p>Number of Days: <span th:text="${booking.numberOfDays}"></span></p>
+<p>Total Price: <span th:text="${booking.totalPrice}"></span> VND</p>
+<p>Payment Method: <span th:text="${booking.paymentMethod}"></span></p>
+
+<a href="/">Go to homepage</a>
+<a href="/booking/rent-a-car">Book another car</a>
+<a th:href="@{/booking/view/{id}(id=${booking.id})}">View Booking</a>
+</body>
+</html>

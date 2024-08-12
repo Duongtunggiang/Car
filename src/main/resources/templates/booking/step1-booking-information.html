@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Booking Information</title>
+</head>
+<body>
+<h1>Rent a car today!</h1>
+<h2>Step 1: Booking Information</h2>
+
+<form th:action="@{/booking/step1}" method="post" th:object="${booking}">
+    <input type="hidden" name="carId" th:value="${car.id}" />
+
+    <h3>Booking Details</h3>
+    <p>
+        Pick-up location:
+        <input type="text" th:field="*{pickUpLocation}" required />
+    </p>
+    <p>
+        Pick-up date and time:
+        <input type="datetime-local" th:field="*{startDateTime}" th:value="${#temporals.format(pickupDateTime, 'yyyy-MM-dd''T''HH:mm')}" required />
+    </p>
+    <p>
+        Return date and time:
+        <input type="datetime-local" th:field="*{endDateTime}" th:value="${#temporals.format(returnDateTime, 'yyyy-MM-dd''T''HH:mm')}" required />
+    </p>
+
+    <h3>Car Information</h3>
+    <p>Model: <span th:text="${car.name}"></span></p>
+    <p>Price: <span th:text="${car.basicPrice}"></span> VND/day</p>
+
+    <h3>Booking Summary</h3>
+    <p>Number of days: <span th:text="${booking.numberOfDays}"></span></p>
+    <p>Total: <span th:text="${booking.totalPrice}"></span> VND</p>
+    <p>Deposit: <span th:text="${car.deposit}"></span> VND</p>
+
+    <h3>Renter's Information</h3>
+    <p>
+        Full Name:
+        <input type="text" th:field="*{customer.name}" required />
+    </p>
+    <p>
+        Date of Birth:
+        <input type="date" class="form-control" name="renterDateOfBirth"
+               th:value="${#dates.format(customer.dateOfBirth, 'yyyy-MM-dd')}">
+    </p>
+    <p>
+        Phone number:
+        <input type="tel" th:field="*{customer.phoneNo}" required />
+    </p>
+    <p>
+        Email address:
+        <input type="email" th:field="*{customer.email}" required />
+    </p>
+    <p>
+        National ID No.:
+        <input type="text" th:field="*{customer.nationalIdNo}" required />
+    </p>
+    <p>
+        Driving license:
+        <input type="text" th:field="*{customer.drivingLicense}" required />
+    </p>
+    <p>
+        Address:
+        <textarea th:field="*{customer.address}" required></textarea>
+    </p>
+
+    <button type="submit">Next</button>
+</form>
+</body>
+</html>

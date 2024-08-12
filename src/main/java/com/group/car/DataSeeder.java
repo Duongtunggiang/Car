@@ -66,7 +66,7 @@ public class DataSeeder {
             customer1.setEmail("customer01@gmail.com");
             customer1.setAddress("123 Main St, City");
             customer1.setDrivingLicense("DL123456");
-            customer1.setWallet(1000);
+            customer1.setWallet(100000);
             customer1.setAccount(account1);
             customerRepository.save(customer1);
 
