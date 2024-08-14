@@ -37,6 +37,7 @@ public class SearchController {
     public String searchCars(@RequestParam String pickupLocation,
                              @RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate pickupDate,
                              @RequestParam @DateTimeFormat(pattern = "HH:mm") LocalTime pickupTime,
+
                              @RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate dropoffDate,
                              @RequestParam @DateTimeFormat(pattern = "HH:mm") LocalTime dropoffTime,
                              Model model, HttpSession session) {

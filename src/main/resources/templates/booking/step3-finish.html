@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
+<head th:insert="header-footer/header :: head"></head>
 <head>
     <title>Booking Confirmation</title>
     <style>
@@ -40,6 +41,7 @@
     </style>
 </head>
 <body>
+<div th:insert="header-footer/header :: nav"></div>
 
 <p>You've successfully booked <span th:text="${car.name}"></span> from
     <span th:text="${#dates.format(booking.startDateTime, 'dd/MM/yyyy - hh:mm a')}"></span>
@@ -51,7 +53,7 @@
 <div class="buttons">
     <a href="/" class="grey">Go to homepage</a>
     <a href="/booking/rent-a-car" class="grey">Book another car</a>
-    <a th:href="@{/booking/view/{id}(id=${booking.id})}" class="blue">View Booking</a>
+    <a th:href="@{/customer/my-bookings/{bookingId}(bookingId=${booking.id})}" class="blue">View Booking</a>
 </div>
 
 </body>

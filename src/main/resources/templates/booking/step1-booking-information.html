@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
+<head th:insert="header-footer/header :: head"></head>
 <head>
     <title>Booking Information</title>
     <style>
@@ -92,8 +93,101 @@
             background: #1a5bb8;
         }
     </style>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0/dist/css/select2.min.css" rel="stylesheet" />
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0/dist/js/select2.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+
 </head>
 <body>
+<div th:insert="header-footer/header :: nav"></div>
+<div class="modal" id="bookingModal">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form class="form-control" id="bookingForm">
+                <input type="hidden" id="carId" name="carId" th:value="${car.id}">
+                <div class="modal-header">
+                    <h4 class="modal-title">Change Booking Details</h4>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <input type="hidden" name="_csrf" th:value="${_csrf.token}">
+                    <div class="mb-3">
+                        <label for="modalPickUpLocation" class="form-label">Pick-up location:</label>
+                        <input type="text" class="form-control" id="modalPickUpLocation" th:value="${pickupLocation}" placeholder="Enter location">
+                    </div>
+                    <div class="row">
+                        <div class="col-sm-6 mb-3">
+                            <label for="modalPickupDate" class="form-label">Pick-up date:</label>
+                            <input type="date" class="form-control" id="modalPickupDate" name="pickupDate" th:value="${#temporals.format(pickupDateTime, 'yyyy-MM-dd')}">
+                            <label for="modalPickupTime" class="form-label">Pick-up time:</label>
+                            <input type="time" class="form-control" id="modalPickupTime" name="pickupTime" th:value="${#temporals.format(pickupDateTime, 'HH:mm')}">
+                        </div>
+                        <div class="col-sm-6 mb-3">
+                            <label for="modalDropoffDate" class="form-label">Return date:</label>
+                            <input type="date" class="form-control" id="modalDropoffDate" name="dropoffDate" th:value="${#temporals.format(returnDateTime, 'yyyy-MM-dd')}">
+                            <label for="modalDropoffTime" class="form-label">Return time:</label>
+                            <input type="time" class="form-control" id="modalDropoffTime" name="dropoffTime" th:value="${#temporals.format(returnDateTime, 'HH:mm')}">
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-primary" id="saveBookingChanges">OK</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+<script>
+    $(document).ready(function() {
+        $('#saveBookingChanges').click(function() {
+            var pickUpLocation = $('#modalPickUpLocation').val();
+            var pickupDate = $('#modalPickupDate').val();
+            var pickupTime = $('#modalPickupTime').val();
+            var dropoffDate = $('#modalDropoffDate').val();
+            var dropoffTime = $('#modalDropoffTime').val();
+            var carId = $('#carId').val();
+
+            if (pickupDate && pickupTime && dropoffDate && dropoffTime) {
+                var startDateTime = pickupDate + 'T' + pickupTime;
+                var endDateTime = dropoffDate + 'T' + dropoffTime;
+
+                $.ajax({
+                    url: '/booking/update-booking',
+                    method: 'POST',
+                    data: {
+                        carId: carId,
+                        pickUpLocation: pickUpLocation,
+                        pickupDate: pickupDate,
+                        pickupTime: pickupTime,
+                        dropoffDate: dropoffDate,
+                        dropoffTime: dropoffTime,
+                        _csrf: $('input[name="_csrf"]').val()
+                    },
+                    success: function(response) {
+                        $('#displayPickUpLocation').text(response.pickUpLocation);
+                        $('#displayPickupDateTime').text(response.pickupDateTimeFormatted);
+                        $('#displayReturnDateTime').text(response.returnDateTimeFormatted);
+                        $('#displayNumberOfDays').text(response.numberOfDays);
+                        $('#displayTotalPrice').text(response.totalPrice);
+
+                        $('#bookingModal').modal('hide');
+                    },
+                    error: function(error) {
+                        console.log(error);
+                        alert('Failed to update booking details.');
+                    }
+                });
+            } else {
+                alert('Please select both pick up and return dates!');
+            }
+        });
+    });
+</script>
+
 <div class="container">
     <div class="header">
         <h1>Rent a car today!</h1>
@@ -109,26 +203,29 @@
         <input type="hidden" name="carId" th:value="${car.id}"/>
 
         <div class="booking-summary">
-            <h3>Booking Summary</h3>
+            <h3>Booking Summary <span style="float: right; cursor: pointer; text-decoration: none;">
+        <a class="text-dark me-3" data-bs-toggle="modal" data-bs-target="#bookingModal"><i class="bi-pencil-square"></i> Change</a>
+        </span></h3>
             <p>
-                Pick-up location: <strong th:text="${booking.pickUpLocation}"></strong>
+                Pick-up location: <strong id="displayPickUpLocation" th:text="${booking.pickUpLocation}">N/A</strong>
             </p>
             <p>
-                Pick-up date and time: <strong th:text="${#temporals.format(pickupDateTime, 'dd/MM/yyyy - HH:mm')}"></strong>
+                Pick-up date and time: <strong id="displayPickupDateTime" th:text="${#temporals.format(pickupDateTime, 'dd/MM/yyyy - HH:mm')}">N/A</strong>
             </p>
             <p>
-                Return date and time: <strong th:text="${#temporals.format(returnDateTime, 'dd/MM/yyyy - HH:mm')}"></strong>
+                Return date and time: <strong id="displayReturnDateTime" th:text="${#temporals.format(returnDateTime, 'dd/MM/yyyy - HH:mm')}">N/A</strong>
             </p>
             <p>
-                Number of days: <strong th:text="${booking.numberOfDays}"></strong>
+                Number of days: <strong id="displayNumberOfDays" th:text="${booking.numberOfDays}">0</strong>
             </p>
             <p>
-                Total: <strong th:text="${booking.totalPrice}"></strong> VND
+                Total: <strong id="displayTotalPrice" th:text="${booking.totalPrice}">0</strong> VND
             </p>
             <p>
-                Deposit: <strong th:text="${car.deposit}"></strong> VND
+                Deposit: <strong id="displayDeposit" th:text="${car.deposit}">0</strong> VND
             </p>
         </div>
+
 
         <div class="car-info">
             <h3>Car Information</h3>

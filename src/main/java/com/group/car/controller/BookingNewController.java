@@ -4,10 +4,12 @@ import com.group.car.models.*;
 import com.group.car.repository.BookingRepository;
 import com.group.car.repository.CarRepository;
 import com.group.car.repository.CustomerRepository;
+import com.group.car.service.CarService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
@@ -19,10 +21,9 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
-import java.util.Date;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 
 @Controller
 @RequestMapping("/booking")
@@ -36,6 +37,9 @@ public class BookingNewController {
 
     @Autowired
     private BookingRepository bookingRepository;
+
+    @Autowired
+    CarService carService;
 
     @GetMapping("/rent-a-car")
     public String showRentalCarForm(@RequestParam("id") long carId, Model model, Principal principal, HttpServletRequest request) {
@@ -55,10 +59,18 @@ public class BookingNewController {
 
         HttpSession session = request.getSession();
         String pickupLocation = (String) car.getAddress();
+
+        // Lấy giá trị từ session và kiểm tra null
         LocalDate pickupDate = (LocalDate) session.getAttribute("pickupDate");
         LocalTime pickupTime = (LocalTime) session.getAttribute("pickupTime");
         LocalDate dropoffDate = (LocalDate) session.getAttribute("dropoffDate");
         LocalTime dropoffTime = (LocalTime) session.getAttribute("dropoffTime");
+
+        // Gán giá trị mặc định nếu null
+        if (pickupDate == null) pickupDate = LocalDate.now();
+        if (pickupTime == null) pickupTime = LocalTime.MIDNIGHT;
+        if (dropoffDate == null) dropoffDate = LocalDate.now().plusDays(1); // Mặc định là ngày hôm sau
+        if (dropoffTime == null) dropoffTime = LocalTime.MIDNIGHT;
 
         // Combine LocalDate and LocalTime into LocalDateTime
         LocalDateTime pickupDateTime = LocalDateTime.of(pickupDate, pickupTime);
@@ -68,14 +80,14 @@ public class BookingNewController {
         booking.setStartDateTime(Date.from(pickupDateTime.atZone(ZoneId.systemDefault()).toInstant()));
         booking.setEndDateTime(Date.from(returnDateTime.atZone(ZoneId.systemDefault()).toInstant()));
 
-        // Calculate number of days
+
         long numberOfDays = ChronoUnit.DAYS.between(pickupDateTime.toLocalDate(), returnDateTime.toLocalDate());
         if (numberOfDays == 0) {
             numberOfDays = 1; // Minimum 1 day rental
         }
         booking.setNumberOfDays((int) numberOfDays);
 
-        // Calculate total price
+
         int totalPrice = car.getBasicPrice() * (int) numberOfDays;
         booking.setTotalPrice(totalPrice);
 
@@ -87,6 +99,56 @@ public class BookingNewController {
 
         return "booking/step1-booking-information";
     }
+    @PostMapping("/update-booking")
+    @ResponseBody
+    public ResponseEntity<Map<String, Object>> updateBooking(
+            @RequestParam("carId") long carId,
+            @RequestParam("pickUpLocation") String pickUpLocation,
+            @RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate pickupDate,
+            @RequestParam @DateTimeFormat(pattern = "HH:mm") LocalTime pickupTime,
+            @RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate dropoffDate,
+            @RequestParam @DateTimeFormat(pattern = "HH:mm") LocalTime dropoffTime,
+            HttpSession session) {
+
+        LocalDateTime startDateTime = LocalDateTime.of(pickupDate, pickupTime);
+        LocalDateTime endDateTime = LocalDateTime.of(dropoffDate, dropoffTime);
+
+        Date startDate = Date.from(startDateTime.atZone(ZoneId.systemDefault()).toInstant());
+        Date endDate = Date.from(endDateTime.atZone(ZoneId.systemDefault()).toInstant());
+
+        Optional<Car> carOptional = carRepository.findById(carId);
+        if (!carOptional.isPresent()) {
+            return ResponseEntity.badRequest().body(null);
+        }
+        Car car = carOptional.get();
+
+        long numberOfDays = ChronoUnit.DAYS.between(startDateTime.toLocalDate(), endDateTime.toLocalDate());
+        if (numberOfDays == 0) {
+            numberOfDays = 1;
+        }
+
+        int totalPrice = car.getBasicPrice() * (int) numberOfDays;
+
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+        String pickupDateTimeFormatted = startDateTime.format(formatter);
+        String returnDateTimeFormatted = endDateTime.format(formatter);
+
+        Map<String, Object> responseData = new HashMap<>();
+        responseData.put("pickUpLocation", pickUpLocation);
+        responseData.put("pickupDateTimeFormatted", pickupDateTimeFormatted);
+        responseData.put("returnDateTimeFormatted", returnDateTimeFormatted);
+        responseData.put("numberOfDays", numberOfDays);
+        responseData.put("totalPrice", totalPrice);
+
+        session.setAttribute("pickupLocation", pickUpLocation);
+        session.setAttribute("pickupDate", pickupDate);
+        session.setAttribute("pickupTime", pickupTime);
+        session.setAttribute("dropoffDate", dropoffDate);
+        session.setAttribute("dropoffTime", dropoffTime);
+
+        return ResponseEntity.ok(responseData);
+    }
+
 
     @PostMapping("/step1")
     public String processStep1(@ModelAttribute Booking booking, @RequestParam("carId") long carId, Model model, HttpSession session) {

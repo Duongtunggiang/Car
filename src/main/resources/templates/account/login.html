@@ -1,42 +1,352 @@
-<!doctype html>
-<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.w3.org/1999/xhtml"
-      xmlns:c="http://www.w3.org/1999/XSL/Transform">
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <style>
+        @import url('https://fonts.googleapis.com/css?family=Mukta');
+
+        body {
+            font-family: 'Mukta', sans-serif;
+            height: 100vh;
+            min-height: 550px;
+            background-image: url(http://www.planwallpaper.com/static/images/Free-Wallpaper-Nature-Scenes.jpg);
+            background-repeat: no-repeat;
+            background-size: cover;
+            background-position: center;
+            position: relative;
+            overflow-y: hidden;
+        }
+
+        a {
+            text-decoration: none;
+            color: #444444;
+        }
+
+        .login-reg-panel {
+            position: relative;
+            top: 50%;
+            transform: translateY(-50%);
+            text-align: center;
+            width: 70%;
+            right: 0;
+            left: 0;
+            border-radius: 20px;
+            margin: auto;
+            height: 400px;
+            background-color: rgba(236, 48, 20, 0.9);
+            box-shadow: 0 0 15px 9px #9a9a9a9a;
+        }
+
+        .white-panel {
+            background-color: rgba(255, 255, 255, 1);
+            height: 570px;
+            position: absolute;
+            top: -100px;
+            width: 50%;
+            right: calc(50% - 50px);
+            transition: .3s ease-in-out;
+            border-radius: 20px;
+            z-index: 0;
+            box-shadow: 0 0 15px 9px #00000096;
+        }
+
+        .login-reg-panel input[type="radio"] {
+            position: relative;
+            display: none;
+        }
+
+        .login-reg-panel {
+            color: #cfcfcf;
+        }
+
+        .login-reg-panel #label-login,
+        .login-reg-panel #label-register {
+            border: 1px solid #9E9E9E;
+            padding: 5px 5px;
+            width: 150px;
+            display: block;
+            text-align: center;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 18px;
+        }
+
+        .login-info-box {
+            width: 30%;
+            padding: 0 50px;
+            top: 20%;
+            left: 0;
+            position: absolute;
+            text-align: left;
+        }
+
+        .register-info-box {
+            width: 30%;
+            padding: 0 50px;
+            top: 20%;
+            right: 0;
+            position: absolute;
+            text-align: left;
+
+        }
+
+        .right-log {
+            right: 50px !important;
+        }
+
+        .login-show,
+        .register-show,
+        .register-show-carowner {
+            z-index: 1;
+            display: none;
+            opacity: 0;
+            transition: 0.3s ease-in-out;
+            color: #242424;
+            text-align: left;
+            padding: 50px;
+        }
+
+        .show-log-panel {
+            display: block;
+            opacity: 0.9;
+        }
+
+        .login-show input[type="text"],
+        .login-show input[type="password"],
+        .register-show input[type="text"],
+        .register-show input[type="password"],
+        .register-show-carowner input[type="text"],
+        .register-show-carowner input[type="password"] {
+            width: 100%;
+            display: block;
+            margin: 10px 0;
+            padding: 15px;
+            border-radius: 5px;
+            border: 1px solid #8f8f8f;
+            outline: none;
+        }
+
+        .login-show input[type="submit"],
+        .register-show input[type="submit"],
+        .register-show-carowner input[type="submit"] {
+            max-width: 150px;
+            width: 100%;
+            background: #444444;
+            color: #f9f9f9;
+            border: none;
+            padding: 10px;
+            text-transform: uppercase;
+            border-radius: 2px;
+            float: right;
+            cursor: pointer;
+        }
+
+        .login-show a,
+        .register-show a,
+        .register-show-carowner a {
+            display: inline-block;
+            padding: 10px 0;
+        }
+        .show-log-panel {
+            display: block !important;
+            opacity: 0.9 !important;
+        }
+
+        .credit {
+            position: absolute;
+            bottom: 10px;
+            left: 10px;
+            color: #3B3B25;
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+            text-transform: uppercase;
+            font-size: 12px;
+            font-weight: bold;
+            letter-spacing: 1px;
+            z-index: 99;
+        }
+        .login-button:hover{
+            background-color: #a7440f;
+        }
+        .register-button:hover{
+            background-color: #a7440f;
+        }
+        .login-button:active{
+            background-color: #9b3b0c;
+        }
+        .register-button:active{
+            background-color: #9b3b0c;
+        }
+        .show-car-owner{
+            /* background-color: #dd8661c0; */
+            background-image: url("data:image/jpeg;base64,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J7Nh+SPSCc2T5p9U+bKi/NxfdD+VV9lwfJHor22T5p9XohovzUf3Q/lU+y4Pkj0O2yfNPqjTpg0jokwinbG19U1127LqCHdiMhGRJaLBpvvvlvV8eLHj+CsQTa9vilqtQ2UE2ia6Gwp6htztnPN7kF0Lg76gBaWkDeBxupvjped7REoibV6SjpsfVO0F3uucRNyCefMq8bRG0Qcsy6Po8rAXOonEAvcHxEmw2rci0n1m7u1o5hSxyld1bgqY4BfA1oYRnmXAWPss34oMbVSnYa0uJBjpS+7gCQ6pe0sDWnjs4nPv2zW+qUEgeXxel8D4JubL8UrXC7TcIK0BAQEBBgaWjcWgjMA5+KiUw1CLOe07qZQVb9pNFaTi+NxY53+K2Tj2kEobNV/0v0b+u+9H8qGwOi/Rv64/+Xwahs6jRGiaemj2VNG2Nm82uS483OObj2kolnXUBdNjYugXTYa/TmiIauF0E7bsOYIyc1w3OaeBF/iQcipQjap6JZw47KqjLOGNjmut24bg9+Xcgu6M6OtJU8glgq4WPHEGTcd4ILCCOwghEbOnbobSknVmq6eJp851LCRK4cQHvtgPaAhst6c6O6KeJjIrwvjBDXtGIuBJJ2oP5TMk3uDmc+CJcz/0ik/TWf6c/wBVNxVH0RPuMVa23G1Ob27LyJuJB1c0BBRQ7GAHM3c52bpHWticfkMgoGzRLl9cdVpqx7JIqt0JY0tw4XFpuSS7qvaQdw47kHPUfRO2x8oq3E522UYZnzJeXXz7kN3knRU4O6lZZmWToLnLueATmeCJ5mTN0WQkNw1MlxfEXMaQd1sIBGHjz3obsQdETL3FY4G9/wAiP51O6mzoodV6ywjl0rUOitYhscbHkcttm/23um5s6OgoooY2wwsDI2iwA95JO8km5JOZJUJZCJbLQ8bs3cCPepUltFKBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQFA0ulWtD+ryz70WhhqFhAQdFTtaGjDuspY1xSCAgICAgICAgICAgICAgICAgICAgICAgICCxWyFrCRv/FCGkMrvSPvKhdbKhIgICD1ryNxI7iiGboyd+MNuSDffnbtUwiYbhSqICAgICAgICAgICAgICAgICAgICAgICAg8IvkUGOaCL0fifFQnd55BF6PxPihueQRej8T4obnkEXo/E+Kk3k8gi9H4nxUG55BF6PxPihuuw07G+aLKULqAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg//2Q==");
+            border-radius: 20px;
+            background-size: cover;
+            background-position: center;
+            width: 100%;
+            height: 350px;
+        }
+        #img-login{
+            background-image: url("https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR04zmcrjJOzCrvbXoEndEkX6QgE5w_fe-wGw&s");
+            background-size: cover;
+            background-position: center;
+            width: 100%;
+            height: 200px;
+        }
+        .error-login{
+            position: absolute;
+            bottom: 45%;
+        }
+    </style>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
 </head>
 <body>
-    <main class="mt-3 mb-3">
-        <div class="container">
-            <h1 class="text-center">Login</h1>
+<div class="login-reg-panel">
+    <div class="login-info-box">
+        <h2>Have an account?</h2>
+        <p>Lorem ipsum dolor sit amet</p>
+        <label id="label-register" for="log-reg-show" class="login-button">Login</label>
+        <input type="radio" name="active-log-panel" id="log-reg-show"  checked="checked">
+        <a href="/" class="btn btn-danger mt-3">Cancel</a>
+    </div>
 
-            <form th:action="@{/login}" method="post" class="w-50 mx-auto">
-                <div class="mb-3">
-                    <label for="email" class="form-label">Email</label>
-                    <div class="col-sm-8">
-                        <input class="form-control" id="email" name="email" required placeholder="Email">
-                    </div>
-                </div>
-                <div class="mb-3">
-                    <label class="col-sm-4 col-form-label">Password<span class="text-danger">*</span></label>
-                    <div class="col-sm-8">
-                        <input class="form-control" type="password" id="password" name="password" required placeholder="Password">
-                    </div>
-                </div>
-                <button type="submit" class="btn btn-primary">Login</button>
-            </form>
+    <div class="register-info-box">
+        <h2>Don't have an account?</h2>
+        <p>Lorem ipsum dolor sit amet</p>
+        <label id="label-login" for="log-login-show" class="register-button">Register</label>
+        <input type="radio" name="active-log-panel" id="log-login-show">
+        <a href="/" class="btn btn-danger  mt-3">Cancel</a>
+    </div>
+    <hr />
 
-            <div th:if="${param.error}" class="mt-3">
+    <div th:if="${success}" class="alert alert-success alert-dismissible fade show"
+         role="alert">
+        <strong>Account Created Successfully!</strong>
+        <a class="ms-2" href="/login">login</a>
+        <button type="button" class="btn-close" data-bs-dismiss="alert"
+                aria-label="Close"></button>
+    </div>
+    <div class="white-panel">
+        <div class="login-show">
+            <h2>LOGIN - Rent a Car</h2>
+            <div class="row">
+                <div class="col-12">
+                    <form th:action="@{/login}" method="post" >
+                        <input type="text" id="email" name="email" required placeholder="Email">
+                        <input type="password" id="password" name="password" placeholder="Password">
+                        <input type="submit" value="Login">
+                        <a th:href="@{/forgot-password}">Forgot password?</a>
+                    </form>
+                </div>
+                <div class="col-12" id="img-login">
+
+                </div>
+            </div>
+            <div th:if="${param.error}" class="error-login">
                 <p class="error text-danger">Invalid email or password</p>
             </div>
-
-            <p class="text-dark mt-3 mb-2">If you don't have an account, you can <a th:href="@{/register}">register</a>.</p>
-            <p class="text-dark mt-3">If you forgot password, you can <a th:href="@{/forgot-password}">forgot password</a>.</p>
         </div>
-    </main>
+        <div class="register-show">
+            <h2>REGISTER with Customer</h2>
+            <form method="post" th:action="@{/register}" th:object="${registerDto}">
+                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+                <input type="text" th:field="${registerDto.username}" placeholder="Your name" />
+                <p th:if="${#fields.hasErrors('username')}" th:errorclass="text-danger" th:errors="${registerDto.username}"></p>
+
+                <input type="text" th:field="${registerDto.email}" placeholder="Email" />
+                <p th:if="${#fields.hasErrors('email')}" th:errorclass="text-danger" th:errors="${registerDto.email}"></p>
+
+                <input type="password" th:field="${registerDto.password}" placeholder="Password" />
+                <p th:if="${#fields.hasErrors('password')}" th:errorclass="text-danger" th:errors="${registerDto.password}"></p>
+
+                <input type="password" th:field="${registerDto.confirmPassword}" placeholder="Confirm Password" />
+                <p th:if="${#fields.hasErrors('confirmPassword')}" th:errorclass="text-danger" th:errors="${registerDto.confirmPassword}"></p>
+
+                <div class="row">
+                    <div class="col-6">
+                        <a href="#" class="" id="create-with-car">Create an Account with Car Owner</a>
+                    </div>
+                    <div class="col-6">
+                        <input type="submit" value="Create Account" />
+                    </div>
+                </div>
+            </form>
+
+        </div>
+        <div class="register-show-carowner">
+            <h2>REGISTER with Car Owner</h2>
+            <form method="post" th:action="@{/register-driver}" th:object="${registerDto}">
+                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+
+                <input type="text" th:field="${registerDto.username}" placeholder="Your name" />
+                <p th:if="${#fields.hasErrors('username')}" th:errorclass="text-danger" th:errors="${registerDto.username}"></p>
+
+                <input type="text" th:field="${registerDto.email}" placeholder="Email" />
+                <p th:if="${#fields.hasErrors('email')}" th:errorclass="text-danger" th:errors="${registerDto.email}"></p>
+
+                <input type="password" th:field="${registerDto.password}" placeholder="Password" />
+                <p th:if="${#fields.hasErrors('password')}" th:errorclass="text-danger" th:errors="${registerDto.password}"></p>
+
+                <input type="password" th:field="${registerDto.confirmPassword}" placeholder="Confirm Password" />
+                <p th:if="${#fields.hasErrors('confirmPassword')}" th:errorclass="text-danger" th:errors="${registerDto.confirmPassword}"></p>
+
+                <div class="row">
+                    <div class="col-6">
+                        <a href="#" class="" id="create-with-cus">Create an Account with Customer</a>
+                    </div>
+                    <div class="col-6">
+                        <input type="submit" value="Create Account" />
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+<script>
+    $(document).ready(function(){
+        $('.login-info-box').fadeOut();
+        $('.login-show').addClass('show-log-panel');
+
+        $('#create-with-car').click(function(){
+            $('.register-show').fadeOut(function(){
+                $('.register-show-carowner').fadeIn().addClass('show-log-panel show-car-owner');
+            }).removeClass('show-log-panel');
+        });
+
+        $('#create-with-cus').click(function(){
+            $('.register-show-carowner').fadeOut(function(){
+                $('.register-show').fadeIn().addClass('show-log-panel show-cus');
+            }).removeClass('show-log-panel');
+        });
+    });
+
+    $('.login-reg-panel input[type="radio"]').on('change', function() {
+        if($('#log-login-show').is(':checked')) {
+            $('.register-info-box').fadeOut();
+            $('.login-info-box').fadeIn();
+
+            $('.white-panel').addClass('right-log');
+            $('.register-show').addClass('show-log-panel');
+            $('.login-show').removeClass('show-log-panel');
+            $('.register-show-carowner').removeClass('show-log-panel');
+
+        } else if($('#log-reg-show').is(':checked')) {
+            $('.register-info-box').fadeIn();
+            $('.login-info-box').fadeOut();
+
+            $('.white-panel').removeClass('right-log');
+
+            $('.login-show').addClass('show-log-panel');
+            $('.register-show').removeClass('show-log-panel');
+            $('.register-show-carowner').removeClass('show-log-panel');
+        }
+    });
+</script>
 </body>
 </html>
