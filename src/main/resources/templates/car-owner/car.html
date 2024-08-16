@@ -64,13 +64,25 @@
                 <div>No Of Rides: 0</div>
                 <div th:text="'Price: '+${car.basicPrice} + ' $/day'"></div>
                 <div th:text="'Location: '+${car.address}"></div>
-                <div>Status: Stop</div>
+                <div th:text="'Status: ' + ${carStatusMap[car.id]}">Status: Available</div>
             </td>
             <td style="white-space: nowrap">
                 <a class="btn btn-primary btn-sm" th:href="@{'/carowner/edit?id=' + ${car.id}}">Edit</a>
                 <a class="btn btn-danger btn-sm" th:href="@{'/carowner/delete?id=' + ${car.id}}"
                    onclick="return confirm('Are you sure?')">Delete</a>
+
             </td>
+            <td>
+                <form method="post" th:action="@{/carowner/updateStatus}">
+                    <input type="hidden" name="carId" th:value="${car.id}">
+                    <select name="status">
+                        <option value="Available">Available</option>
+                        <option value="Stopped">Stopped</option>
+                    </select>
+                    <button type="submit" class="btn btn-success">Update Status</button>
+                </form>
+            </td>
+
         </tr>
         </tbody>
     </table>

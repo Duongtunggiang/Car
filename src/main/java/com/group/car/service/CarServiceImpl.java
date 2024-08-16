@@ -63,7 +63,7 @@ public class CarServiceImpl implements CarService {
 
     @Override
     public List<Car> findAllByCarOwner(long carOwnerId) {
-        return List.of();
+        return carRepository.findByCarOwnerId(carOwnerId);
     }
 
 

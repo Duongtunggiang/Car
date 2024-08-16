@@ -1,13 +1,9 @@
 package com.group.car.controller;
 
-import com.group.car.models.Account;
-import com.group.car.models.Car;
+import com.group.car.models.*;
 import com.group.car.models.Dto.CarDto;
-import com.group.car.models.CarOwner;
-import com.group.car.models.Role;
-import com.group.car.repository.AccountRepository;
-import com.group.car.repository.CarOwnerRepository;
-import com.group.car.repository.CarRepository;
+import com.group.car.repository.*;
+import com.group.car.service.BookingService;
 import com.group.car.service.CarService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,9 +24,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.security.Principal;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 
 
 @Controller
@@ -50,12 +44,16 @@ public class CarOwnerController {
 
     @Autowired
     private AccountRepository accountRepository;
-//    @GetMapping({"", "/"})
-//    public String showAllCar(Model model, Principal principal) {
-//        CarOwner carOwner = carOwnerRepository.findByAccountId(Long.valueOf(principal.getName()));
-//        model.addAttribute("cars", iCarService.findById(carOwner.getId(), Sort.by(Sort.Direction.DESC, "id")));
-//        return "car-owner/car";
-//    }
+
+    @Autowired
+    private BookingService bookingService;
+    @Autowired
+    private CarBookingRepository carBookingRepository;
+    @Autowired
+    private BookingRepository bookingRepository;
+
+    @Autowired
+    private CustomerRepository customerRepository;
     private void setUpUserRole(Model model) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication != null && authentication.isAuthenticated() && authentication.getPrincipal() instanceof UserDetails) {
@@ -89,10 +87,26 @@ public class CarOwnerController {
         if (carOwnerOptional.isPresent()) {
             CarOwner carOwner = carOwnerOptional.get();
             List<Car> cars = carService.findAllByCarOwner(carOwner.getId());
+
+            Map<Long, String> carStatusMap = new HashMap<>();
+
+            for (Car car : cars) {
+                List<CarBooking> carBookings = carBookingRepository.findByCarId(car.getId());
+                if (!carBookings.isEmpty()) {
+                    String status = carBookings.get(0).getBooking().getStatus();
+                    carStatusMap.put(car.getId(), status);
+                } else {
+                    carStatusMap.put(car.getId(), "No Booking");
+                }
+            }
+
             model.addAttribute("cars", cars);
+            model.addAttribute("carStatusMap", carStatusMap);
+
         } else {
             model.addAttribute("error", "No cars found for this user.");
         }
+
         setUpUserRole(model);
         model.addAttribute("currentPage", "car");
         return "car-owner/car";
@@ -111,6 +125,7 @@ public class CarOwnerController {
     @PostMapping("/add")
     public String addCar(@Valid @ModelAttribute CarDto carDto, BindingResult result, Principal principal) {
         if (carDto.getImages().isEmpty()) {
+
             result.addError(new FieldError("carDto", "images", "The file is required"));
         }
         if (result.hasErrors()) {
@@ -135,6 +150,8 @@ public class CarOwnerController {
             System.out.println("Exception: " + e.getMessage());
         }
 
+
+
         Car car = new Car();
         car.setName(carDto.getName());
         car.setLicensePlate(carDto.getLicensePlate());
@@ -156,6 +173,7 @@ public class CarOwnerController {
         car.setImages(storageFile);
 
         CarOwner carOwner = carOwnerRepository.findByAccountEmail(principal.getName());
+
         if (carOwner == null) {
             result.rejectValue("carOwner", "error.carOwner", "Car owner not found");
             return "car-owner/addCar";
@@ -164,9 +182,33 @@ public class CarOwnerController {
 
         iCarService.save(car);
 
+        Booking booking = new Booking();
+        booking.setStatus("Available");
+        booking.setPickUpLocation(car.getAddress());
+        booking.setBookingNo(UUID.randomUUID().toString());
+        bookingRepository.save(booking);
+
+        CarBooking carBooking = new CarBooking();
+        carBooking.setCar(car);
+        carBooking.setBooking(booking);
+        carBookingRepository.save(carBooking);
+
         return "redirect:/carowner";
     }
 
+    @PostMapping("/updateStatus")
+    public String updateStatus(@RequestParam Long carId, @RequestParam String status) {
+        Car car = carRepository.findById(carId).orElseThrow(() -> new RuntimeException("Car not found"));
+        List<CarBooking> carBookings = carBookingRepository.findByCarId(carId);
+
+        for (CarBooking carBooking : carBookings) {
+            Booking booking = carBooking.getBooking();
+            booking.setStatus(status);
+            bookingRepository.save(booking);
+        }
+
+        return "redirect:/carowner";
+    }
 
 
 

@@ -39,22 +39,12 @@ public class Booking {
     private List<CarBooking> carBookings = new ArrayList<>(); // Initialize the list
 
     @ManyToOne
-    @JoinColumn(name = "customer_id", nullable = false)
+    @JoinColumn(name = "customer_id")
     private Customer customer;
 
     @OneToOne(mappedBy = "booking", cascade = CascadeType.ALL, orphanRemoval = true)
     private Feedback feedback;
 
-    // Methods to add and remove CarBooking instances
-    public void addCarBooking(CarBooking carBooking) {
-        this.carBookings.add(carBooking);
-        carBooking.setBooking(this);
-    }
-
-    public void removeCarBooking(CarBooking carBooking) {
-        this.carBookings.remove(carBooking);
-        carBooking.setBooking(null);
-    }
 
     // Getters and Setters
     public void setNumberOfDays(int numberOfDays) {
