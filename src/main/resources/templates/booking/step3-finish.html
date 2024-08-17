@@ -4,9 +4,6 @@
 <head>
     <title>Booking Confirmation</title>
     <style>
-        body {
-            font-family: Arial, sans-serif;
-        }
 
         h3 {
             color: #333;
@@ -17,44 +14,24 @@
             font-size: 16px;
         }
 
-        .buttons {
-            margin-top: 20px;
-        }
-
-        .buttons a {
-            padding: 10px 20px;
-            text-decoration: none;
-            color: #fff;
-            background-color: #007bff;
-            border-radius: 5px;
-            margin-right: 10px;
-            font-size: 14px;
-        }
-
-        .buttons a.grey {
-            background-color: #6c757d;
-        }
-
-        .buttons a.blue {
-            background-color: #007bff;
-        }
     </style>
 </head>
 <body>
-<div th:insert="header-footer/header :: nav"></div>
+    <div th:insert="header-footer/header :: nav"></div>
+    <div class="container">
+        <p>You've successfully booked <span th:text="${car.name}"></span> from
+            <span class="text-success" th:text="${#dates.format(booking.startDateTime, 'dd/MM/yyyy - hh:mm a')}"></span>
+            to <span class="text-success" th:text="${#dates.format(booking.endDateTime, 'dd/MM/yyyy - hh:mm a')}"></span>.
+        </p>
+        <p>Your booking number is: <span class="text-success" th:text="${booking.bookingNo}"></span></p>
+        <p>Our operator will contact you with further guidance about pickup.</p>
 
-<p>You've successfully booked <span th:text="${car.name}"></span> from
-    <span th:text="${#dates.format(booking.startDateTime, 'dd/MM/yyyy - hh:mm a')}"></span>
-    to <span th:text="${#dates.format(booking.endDateTime, 'dd/MM/yyyy - hh:mm a')}"></span>.
-</p>
-<p>Your booking number is: <span th:text="${booking.bookingNo}"></span></p>
-<p>Our operator will contact you with further guidance about pickup.</p>
-
-<div class="buttons">
-    <a href="/" class="grey">Go to homepage</a>
-    <a href="/booking/rent-a-car" class="grey">Book another car</a>
-    <a th:href="@{/customer/my-bookings/{bookingId}(bookingId=${booking.id})}" class="blue">View Booking</a>
-</div>
+        <div class="buttons">
+            <a href="/" class="btn btn-secondary">Go to homepage</a>
+            <a href="/booking/rent-a-car" class="btn btn-secondary">Book another car</a>
+            <a th:href="@{/customer/my-bookings/{bookingId}(bookingId=${booking.id})}" class="btn btn-primary">View Booking</a>
+        </div>
+    </div>
 
 </body>
 </html>

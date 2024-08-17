@@ -80,8 +80,9 @@
     <div th:each="booking : ${bookings}" class="booking-item">
         <div th:each="carBooking : ${booking.carBookings}" class="car-booking-item">
             <div class="booking-details">
-                <div class="booking-image">Car Image Placeholder</div>
+                <div class=""><img th:src="@{'/img/' + ${carBooking.car.images}}"  width="70%" alt="${carBooking.car.name}" /></div>
                 <div class="booking-info">
+                    <h2 th:text="'Car name: '+${carBooking.car.name}"></h2>
                     <h3 th:text="${carBooking.car.brand + ' ' + carBooking.car.model + ' ' + carBooking.car.productionYears.getYear()}">Car Brand Model Year</h3>
                     <p th:text="'From: ' + ${#dates.format(booking.startDateTime, 'dd/MM/yyyy - HH:mm')}"></p>
                     <p th:text="'To: ' + ${#dates.format(booking.endDateTime, 'dd/MM/yyyy - HH:mm')}"></p>

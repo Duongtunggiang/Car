@@ -25,7 +25,7 @@ public class SecurityConfig {
                 .csrf(csrf -> csrf
                         .ignoringRequestMatchers("/mywallet/withdraw", "/mywallet/topup"))
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/", "/register", "/forgot-password", "/reset-password", "/verify-password", "/register-driver", "/login", "/logout").permitAll()
+                        .requestMatchers("/**", "/register", "/forgot-password", "/reset-password", "/verify-password", "/register-driver", "/login", "/logout").permitAll()
                         .requestMatchers("/home").hasRole("Customer")
                         .requestMatchers("/customer/**", "/booking/**").hasRole("Customer")
                         .requestMatchers("/home-driver", "/carowner/**").hasRole("CarOwner")

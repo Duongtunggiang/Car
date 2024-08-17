@@ -24,6 +24,7 @@ import org.springframework.web.bind.annotation.*;
 import java.security.Principal;
 import java.time.LocalDate;
 import java.util.Date;
+import java.util.Optional;
 import java.util.Set;
 
 @Controller
@@ -57,7 +58,15 @@ public class AccountController {
     }
 
     @GetMapping("/home-driver")
-    public String homeDriver() {
+    public String homeDriver(Principal principal) {
+        if (principal == null) {
+            return "redirect:/login";
+        }
+        String email = principal.getName();
+        Account emailAccount = accountRepository.findByEmail(email);
+        if (emailAccount == null) {
+            return "redirect:/login";
+        }
         return "home-driver";
     }
 

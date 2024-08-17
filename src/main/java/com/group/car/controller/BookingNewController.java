@@ -1,9 +1,7 @@
 package com.group.car.controller;
 
 import com.group.car.models.*;
-import com.group.car.repository.BookingRepository;
-import com.group.car.repository.CarRepository;
-import com.group.car.repository.CustomerRepository;
+import com.group.car.repository.*;
 import com.group.car.service.CarService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
@@ -39,7 +37,13 @@ public class BookingNewController {
     private BookingRepository bookingRepository;
 
     @Autowired
-    CarService carService;
+    private CarService carService;
+
+    @Autowired
+    private AccountRepository accountRepository;
+
+    @Autowired
+    private CarBookingRepository carBookingRepository;
 
     @GetMapping("/rent-a-car")
     public String showRentalCarForm(@RequestParam("id") long carId, Model model, Principal principal, HttpServletRequest request) {
@@ -49,30 +53,37 @@ public class BookingNewController {
         }
         Car car = carOptional.get();
 
+        if (principal == null) {
+            return "redirect:/login";
+        }
+
+        String email = principal.getName();
+        Account emailAccount = accountRepository.findByEmail(email);
+
+        if (emailAccount == null) {
+            return "redirect:/login";
+        }
+
         Customer customer = getCurrentCustomer();
         if (customer == null) {
-            return "redirect:/login";
+            throw new RuntimeException("Customer not found");
         }
 
         Booking booking = new Booking();
         booking.setCustomer(customer);
-
         HttpSession session = request.getSession();
         String pickupLocation = (String) car.getAddress();
 
-        // Lấy giá trị từ session và kiểm tra null
         LocalDate pickupDate = (LocalDate) session.getAttribute("pickupDate");
         LocalTime pickupTime = (LocalTime) session.getAttribute("pickupTime");
         LocalDate dropoffDate = (LocalDate) session.getAttribute("dropoffDate");
         LocalTime dropoffTime = (LocalTime) session.getAttribute("dropoffTime");
 
-        // Gán giá trị mặc định nếu null
         if (pickupDate == null) pickupDate = LocalDate.now();
         if (pickupTime == null) pickupTime = LocalTime.MIDNIGHT;
-        if (dropoffDate == null) dropoffDate = LocalDate.now().plusDays(1); // Mặc định là ngày hôm sau
+        if (dropoffDate == null) dropoffDate = LocalDate.now().plusDays(1);
         if (dropoffTime == null) dropoffTime = LocalTime.MIDNIGHT;
 
-        // Combine LocalDate and LocalTime into LocalDateTime
         LocalDateTime pickupDateTime = LocalDateTime.of(pickupDate, pickupTime);
         LocalDateTime returnDateTime = LocalDateTime.of(dropoffDate, dropoffTime);
 
@@ -80,13 +91,11 @@ public class BookingNewController {
         booking.setStartDateTime(Date.from(pickupDateTime.atZone(ZoneId.systemDefault()).toInstant()));
         booking.setEndDateTime(Date.from(returnDateTime.atZone(ZoneId.systemDefault()).toInstant()));
 
-
         long numberOfDays = ChronoUnit.DAYS.between(pickupDateTime.toLocalDate(), returnDateTime.toLocalDate());
         if (numberOfDays == 0) {
             numberOfDays = 1; // Minimum 1 day rental
         }
         booking.setNumberOfDays((int) numberOfDays);
-
 
         int totalPrice = car.getBasicPrice() * (int) numberOfDays;
         booking.setTotalPrice(totalPrice);
@@ -99,6 +108,7 @@ public class BookingNewController {
 
         return "booking/step1-booking-information";
     }
+
     @PostMapping("/update-booking")
     @ResponseBody
     public ResponseEntity<Map<String, Object>> updateBooking(
@@ -188,7 +198,9 @@ public class BookingNewController {
         int totalPrice = car.getBasicPrice() * (int) numberOfDays;
         booking.setTotalPrice(totalPrice);
 
-        // Save the booking in the session for step 2
+        List<CarBooking> carBookings = carBookingRepository.findByCarId(carId);
+        String status = "Available";
+
         session.setAttribute("startDateTime", booking.getStartDateTime());
         session.setAttribute("endDateTime", booking.getEndDateTime());
 
@@ -196,18 +208,19 @@ public class BookingNewController {
         model.addAttribute("booking", booking);
         model.addAttribute("car", car);
         model.addAttribute("customer", customer);
+        model.addAttribute("status", status);
 
         return "booking/step2-payment";
     }
 
     @PostMapping("/step2")
-    public String processStep2(@ModelAttribute Booking booking,
-                               @RequestParam("paymentMethod") String paymentMethod,
-                               @RequestParam("carId") long carId,
-                               @RequestParam("startDateTime") @DateTimeFormat(pattern = "yyyy-MM-dd'T'HH:mm") Date startDateTime,
-                               @RequestParam("endDateTime") @DateTimeFormat(pattern = "yyyy-MM-dd'T'HH:mm") Date endDateTime,
-                                Model model)
-    {
+    public String processStep2(
+            @RequestParam("paymentMethod") String paymentMethod,
+            @RequestParam("carId") long carId,
+            @RequestParam("startDateTime") @DateTimeFormat(pattern = "yyyy-MM-dd'T'HH:mm") Date startDateTime,
+            @RequestParam("endDateTime") @DateTimeFormat(pattern = "yyyy-MM-dd'T'HH:mm") Date endDateTime,
+            Model model){
+
         Optional<Car> carOptional = carRepository.findById(carId);
         if (!carOptional.isPresent()) {
             return "redirect:/car-not-found";
@@ -219,47 +232,40 @@ public class BookingNewController {
             return "redirect:/login";
         }
 
-        booking.setPaymentMethod(paymentMethod);
-        booking.setCustomer(customer);
-
-        // Calculate deposit
         int deposit = car.getDeposit();
 
-        // Check if the customer has sufficient funds if using wallet
         if (paymentMethod.equals("wallet") && customer.getWallet() < deposit) {
             model.addAttribute("error", "Insufficient funds in wallet");
             return "booking/step2-payment";
         }
 
-        // Process the payment
-        boolean paymentSuccess = processPayment(booking, customer, car);
+        String bookingNumber = generateBookingNumber();
 
-        if (!paymentSuccess) {
-            model.addAttribute("error", "Payment processing failed");
-            return "booking/step2-payment";
+        List<CarBooking> carBookings = carBookingRepository.findByCarId(car.getId());
+
+        for (CarBooking carBooking : carBookings) {
+            Booking booking = carBooking.getBooking();
+            booking.setBookingNo(bookingNumber);
+            booking.setPickUpLocation(car.getAddress());
+            booking.setStartDateTime(startDateTime);
+            booking.setEndDateTime(endDateTime);
+            booking.setPaymentMethod(paymentMethod);
+            booking.setCustomer(customer);
+
+            boolean paymentSuccess = processPayment(booking, customer, car);
+
+            if (!paymentSuccess) {
+                model.addAttribute("error", "Payment processing failed");
+                return "booking/step2-payment";
+            }
+
+            booking.setStatus("Confirmed");
+            bookingRepository.save(booking);
         }
 
-        // Generate a unique booking number
-        String bookingNumber = generateBookingNumber();
-        booking.setBookingNo(bookingNumber);
-        booking.setPickUpLocation(car.getAddress());
-        booking.setStartDateTime(startDateTime);
-        booking.setEndDateTime(endDateTime);
-
-        // Set the status to "Confirmed"
-        booking.setStatus("Confirmed");
-
-        // Create and save CarBooking
-        CarBooking carBooking = new CarBooking();
-        carBooking.setCar(car);
-        carBooking.setBooking(booking);
-        booking.getCarBookings().add(carBooking);
-
-        // Save the booking to the database
-        bookingRepository.save(booking);
-
-        return "redirect:/booking/step3/" + booking.getId();
+        return "redirect:/booking/step3/" + carBookings.get(0).getBooking().getId();
     }
+
 
     @GetMapping("/step3/{bookingId}")
     public String showStep3(@PathVariable Long bookingId, Model model) {
@@ -277,7 +283,18 @@ public class BookingNewController {
         return "booking/step3-finish";
     }
 
+    private void updateCarStatus(long carId) {
+        List<CarBooking> carBookings = carBookingRepository.findByCarId(carId);
+        boolean isAvailable = true;
 
+        for (CarBooking cb : carBookings) {
+            Booking booking = cb.getBooking();
+            if (booking.getStatus().equals("Confirmed")) {
+                isAvailable = false;
+                break;
+            }
+        }
+    }
     private boolean processPayment(Booking booking, Customer customer, Car car) {
         int deposit = car.getDeposit();
 

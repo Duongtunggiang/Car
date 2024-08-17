@@ -4,146 +4,149 @@
 <head>
     <title>Payment</title>
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 20px;
-        }
-        .header {
-            background-color: #333;
-            color: white;
-            padding: 10px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        .progress-bar {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 20px;
-        }
-        .progress-step {
-            flex: 1;
-            text-align: center;
-            padding: 10px;
-            background-color: #f0f0f0;
-        }
-        .progress-step.active {
-            background-color: #007bff;
-            color: white;
-        }
-        .booking-details, .booking-summary {
-            background-color: #f0f0f0;
-            padding: 10px;
-            margin-bottom: 20px;
-        }
-        .car-info {
-            display: flex;
-            margin-bottom: 20px;
-        }
-        .car-image {
-            width: 200px;
-            height: 150px;
-            background-color: #ddd;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            margin-right: 20px;
-        }
-        .car-details {
-            flex: 1;
-        }
-        .payment-methods {
-            margin-bottom: 20px;
-        }
-        .payment-method {
-            margin-bottom: 10px;
-        }
-        .insufficient {
-            color: red;
-        }
-        .button {
-            background-color: #007bff;
-            color: white;
-            border: none;
-            padding: 10px 20px;
-            cursor: pointer;
-        }
+        .steps {
+             display: flex;
+             justify-content: space-between;
+             margin-bottom: 20px;
+             background: #f4f4f4;
+             padding: 10px;
+             border-radius: 4px;
+         }
+         .step {
+             flex: 1;
+             text-align: center;
+             padding: 10px;
+             background: #ccc;
+             margin-right: 10px;
+             border-radius: 4px;
+             font-weight: bold;
+         }
+         .step.active {
+             background: #2c7be5;
+             color: white;
+         }
+         .step:last-child {
+             margin-right: 0;
+         }
+         .booking-details, .booking-summary {
+             background-color: #f0f0f0;
+             padding: 10px;
+             margin-bottom: 20px;
+         }
+         .car-info {
+             display: flex;
+             margin-bottom: 20px;
+         }
+         .car-image {
+             width: 200px;
+             height: 150px;
+             background-color: #ddd;
+             display: flex;
+             justify-content: center;
+             align-items: center;
+             margin-right: 20px;
+         }
+         .car-details {
+             flex: 1;
+         }
+         .payment-methods {
+             margin-bottom: 20px;
+         }
+         .payment-method {
+             margin-bottom: 10px;
+         }
+         .insufficient {
+             color: red;
+         }
+         .button {
+             background-color: #007bff;
+             color: white;
+             border: none;
+             padding: 10px 20px;
+             cursor: pointer;
+         }
     </style>
 </head>
 <body>
 <div th:insert="header-footer/header :: nav"></div>
-<div class="header">
-    <h1>Rent a car today!</h1>
-    <div>ABOUT US | Welcome, An ▼</div>
-</div>
-
-<div class="progress-bar">
-    <div class="progress-step">Step 1: Booking Information</div>
-    <div class="progress-step active">Step 2: Payment</div>
-    <div class="progress-step">Step 3: Finish</div>
-</div>
-
-<form th:action="@{/booking/step2}" method="post" th:object="${booking}">
-    <input type="hidden" th:name="carId" th:value="${car.id}" />
-
-    <div class="booking-details">
-        <h3>Booking Details</h3>
-        <p>Pick-up location: <span th:text="*{pickUpLocation}"></span></p>
-        <p>Pick up date and time:
-            <input type="text" name="startDateTime" th:value="${#dates.format(session.startDateTime, 'yyyy-MM-dd''T''HH:mm')}">
-        </p>
-        <p>Return date and time:
-            <input type="text" name="endDateTime" th:value="${#dates.format(session.endDateTime, 'yyyy-MM-dd''T''HH:mm')}">
-        </p>
+<div class="container mb-5">
+    <div class="steps">
+        <div class="step ">Step 1: Booking Information</div>
+        <div class="step active">Step 2: Payment</div>
+        <div class="step">Step 3: Finish</div>
     </div>
+    <!--<div class="progress-bar">-->
+    <!--    <div class="progress-step">Step 1: Booking Information</div>-->
+    <!--    <div class="progress-step active">Step 2: Payment</div>-->
+    <!--    <div class="progress-step">Step 3: Finish</div>-->
+    <!--</div>-->
 
-    <div class="car-info">
-        <div class="car-image">X</div>
-        <div class="car-details">
-            <h3 th:text="${car.name}"></h3>
-            <p>Rating: ☆☆☆☆☆ (No ratings yet)</p>
-            <p>No. of rides: 0</p>
-            <p>Price: <span th:text="${car.basicPrice}"></span> VND/day</p>
-            <p>Locations: <span th:text="*{pickUpLocation}"></span></p>
-            <p>Status: <span style="color: green;">Available</span></p>
-        </div>
-    </div>
+    <form th:action="@{/booking/step2}" method="post" th:object="${booking}">
+<!--        <input type="hidden" th:name="Id" th:value="${booking.id}" />-->
+        <input type="hidden" th:name="carId" th:value="${car.id}" />
 
-    <div class="booking-summary">
-        <h3>Booking Summary</h3>
-        <p>Number of days: <span th:text="${booking.numberOfDays}"></span></p>
-        <p>Price per day: <span th:text="${car.basicPrice}"></span> VND</p>
-        <p>Total: <span th:text="${booking.totalPrice}"></span> VND</p>
-        <p>Deposit: <span th:text="${car.deposit}"></span> VND</p>
-    </div>
-
-    <h3>Please select your payment method</h3>
-    <div class="payment-methods">
-        <div class="payment-method">
-            <input type="radio" name="paymentMethod" value="wallet" id="wallet" required />
-            <label for="wallet">My wallet</label>
-            <p>Current balance:
-                <span th:text="${customer.wallet}" th:class="${customer.wallet < car.deposit ? 'insufficient' : ''}"></span> VND
-                <span th:if="${customer.wallet < car.deposit}">(Insufficient)</span>
+        <div class="booking-details">
+            <h3>Booking Details</h3>
+            <p>Pick-up location: <span th:text="*{pickUpLocation}"></span></p>
+            <p>Pick up date and time:
+                <input type="text" name="startDateTime" th:value="${#dates.format(session.startDateTime, 'yyyy-MM-dd''T''HH:mm')}">
             </p>
-            <p th:if="${customer.wallet < car.deposit}">Please go to My wallet to top-up and try again</p>
+            <p>Return date and time:
+                <input type="text" name="endDateTime" th:value="${#dates.format(session.endDateTime, 'yyyy-MM-dd''T''HH:mm')}">
+            </p>
         </div>
-        <div class="payment-method">
-            <input type="radio" name="paymentMethod" value="cash" id="cash" required />
-            <label for="cash">Cash</label>
-            <p>Our operator will contact you for further instruction</p>
-        </div>
-        <div class="payment-method">
-            <input type="radio" name="paymentMethod" value="bankTransfer" id="bankTransfer" required />
-            <label for="bankTransfer">Bank transfer</label>
-            <p>Our operator will contact you for further instruction</p>
-        </div>
-    </div>
 
-    <p>The deposit amount of <span th:text="${car.deposit}"></span> VND will be deducted from your wallet!</p>
+        <div class="row">
+            <div class="col-md-6">
+                <img th:src="@{'/img/' + ${car.images}}"  width="60%" alt="${car.name}" />
+            </div>
+            <div class="col-md-6">
+                <h3 th:text="${car.name}"></h3>
+                <p>Rating: ☆☆☆☆☆ (No ratings yet)</p>
+                <p>No. of rides: 0</p>
+                <p>Price: <span th:text="${car.basicPrice}"></span> VND/day</p>
+                <p>Locations: <span th:text="*{pickUpLocation}"></span></p>
+                <p>Status: <span th:text="${status}" th:classappend="${status == 'Available'} ? 'text-success' : 'text-danger'">Status: Available</span></p>
+            </div>
+        </div>
 
-    <button type="submit" class="button">Confirm payment</button>
-</form>
+        <div class="booking-summary">
+            <h3>Booking Summary</h3>
+            <p>Number of days: <span th:text="${booking.numberOfDays}"></span></p>
+            <p>Price per day: <span th:text="${car.basicPrice}"></span> VND</p>
+            <p>Total: <span th:text="${booking.totalPrice}"></span> VND</p>
+            <p>Deposit: <span th:text="${car.deposit}"></span> VND</p>
+        </div>
+
+        <h3>Please select your payment method</h3>
+        <div class="payment-methods">
+            <div class="payment-method">
+                <input type="radio" name="paymentMethod" value="wallet" id="wallet" required />
+                <label for="wallet">My wallet</label>
+                <p>Current balance:
+                    <span th:text="${customer.wallet}" th:class="${customer.wallet < car.deposit ? 'insufficient' : ''}"></span> VND
+                    <span th:if="${customer.wallet < car.deposit}">(Insufficient)</span>
+                </p>
+                <p th:if="${customer.wallet < car.deposit}">Please go to My wallet to top-up and try again</p>
+            </div>
+            <div class="payment-method">
+                <input type="radio" name="paymentMethod" value="cash" id="cash" required />
+                <label for="cash">Cash</label>
+                <p>Our operator will contact you for further instruction</p>
+            </div>
+            <div class="payment-method">
+                <input type="radio" name="paymentMethod" value="bankTransfer" id="bankTransfer" required />
+                <label for="bankTransfer">Bank transfer</label>
+                <p>Our operator will contact you for further instruction</p>
+            </div>
+        </div>
+
+        <p>The deposit amount of <span th:text="${car.deposit}"></span> VND will be deducted from your wallet!</p>
+
+        <button type="submit" class="btn btn-primary">Confirm payment</button>
+    </form>
+</div>
+<!-- Footer -->
+<div th:insert="header-footer/footer :: footer"></div>
 </body>
 </html>

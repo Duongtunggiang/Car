@@ -10,56 +10,66 @@
     <div class="container">
         <h1 class="jutify-content-center text-center">Home Car</h1>
     </div>
-</main>
-<div class="container mt-3">
-    <h1 class="text-center">Welcome to Our Service</h1>
-
-    <div class="container">
-        <div class="hero">
-            <div class="hero-text">
-                <h2>Looking for a vehicle? You're at the right place.</h2>
-                <p>We have a large selection of locally owned cars available for you to choose from. Rental plans to accommodate any time period.</p>
-                <p>With over 300 cars located nationwide we will have something for you.</p>
-            </div>
-            <div class="search-form">
-                <h3>Find the ideal car rental for your trip</h3>
-                <form th:action="@{/customer/search}" method="post">
-                    <div>
-                        <label>PICK-UP LOCATION:</label>
-                        <input type="text" name="pickupLocation" required>
-                    </div>
-                    <div>
-                        <label>PICK-UP DATE AND TIME:</label>
-                        <input type="date" name="pickupDate" required>
-                        <input type="time" name="pickupTime" required>
-                    </div>
-                    <div>
-                        <label>DROP-OFF DATE AND TIME:</label>
-                        <input type="date" name="dropoffDate" required>
-                        <input type="time" name="dropoffTime" required>
-                    </div>
-                    <button type="submit" class="btn">SEARCH</button>
-                </form>
-            </div>
+</main> <h1 class="text-center">Welcome to Our Service</h1>
+<div class="container mt-3 mb-5">
+<section id="banner" style="background: #b1ffd7;">
+    <div class="container mt-3 mb-2">
+        <div class="hero-text text-center mb-4">
+            <h4 class="display-4">Looking for a vehicle? You're at the right place.</h4>
+            <p class="lead">We have a large selection of locally owned cars available for you to choose from. Rental plans to accommodate any time period.</p>
+            <p class="lead">With over 300 cars located nationwide we will have something for you.</p>
         </div>
-        <div class="container">
-            <h1>Available Cars</h1>
 
-            <div class="row">
-                <div class="col-md-4" th:each="car : ${cars}">
-                    <div class="card mb-4">
-                        <img th:src="@{'/img/' + ${car.images}}" class="card-img-top" alt="Car Image">
-                        <div class="card-body">
-                            <h5 class="card-title" th:text="${car.name}">Car Name</h5>
-                            <p class="card-text" th:text="'Price: ' + ${car.basicPrice} + ' VND/day'">Price</p>
-                            <a class="btn btn-primary" th:href="@{'/customer/car-details?id=' + ${car.id}}">View Details</a>
-                        </div>
-                    </div>
+        <div class="search-form bg-white p-4 rounded shadow">
+            <h3 class="text-center mb-4">Find the ideal car rental for your trip</h3>
+            <form th:action="@{/customer/search}" method="post" class="row g-3">
+                <div class="col-md-12">
+                    <label for="pickupLocation" class="form-label">PICK-UP LOCATION:</label>
+                    <input type="text" class="form-control" id="pickupLocation" name="pickupLocation" placeholder="Enter location" required>
+                </div>
+                <div class="col-md-6">
+                    <label for="pickupDate" class="form-label">PICK-UP DATE AND TIME:</label>
+                    <input type="date" class="form-control" id="pickupDate" name="pickupDate" required>
+                    <input type="time" class="form-control mt-2" id="pickupTime" name="pickupTime" required>
+                </div>
+                <div class="col-md-6">
+                    <label for="dropoffDate" class="form-label">DROP-OFF DATE AND TIME:</label>
+                    <input type="date" class="form-control" id="dropoffDate" name="dropoffDate" required>
+                    <input type="time" class="form-control mt-2" id="dropoffTime" name="dropoffTime" required>
+                </div>
+                <div class="col-12 text-center">
+                    <button type="submit" class="btn btn-primary btn-lg mt-3">SEARCH</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</section>
+
+<div class="container mt-3">
+    <div class="row">
+        <h1>Available Cars</h1>
+        <div class="col-md-4" th:each="car : ${cars}">
+            <div class="card mb-4 mt-2">
+                <img th:src="@{'/img/' + ${car.images}}" class="card-img-top" alt="Car 1">
+                <div class="card-body">
+                    <h5 class="card-title" th:text="'Car name: '+${car.name}">Car Model 1</h5>
+                    <p class="card-text" th:text="'Brand: ' + ${car.brand}">Brand: </p>
+                    <p class="card-text" th:text="'Location: '+${car.address}">Location: </p>
+                    <p th:text="'Status: ' + ${carStatusMap[car.id]}"
+                       th:classappend="${carStatusMap[car.id] == 'Available'} ? 'text-success' : ''">Status: Available</p>
+                    <a th:href="@{'/customer/car-details?id=' + ${car.id}}" class="btn btn-primary" th:text="'Price: ' + ${car.basicPrice} + ' VND/day'">$20,000</a>
                 </div>
             </div>
         </div>
+    </div>
+
+
+
+    <div class="container">
+
+
         <h2>Why us?</h2>
-        <div class="features">
+        <div class="features d-flex">
             <div class="feature">
                 <h3>💰 Save money</h3>
                 <p>We have no setup or registration fees. You are only charged when you rent a car. So get started for FREE!</p>
@@ -79,7 +89,7 @@
         </div>
 
         <h2>What people say?</h2>
-        <div class="testimonials">
+        <div class="testimonials d-flex">
             <div class="testimonial">
                 <p>👤 ___________________________</p>
                 <p>___________________________</p>
@@ -99,7 +109,7 @@
         </div>
 
         <h2>Where to find us?</h2>
-        <div class="locations">
+        <div class="locations d-flex">
             <div class="location">Hanoi</div>
             <div class="location">Ho Chi Minh city</div>
             <div class="location">Da Nang - Hoi An</div>
@@ -109,7 +119,7 @@
         </div>
     </div>
 </div>
-
+</div>
 <!-- Footer -->
 <div th:insert="header-footer/footer :: footer"></div>
 </body>

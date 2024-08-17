@@ -4,30 +4,8 @@
 <head>
     <title>Booking Information</title>
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #f4f4f4;
-            margin: 0;
-            padding: 20px;
-        }
         h1, h2 {
             color: #333;
-        }
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            background: #fff;
-            padding: 20px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-        }
-        .header, .footer {
-            text-align: center;
-            background: #333;
-            color: white;
-            padding: 10px 0;
-        }
-        .header h1 {
-            margin: 0;
         }
         .steps {
             display: flex;
@@ -116,7 +94,7 @@
                     <input type="hidden" name="_csrf" th:value="${_csrf.token}">
                     <div class="mb-3">
                         <label for="modalPickUpLocation" class="form-label">Pick-up location:</label>
-                        <input type="text" class="form-control" id="modalPickUpLocation" th:value="${pickupLocation}" placeholder="Enter location">
+                        <input type="text" class="form-control" id="modalPickUpLocation" th:value="${booking.pickUpLocation}" readonly>
                     </div>
                     <div class="row">
                         <div class="col-sm-6 mb-3">
@@ -188,7 +166,7 @@
     });
 </script>
 
-<div class="container">
+<div class="container mb-5">
     <div class="header">
         <h1>Rent a car today!</h1>
     </div>
@@ -229,17 +207,17 @@
 
         <div class="car-info">
             <h3>Car Information</h3>
-            <p>Model: <strong th:text="${car.name}"></strong></p>
+            <p>Model: <strong id="carName" th:text="${car.name}"></strong></p>
             <p>Price: <strong th:text="${car.basicPrice}"></strong> VND/day</p>
         </div>
 
-        <div class="renter-info">
+        <div class="renter-info row">
             <h3>Renter's Information</h3>
-            <div class="input-group">
+            <div class="input-group col-sm-6">
                 <label for="fullName">Full Name:</label>
                 <input type="text" id="fullName" th:field="*{customer.name}" required/>
             </div>
-            <div class="input-group">
+            <div class="input-group col-sm-6">
                 <label for="dob">Date of Birth:</label>
 <!--                <input type="date" id="dob" th:field="*{customer.dateOfBirth}" required/>-->
                 <p>
@@ -247,23 +225,23 @@
                            th:value="${#dates.format(customer.dateOfBirth, 'yyyy-MM-dd')}">
                 </p>
             </div>
-            <div class="input-group">
+            <div class="input-group  col-md-6">
                 <label for="phone">Phone number:</label>
                 <input type="tel" id="phone" th:field="*{customer.phoneNo}" required/>
             </div>
-            <div class="input-group">
+            <div class="input-group  col-md-6">
                 <label for="email">Email address:</label>
                 <input type="email" id="email" th:field="*{customer.email}" required/>
             </div>
-            <div class="input-group">
+            <div class="input-group col-md-6">
                 <label for="nid">National ID No.:</label>
                 <input type="text" id="nid" th:field="*{customer.nationalIdNo}" required/>
             </div>
-            <div class="input-group">
+            <div class="input-group col-md-6">
                 <label for="license">Driving license:</label>
                 <input type="text" id="license" th:field="*{customer.drivingLicense}" required/>
             </div>
-            <div class="input-group">
+            <div class="input-group col-md-6">
                 <label for="address">Address:</label>
                 <textarea id="address" th:field="*{customer.address}" required></textarea>
             </div>
@@ -275,14 +253,30 @@
 <!--            &lt;!&ndash; Repeat input groups for driver's information if necessary &ndash;&gt;-->
 <!--        </div>-->
 
-        <div class="buttons">
-            <button type="submit">Next</button>
+        <div class="buttons d-flex justify-content-end">
+            <a th:href="@{'/customer/car-details?id=' + ${car.id}}" class="btn btn-outline-danger m-2">Cancel</a>
+            <button type="submit" class="m-2">Next</button>
         </div>
     </form>
+    <script>
+        $(document).ready(function() {
+            $("button[type='submit']").click(function(event) {
+                event.preventDefault();
 
-    <div class="footer">
-        <p>&copy; 2024 Rent a Car</p>
-    </div>
+                var carName = $("#carName").text();
+                var carDeposit = $("#displayDeposit").text();
+                var numberOfDays = $("#displayNumberOfDays").text();
+
+                var confirmMessage = `Do you agree to rent the car '${carName}' with a deposit of '${carDeposit}' VND for '${numberOfDays}' days?`;
+                if (confirm(confirmMessage)) {
+                    $(this).closest("form").submit();
+                }
+            });
+        });
+    </script>
+
 </div>
+<!-- Footer -->
+<div th:insert="header-footer/footer :: footer"></div>
 </body>
 </html>

@@ -25,15 +25,15 @@ public class Customer {
     private String drivingLicense;
     private int wallet;
 
-    public void addBooking(Booking booking) {
-        bookings.add(booking);
-        booking.setCustomer(this);
-    }
-
-    public void removeBooking(Booking booking) {
-        bookings.remove(booking);
-        booking.setCustomer(null);
-    }
+//    public void addBooking(Booking booking) {
+//        bookings.add(booking);
+//        booking.setCustomer(this);
+//    }
+//
+//    public void removeBooking(Booking booking) {
+//        bookings.remove(booking);
+//        booking.setCustomer(null);
+//    }
 
 //    private String coverImage;
 //

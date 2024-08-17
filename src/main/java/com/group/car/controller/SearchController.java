@@ -1,6 +1,8 @@
 package com.group.car.controller;
 
 import com.group.car.models.Car;
+import com.group.car.models.CarBooking;
+import com.group.car.repository.CarBookingRepository;
 import com.group.car.repository.CarRepository;
 import com.group.car.service.CarService;
 import jakarta.servlet.http.HttpServletRequest;
@@ -27,6 +29,8 @@ public class SearchController {
 
     @Autowired
     private CarRepository carRepository;
+    @Autowired
+    private CarBookingRepository carBookingRepository;
 
     @GetMapping("/search")
     public String showRentalCarForm(Model model) {
@@ -70,7 +74,17 @@ public class SearchController {
     public String showCarDetails(@RequestParam Long id, Model model) {
         Car car = carRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Car not found"));
+
+        List<CarBooking> carBookings = carBookingRepository.findByCarId(car.getId());
+        String status = "No Booking";
+        if (!carBookings.isEmpty()) {
+            status = carBookings.get(0).getBooking().getStatus();
+        }
+
         model.addAttribute("car", car);
+        model.addAttribute("status", status);
+
         return "customer/car-details";
     }
+
 }

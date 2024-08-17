@@ -3,16 +3,40 @@
 <head th:fragment="head">
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Home</title>
+    <title>Rent a Car now</title>
+    <link href="https://fonts.googleapis.com/css2?family=Lobster&family=Roboto:wght@400;500&display=swap" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0/dist/css/select2.min.css" rel="stylesheet" />
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0/dist/js/select2.min.js"></script>
     <style>
-        body { font-family: Arial, sans-serif; margin: 0; padding: 0; }
-        .header { background-color: #f8f9fa; padding: 10px; display: flex; justify-content: space-between; align-items: center; }
+        body { font-family: 'Roboto', sans-serif; margin: 0; padding: 0; }
+        .header {
+            background-color: #f8f9fa;
+            padding: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Hiệu ứng đổ bóng */
+        }
         .container { width: 80%; margin: 0 auto; }
+        .navbar {
+            background-color: #40bf80;
+            padding: 10px 0;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.4);
+        }
+        .main-logo img { max-width: 100px; }
+        .main-logo h3 {
+            font-family: 'Lobster', cursive;
+            color: #333;
+            margin: 0;
+            font-size: 1.5rem;
+        }
+        .navbar-nav .nav-link { color: #333; }
+        .navbar-nav .nav-link:hover { color: #000; }
+        .dropdown-menu a { color: #333; }
+        .dropdown-menu a:hover { background-color: #f1f1f1; }
         .hero { background-color: #e9ecef; padding: 20px; display: flex; justify-content: space-between; }
         .hero-section { flex: 1; margin: 0 10px; }
 
@@ -22,81 +46,56 @@
         .testimonial { flex: 1 0 45%; margin: 10px; }
         .locations { display: flex; flex-wrap: wrap; }
         .location { flex: 1 0 30%; margin: 10px; height: 100px; background-color: #e9ecef; }
-        .footer { background-color: #f8f9fa; padding: 20px 0; margin-top: 20px; }
+        .text-success {
+            color: green;
+        }
+        #banner{
+            border-radius: 10px;
+        }
     </style>
+
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
 </head>
 <body>
 
-<nav th:fragment="nav" class="navbar navbar-expand-lg  text-light bg-dark border-bottom">
+<nav th:fragment="nav" class="navbar navbar-expand-lg text-dark">
     <div class="container">
-        <a class="navbar-brand text-light" href="/">Rent a Car Today!</a>
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
-            <span class="navbar-toggler-icon"></span>
-        </button>
-        <div class="collapse navbar-collapse" id="navbarSupportedContent">
-            <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-
-                <li class="nav-item">
-                    <a class="nav-link text-light" href="#">About Us</a>
-                </li>
-            </ul>
-
-            <form class="d-flex m-3" role="search">
-                <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search">
-                <button class="btn btn-outline-success" type="submit">Search</button>
-            </form>
-
-            <ul class="navbar-nav me-3" sec:authorize="isAuthenticated()">
-                <li class="nav-item dropdown">
-                    <a class="nav-link dropdown-toggle text-light" href="#" role="button"
-                       data-bs-toggle="dropdown">User</a>
-                    <ul class="dropdown-menu">
-                        <!-- Mục Profile chung cho cả CarOwner và Customer -->
-                        <li><a class="dropdown-item" href="/profile">Profile</a></li>
-
-                        <!-- Mục dành cho Customer -->
-                        <li th:if="${userRole == 'Customer'}">
-                            <a class="dropdown-item" href="customer/my-bookings">My Bookings</a>
-                        </li>
-                        <li th:if="${userRole == 'Customer'}">
-                            <a class="dropdown-item" href="/mywallet/my-wallet">My Wallet</a>
-                        </li>
-
-                        <!-- Mục dành cho CarOwner -->
-                        <li th:if="${userRole == 'CarOwner'}">
-                            <a class="dropdown-item" href="/mywallet/my-wallet">My Wallet</a>
-                        </li>
-                        <li th:if="${userRole == 'CarOwner'}">
-                            <a class="dropdown-item" href="/carowner">My Cars</a>
-                        </li>
-                        <li th:if="${userRole == 'CarOwner'}">
-                            <a class="dropdown-item" href="/home-driver">My Reports</a>
-                        </li>
-
-                        <!-- Mục logout chung cho cả hai -->
-                        <li><a class="dropdown-item" href="#" onclick="confirmLogout(event)">Logout</a></li>
-                    </ul>
-                </li>
-            </ul>
-
-            <form id="logoutForm" sec:authorize="isAuthenticated()" method="post" action="/logout" style="display: none;">
-                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
-            </form>
-            <script>
-                function confirmLogout(event) {
-                    event.preventDefault();
-                    if (confirm('Are you sure?')) {
-                        document.getElementById('logoutForm').submit();
-                    }
-                }
-            </script>
-            <ul class="navbar-nav" sec:authorize="!isAuthenticated()">
-                <a class="nav-item btn btn-secondary me-2" href="/register-driver">Register as Driver</a>
-                <!--                <li class="nav-item"><a href="/register" class="btn btn-outline-primary me-2">Register</a> </li>-->
-                <li class="nav-item"><a href="/login" class="btn btn-primary me-2">Login</a> </li>
-            </ul>
-
-        </div>
+        <a href="/" style="text-decoration: none;">
+            <div class="main-logo d-flex align-items-center">
+                <img src="/images/logo-group2-3.png" alt="logo" class="img-fluid">
+                <h3>Rent a Car now</h3>
+            </div>
+        </a>
+        <ul class="navbar-nav ms-auto" sec:authorize="!isAuthenticated()">
+            <li class="nav-item"><a href="/login" class="btn btn-outline-dark btn-lg text-uppercase fs-6 rounded-1">Login</a></li>
+        </ul>
+        <ul class="navbar-nav ms-auto" sec:authorize="isAuthenticated()">
+            <li class="nav-item dropdown">
+                <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">User</a>
+                <ul class="dropdown-menu">
+                    <li><a class="dropdown-item" href="/profile">Profile</a></li>
+                    <li th:if="${userRole == 'Customer'}"><a class="dropdown-item" href="customer/my-bookings">My Bookings</a></li>
+                    <li th:if="${userRole == 'Customer'}"><a class="dropdown-item" href="/mywallet/my-wallet">My Wallet</a></li>
+                    <li th:if="${userRole == 'CarOwner'}"><a class="dropdown-item" href="/mywallet/my-wallet">My Wallet</a></li>
+                    <li th:if="${userRole == 'CarOwner'}"><a class="dropdown-item" href="/carowner">My Cars</a></li>
+                    <li th:if="${userRole == 'CarOwner'}"><a class="dropdown-item" href="/home-driver">My Reports</a></li>
+                    <li><a class="dropdown-item" href="#" onclick="confirmLogout(event)">Logout</a></li>
+                </ul>
+            </li>
+        </ul>
     </div>
+
+    <form id="logoutForm" sec:authorize="isAuthenticated()" method="post" action="/logout" style="display: none;">
+        <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+    </form>
+    <script>
+        function confirmLogout(event) {
+            event.preventDefault();
+            if (confirm('Are you sure?')) {
+                document.getElementById('logoutForm').submit();
+            }
+        }
+    </script>
 </nav>
+</body>
+</html>

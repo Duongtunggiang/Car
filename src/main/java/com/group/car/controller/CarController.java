@@ -259,7 +259,7 @@ public class CarController {
             return "redirect:/customer/my-bookings";
         }
 
-        Customer customer = booking.getCustomer(); // Assuming there's a Customer object in Booking
+        Customer customer = booking.getCustomer();
         model.addAttribute("booking", booking);
         model.addAttribute("customer", customer);
 
