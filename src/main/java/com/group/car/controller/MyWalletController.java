@@ -111,6 +111,7 @@ public class MyWalletController {
                 transaction.setType("Withdraw");
                 transaction.setCustomer(customer);
                 transaction.setTransactionDateTime(new Date());
+                transaction.setWalletBalance(customer.getWallet()); // Cập nhật số dư
                 transactionRepository.save(transaction);
 
                 model.addAttribute("successMessage", "Withdrawal successful!");
@@ -129,6 +130,7 @@ public class MyWalletController {
                 transaction.setType("Withdraw");
                 transaction.setCarOwner(carOwner);
                 transaction.setTransactionDateTime(new Date());
+                transaction.setWalletBalance(carOwner.getWallet()); // Cập nhật số dư
                 transactionRepository.save(transaction);
 
                 model.addAttribute("successMessage", "Withdrawal successful!");
@@ -166,6 +168,7 @@ public class MyWalletController {
             transaction.setType("Top-Up");
             transaction.setCustomer(customer);
             transaction.setTransactionDateTime(new Date());
+            transaction.setWalletBalance(customer.getWallet()); // Cập nhật số dư
             transactionRepository.save(transaction);
 
             model.addAttribute("successMessage", "Top-Up successful!");
@@ -180,6 +183,7 @@ public class MyWalletController {
             transaction.setType("Top-Up");
             transaction.setCarOwner(carOwner);
             transaction.setTransactionDateTime(new Date());
+            transaction.setWalletBalance(carOwner.getWallet()); // Cập nhật số dư
             transactionRepository.save(transaction);
 
             model.addAttribute("successMessage", "Top-Up successful!");

@@ -27,10 +27,17 @@
                 <script>
                     $(document).ready(function() {
                         var balanceText = $('#wallet-balance').text();
-                        var formattedBalance = Number(balanceText).toLocaleString('en').replace(/,/g, '.');
+                        var formattedBalance = Number(balanceText.replace(' VND', '').replace(/\./g, '')).toLocaleString('en').replace(/,/g, '.');
                         $('#wallet-balance').text(formattedBalance + ' VND');
+
+                        $('.wallet-balance').each(function() {
+                            var balanceText = $(this).text();
+                            var formattedBalance = Number(balanceText.replace(' VND', '').replace(/\./g, '')).toLocaleString('en').replace(/,/g, '.');
+                            $(this).text(formattedBalance + ' VND');
+                        });
                     });
                 </script>
+
                 <div class="col-sm-6">
                     <a type="button" class="btn btn-primary"
                        href="/mywallet/withdraw"   data-bs-toggle="modal" data-bs-target="#myModal">Withdraw</a>
@@ -62,16 +69,19 @@
                     <th scope="col">Date time</th>
                     <th scope="col">Booking No</th>
                     <th scope="col">Car Name</th>
+                    <th scope="col">Wallet balance</th>
                 </tr>
                 </thead>
                 <tbody>
                 <tr th:each="transaction : ${transactions}">
                     <th scope="row" th:text="${transaction.id}"></th>
-                    <td th:text="${transaction.amount}"></td>
+                    <td class="font-weight-bold"
+                        th:text="${transaction.type == 'Withdraw' || transaction.type == 'Pay deposit' || transaction.type == 'Offset final payment' && transaction.amount < 0 ? '- ' : '+ '} + ${transaction.amount} + ' VND'"></td>
                     <td th:text="${transaction.type}"></td>
                     <td th:text="${#dates.format(transaction.transactionDateTime, 'dd/MM/yyyy HH:mm:ss')}"></td>
                     <td th:text="${transaction.bookingNo != null ? transaction.bookingNo : 'N/A'}"></td>
                     <td th:text="${transaction.carName != null ? transaction.carName : 'N/A'}"></td>
+                    <td class="wallet-balance" th:text="${transaction.walletBalance} + ' VND'"></td>
                 </tr>
 
                 </tbody>

@@ -8,4 +8,5 @@ import java.util.List;
 public interface CarBookingRepository extends JpaRepository<CarBooking, Long> {
 //    List<CarBooking> findOverlappingBookings(Car car, Date startDate, Date endDate);
     List<CarBooking> findByCarId(Long carId);
+    List<CarBooking> findByBookingId(Long id);
 }

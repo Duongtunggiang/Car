@@ -4,7 +4,7 @@
 <body>
 <!-- Header -->
 <div th:insert="header-footer/header :: nav"></div>
-<div class="container mt-4">
+<div class="container mt-4 mb-5">
     <nav aria-label="breadcrumb">
         <ol class="breadcrumb">
             <li class="breadcrumb-item"><a href="/">Home</a></li>
@@ -36,21 +36,21 @@
             </div>
 
             <div class="mt-3">
-                <a th:href="@{/customer/my-bookings/{id}(id=${booking.id})}" class="btn btn-primary">View Details</a>
+<!--                <a th:href="@{/customer/my-bookings/{id}(id=${booking.id})}" class="btn btn-primary">View Details</a>-->
 
-                <form th:action="@{/customer/my-bookings/{id}/confirm-return(id=${booking.id})}" method="post">
+                <form class="m-4" th:action="@{/customer/my-bookings/{id}/confirm-return(id=${booking.id})}" method="post">
                     <button type="button" class="btn btn-secondary" onclick="showReturnCarModal()" th:if="${booking.status == 'In-Progress'}">Return Car</button>
                 </form>
 
-                <form th:action="@{/customer/my-bookings/{id}/confirm-pickup(id=${booking.id})}" method="post" style="display: inline;" th:if="${booking.status == 'Confirmed'}" onsubmit="return confirmPickup()">
+                <form class="m-4" th:action="@{/customer/my-bookings/{id}/confirm-pickup(id=${booking.id})}" method="post" style="display: inline;" th:if="${booking.status == 'Confirmed'}" onsubmit="return confirmPickup()">
                     <button type="submit" class="btn btn-secondary">Confirm Pickup</button>
                 </form>
 
-                <form th:action="@{/customer/my-bookings/{id}/cancel(id=${booking.id})}" method="post" style="display: inline;" th:if="${booking.status != 'Cancelled' && booking.status != 'Completed' && booking.status != 'In-Progress'}" onsubmit="return confirmCancel()">
+                <form class="m-4" th:action="@{/customer/my-bookings/{id}/cancel(id=${booking.id})}" method="post" style="display: inline;" th:if="${booking.status != 'Cancelled' && booking.status != 'Completed' && booking.status != 'In-Progress'}" onsubmit="return confirmCancel()">
                     <button type="submit" class="btn btn-danger">Cancel Booking</button>
                 </form>
 
-                <form th:action="@{/customer/my-bookings/{id}/continue-payment(id=${booking.id})}" method="post" style="display: inline;" th:if="${booking.status == 'Pending Payment'} " onsubmit="return continuePayment()">
+                <form class="m-4" th:action="@{/customer/my-bookings/{id}/continue-payment(id=${booking.id})}" method="post" style="display: inline;" th:if="${booking.status == 'Pending Payment'} " onsubmit="return continuePayment()">
                     <button type="submit" class="btn btn-warning">Continue Payment</button>
                 </form>
             </div>

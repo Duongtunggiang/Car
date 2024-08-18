@@ -58,7 +58,7 @@ public class AccountController {
     }
 
     @GetMapping("/home-driver")
-    public String homeDriver(Principal principal) {
+    public String homeDriver(Principal principal, Model model) {
         if (principal == null) {
             return "redirect:/login";
         }
@@ -67,6 +67,9 @@ public class AccountController {
         if (emailAccount == null) {
             return "redirect:/login";
         }
+//        model.addAttribute("homeUrl", homeUrl);
+        setUpUserRole(model);
+        model.addAttribute("currentPage", "home-driver");
         return "home-driver";
     }
 

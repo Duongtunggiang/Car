@@ -223,6 +223,14 @@ public class CarController {
 
     @Autowired
     private BookingRepository bookingRepository;
+    @Autowired
+    TransactionRepository transactionRepository;
+
+    @Autowired
+    CarOwnerRepository carOwnerRepository;
+
+    @Autowired
+    CarBookingRepository carBookingRepository;
 
     @GetMapping("/my-bookings")
     public String viewMyBookings(Model model, Principal principal) {
@@ -267,6 +275,143 @@ public class CarController {
         model.addAttribute("currentPage", "detail-a-booking-example");
         return "customer/detail-a-booking-example";
     }
+    @PostMapping("/my-bookings/{id}/confirm-pickup")
+    public String confirmPickup(@PathVariable Long id, Model model, Principal principal) {
+        String email = principal.getName();
+        Account emailAccount = accountRepository.findByEmail(email);
+
+        if (emailAccount == null) {
+            return "redirect:/login";
+        }
+
+        // Lấy danh sách các CarBooking cho bookingId
+        List<CarBooking> carBookings = carBookingRepository.findByBookingId(id);
+        if (carBookings == null || carBookings.isEmpty()) {
+            return "redirect:/customer/my-bookings";
+        }
+
+        CarBooking carBooking = carBookings.get(0);
+        Booking booking = carBooking.getBooking();
+        Car car = carBooking.getCar();
+        if (booking == null || car == null) {
+            return "redirect:/customer/my-bookings";
+        }
+
+        // Check if booking status allows confirmation
+        if (booking.getStatus().equals("Confirmed")) {
+            booking.setStatus("In-Progress");
+            bookingRepository.save(booking);
+
+            Customer customer = booking.getCustomer();
+            CarOwner carOwner = car.getCarOwner();
+
+            int deposit = car.getDeposit();
+            int basicPrice = car.getBasicPrice();
+
+            // Calculate the amount to pay the car owner
+            int remainingAmount = basicPrice - deposit;
+
+            // Ensure the customer has sufficient funds for the remaining amount
+            if (customer.getWallet() < remainingAmount) {
+                model.addAttribute("error", "Insufficient funds in wallet");
+                return "redirect:/customer/my-bookings/" + id;
+            }
+
+            // Subtract the remaining amount from the customer's wallet
+            customer.setWallet(customer.getWallet() - remainingAmount);
+            customerRepository.save(customer);
+
+            // Add the remaining amount to the car owner's wallet
+            carOwner.setWallet(carOwner.getWallet() + remainingAmount);
+            carOwnerRepository.save(carOwner);
+
+            // Save the transaction for the customer (pay remaining amount)
+            Transaction customerTransaction = new Transaction();
+            customerTransaction.setAmount(remainingAmount);
+            customerTransaction.setType("Offset final payment");
+            customerTransaction.setCustomer(customer);
+            customerTransaction.setCarName(car.getName());
+            customerTransaction.setBookingNo(booking.getBookingNo());
+            customerTransaction.setTransactionDateTime(new Date());
+            customerTransaction.setWalletBalance(customer.getWallet()); // Updated balance
+            transactionRepository.save(customerTransaction);
+
+            // Save the transaction for the car owner (receive remaining amount)
+            Transaction ownerTransaction = new Transaction();
+            ownerTransaction.setAmount(remainingAmount);
+            ownerTransaction.setType("Receive remaining amount");
+            ownerTransaction.setCarOwner(carOwner);
+            ownerTransaction.setCarName(car.getName());
+            ownerTransaction.setBookingNo(booking.getBookingNo());
+            ownerTransaction.setTransactionDateTime(new Date());
+            ownerTransaction.setWalletBalance(carOwner.getWallet()); // Updated balance
+            transactionRepository.save(ownerTransaction);
+        }
+
+        return "redirect:/customer/my-bookings/" + id;
+    }
+
+
+
+
+    @PostMapping("/my-bookings/{id}/cancel")
+    public String cancelBooking(@PathVariable Long id, Model model, Principal principal) {
+        String email = principal.getName();
+        Account emailAccount = accountRepository.findByEmail(email);
+
+        if (emailAccount == null) {
+            return "redirect:/login";
+        }
+
+        List<CarBooking> carBookings = carBookingRepository.findByBookingId(id);
+
+        if (carBookings == null || carBookings.isEmpty()) {
+            return "redirect:/customer/my-bookings";
+        }
+
+        CarBooking carBooking = carBookings.get(0);
+        Booking booking = carBooking.getBooking();
+        Car car = carBooking.getCar();
+        Customer customer = booking.getCustomer();
+        CarOwner carOwner = car.getCarOwner();
+        int deposit = car.getDeposit();
+
+        // Tính số tiền bị trừ (một nửa số tiền cọc)
+        int penaltyAmount = deposit / 2;
+
+        // Trừ một nửa số tiền cọc từ ví của khách hàng
+        customer.setWallet(customer.getWallet() + penaltyAmount);
+        customerRepository.save(customer);
+
+        // Cộng số tiền bị trừ vào ví của chủ xe
+        carOwner.setWallet(carOwner.getWallet() + penaltyAmount);
+        carOwnerRepository.save(carOwner);
+
+        // Lưu lịch sử giao dịch của khách hàng (trả lại một nửa số tiền cọc)
+        Transaction customerTransaction = new Transaction();
+        customerTransaction.setAmount(penaltyAmount);
+        customerTransaction.setType("Refund deposit");
+        customerTransaction.setCustomer(customer);
+        customerTransaction.setTransactionDateTime(new Date());
+        customerTransaction.setWalletBalance(customer.getWallet()); // Cập nhật số dư
+        transactionRepository.save(customerTransaction);
+
+        // Lưu lịch sử giao dịch của chủ xe (nhận một nửa số tiền cọc)
+        Transaction ownerTransaction = new Transaction();
+        ownerTransaction.setAmount(penaltyAmount);
+        ownerTransaction.setType("Receive penalty deposit");
+        ownerTransaction.setCarOwner(carOwner);
+        ownerTransaction.setTransactionDateTime(new Date());
+        ownerTransaction.setWalletBalance(carOwner.getWallet()); // Cập nhật số dư
+        transactionRepository.save(ownerTransaction);
+
+        // Cập nhật trạng thái đặt xe thành "Cancelled"
+        booking.setStatus("Cancelled");
+        bookingRepository.save(booking);
+
+        return "redirect:/customer/my-bookings/" + id;
+    }
+
 
 //    @PostMapping("/my-bookings/{bookingId}/update-renter-infor")
 //    public String updateRenterInfo(@PathVariable Long bookingId, @ModelAttribute Customer updatedCustomer, Principal principal) {
@@ -302,48 +447,5 @@ public class CarController {
 //    }
 
 
-    @PostMapping("/my-bookings/{id}/confirm-pickup")
-    public String confirmPickup(@PathVariable Long id, Model model, Principal principal) {
-        String email = principal.getName();
-        Account emailAccount = accountRepository.findByEmail(email);
 
-        if (emailAccount == null) {
-            return "redirect:/login";
-        }
-
-        Booking booking = bookingRepository.findById(id).orElse(null);
-        if (booking == null) {
-            return "redirect:/customer/my-bookings";
-        }
-
-        // Check if booking status allows confirmation
-        if (booking.getStatus().equals("Confirmed")) {
-            booking.setStatus("In-Progress");
-            bookingRepository.save(booking);
-        }
-
-        return "redirect:/customer/my-bookings/" + id;
-    }
-
-
-    @PostMapping("/my-bookings/{id}/cancel")
-    public String cancelBooking(@PathVariable Long id, Model model, Principal principal) {
-        String email = principal.getName();
-        Account emailAccount = accountRepository.findByEmail(email);
-
-        if (emailAccount == null) {
-            return "redirect:/login";
-        }
-
-        Booking booking = bookingRepository.findById(id).orElse(null);
-        if (booking == null) {
-            return "redirect:/customer/my-bookings";
-        }
-
-        // Update booking status to "Cancelled"
-        booking.setStatus("Cancelled");
-        bookingRepository.save(booking);
-
-        return "redirect:/customer/my-bookings/" + id;
-    }
 }

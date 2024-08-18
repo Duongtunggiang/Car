@@ -45,6 +45,9 @@ public class BookingNewController {
     @Autowired
     private CarBookingRepository carBookingRepository;
 
+    @Autowired
+    private TransactionRepository transactionRepository;
+
     @GetMapping("/rent-a-car")
     public String showRentalCarForm(@RequestParam("id") long carId, Model model, Principal principal, HttpServletRequest request) {
         Optional<Car> carOptional = carRepository.findById(carId);
@@ -158,7 +161,8 @@ public class BookingNewController {
 
         return ResponseEntity.ok(responseData);
     }
-
+    @Autowired
+    CarOwnerRepository carOwnerRepository;
 
     @PostMapping("/step1")
     public String processStep1(@ModelAttribute Booking booking, @RequestParam("carId") long carId, Model model, HttpSession session) {
@@ -179,7 +183,6 @@ public class BookingNewController {
         LocalDate dropoffDate = (LocalDate) session.getAttribute("dropoffDate");
         LocalTime dropoffTime = (LocalTime) session.getAttribute("dropoffTime");
 
-        // Combine LocalDate and LocalTime into LocalDateTime
         LocalDateTime pickupDateTime = LocalDateTime.of(pickupDate, pickupTime);
         LocalDateTime returnDateTime = LocalDateTime.of(dropoffDate, dropoffTime);
 
@@ -219,7 +222,7 @@ public class BookingNewController {
             @RequestParam("carId") long carId,
             @RequestParam("startDateTime") @DateTimeFormat(pattern = "yyyy-MM-dd'T'HH:mm") Date startDateTime,
             @RequestParam("endDateTime") @DateTimeFormat(pattern = "yyyy-MM-dd'T'HH:mm") Date endDateTime,
-            Model model){
+            Model model) {
 
         Optional<Car> carOptional = carRepository.findById(carId);
         if (!carOptional.isPresent()) {
@@ -243,7 +246,8 @@ public class BookingNewController {
 
         List<CarBooking> carBookings = carBookingRepository.findByCarId(car.getId());
 
-        for (CarBooking carBooking : carBookings) {
+        if (!carBookings.isEmpty()) {
+            CarBooking carBooking = carBookings.get(0);
             Booking booking = carBooking.getBooking();
             booking.setBookingNo(bookingNumber);
             booking.setPickUpLocation(car.getAddress());
@@ -261,10 +265,42 @@ public class BookingNewController {
 
             booking.setStatus("Confirmed");
             bookingRepository.save(booking);
+
+            customer.setWallet(customer.getWallet() - deposit);
+            customerRepository.save(customer);
+
+            CarOwner carOwner = car.getCarOwner();
+            carOwner.setWallet(carOwner.getWallet() + deposit);
+            carOwnerRepository.save(carOwner);
+
+            Transaction customerTransaction = new Transaction();
+            customerTransaction.setAmount(deposit);
+            customerTransaction.setType("Pay deposit");
+            customerTransaction.setCustomer(customer);
+            customerTransaction.setCarName(car.getName());
+            customerTransaction.setBookingNo(booking.getBookingNo());
+            customerTransaction.setTransactionDateTime(new Date());
+            customerTransaction.setWalletBalance(customer.getWallet());
+            transactionRepository.save(customerTransaction);
+
+            Transaction ownerTransaction = new Transaction();
+            ownerTransaction.setAmount(deposit);
+            ownerTransaction.setType("Receive deposit");
+            ownerTransaction.setCarOwner(carOwner);
+            ownerTransaction.setCarName(car.getName());
+            ownerTransaction.setBookingNo(booking.getBookingNo());
+            ownerTransaction.setTransactionDateTime(new Date());
+            ownerTransaction.setWalletBalance(carOwner.getWallet());
+            transactionRepository.save(ownerTransaction);
+
+
+            return "redirect:/booking/step3/" + carBookings.get(0).getBooking().getId();
         }
 
-        return "redirect:/booking/step3/" + carBookings.get(0).getBooking().getId();
+        model.addAttribute("error", "Unable to process booking.");
+        return "booking/step2";
     }
+
 
 
     @GetMapping("/step3/{bookingId}")
@@ -283,18 +319,6 @@ public class BookingNewController {
         return "booking/step3-finish";
     }
 
-    private void updateCarStatus(long carId) {
-        List<CarBooking> carBookings = carBookingRepository.findByCarId(carId);
-        boolean isAvailable = true;
-
-        for (CarBooking cb : carBookings) {
-            Booking booking = cb.getBooking();
-            if (booking.getStatus().equals("Confirmed")) {
-                isAvailable = false;
-                break;
-            }
-        }
-    }
     private boolean processPayment(Booking booking, Customer customer, Car car) {
         int deposit = car.getDeposit();
 

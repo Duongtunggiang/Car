@@ -26,6 +26,7 @@ public class Transaction {
 
     private String bookingNo;
     private String carName;
+    private int walletBalance;
 
     public long getId() {
         return id;
@@ -91,6 +92,13 @@ public class Transaction {
         this.carName = carName;
     }
 
-    // Getters and Setters
+    public int getWalletBalance() {
+        return walletBalance;
+    }
+
+    public void setWalletBalance(int walletBalance) {
+        this.walletBalance = walletBalance;
+    }
+// Getters and Setters
 }
 
