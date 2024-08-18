@@ -200,6 +200,35 @@
             </div>
         </div>
     </div>
+
+    <!-- Feedback Modal -->
+    <div class="modal fade" id="feedbackModal" tabindex="-1" aria-labelledby="feedbackModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="feedbackModalLabel">Rate Your Experience</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form th:action="@{/customer/my-bookings/{id}/submit-feedback(id=${booking.id})}" method="post" id="feedbackForm">
+                        <div class="mb-3">
+                            <label for="rating" class="form-label">Rating:</label>
+                            <input type="number" class="form-control" id="rating" name="rating" min="1" max="5" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="review" class="form-label">Review:</label>
+                            <textarea class="form-control" id="review" name="review" rows="3" required></textarea>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Skip</button>
+                            <button type="submit" class="btn btn-primary">Submit Rating</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Payment Confirmation Modal -->
     <div class="modal fade" id="paymentConfirmModal" tabindex="-1" aria-labelledby="paymentConfirmModalLabel" aria-hidden="true">
         <div class="modal-dialog">
@@ -251,18 +280,19 @@
             })
             .then(response => response.json())
             .then(data => {
-                if (data.success) {
-                    alert(data.message);
-                    window.location.reload();
-                } else {
-                    alert(data.message);
-                }
-            })
+            if (data.success) {
+                alert(data.message);
+                var feedbackModal = new bootstrap.Modal(document.getElementById('feedbackModal'));
+                feedbackModal.show();
+            } else {
+                alert(data.message);
+            }
+        })
             .catch(error => {
                 console.error('Error:', error);
                 alert('An error occurred. Please try again.');
-            });
         });
+    });
     </script>
 
 

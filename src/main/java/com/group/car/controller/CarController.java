@@ -9,6 +9,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.security.Principal;
 import java.time.temporal.ChronoUnit;
@@ -83,6 +84,66 @@ public class CarController {
         return response;
     }
 
+
+//    @PostMapping("/my-bookings/{id}/submit-feedback")
+//    @ResponseBody
+//    public Map<String, Object> submitFeedback(@PathVariable Long id, @RequestParam("rating") int rating, @RequestParam("review") String review, Principal principal) {
+//        Map<String, Object> response = new HashMap<>();
+//
+//        String email = principal.getName();
+//        Account emailAccount = accountRepository.findByEmail(email);
+//
+//        if (emailAccount == null) {
+//            response.put("success", false);
+//            response.put("message", "User not found");
+//            return response;
+//        }
+//
+//        Booking booking = bookingRepository.findById(id).orElse(null);
+//        if (booking == null || !booking.getStatus().equals("Completed")) {
+//            response.put("success", false);
+//            response.put("message", "Invalid booking or status");
+//            return response;
+//        }
+//
+//        Feedback feedback = new Feedback();
+//        feedback.setRatings(rating);
+//        feedback.setContent(review);
+//        feedback.setBooking(booking);
+//        feedback.setDateTime(new Date());
+//        feedbackRepository.save(feedback);
+//
+//
+//        return "customer/my-bookings";
+//    }
+
+    @PostMapping("/my-bookings/{id}/submit-feedback")
+    public String submitFeedback(@PathVariable Long id, @RequestParam("rating") int rating, @RequestParam("review") String review, Principal principal, RedirectAttributes redirectAttributes) {
+        String email = principal.getName();
+        Account emailAccount = accountRepository.findByEmail(email);
+
+        if (emailAccount == null) {
+            redirectAttributes.addFlashAttribute("error", "User not found");
+            return "redirect:/customer/my-bookings";
+        }
+
+        Booking booking = bookingRepository.findById(id).orElse(null);
+        if (booking == null || !booking.getStatus().equals("Completed")) {
+            redirectAttributes.addFlashAttribute("error", "Invalid booking or status");
+            return "redirect:/customer/my-bookings";
+        }
+
+        Feedback feedback = new Feedback();
+        feedback.setRatings(rating);
+        feedback.setContent(review);
+        feedback.setBooking(booking);
+        feedback.setDateTime(new Date());
+        feedbackRepository.save(feedback);
+
+        redirectAttributes.addFlashAttribute("success", "Feedback submitted successfully");
+        return "redirect:/customer/my-bookings";
+    }
+
     @PostMapping("/my-bookings/{id}/continue-payment")
     @ResponseBody
     public Map<String, Object> continuePayment(@PathVariable Long id, Principal principal) {
@@ -131,66 +192,6 @@ public class CarController {
                 ChronoUnit.DAYS.between(booking.getStartDateTime().toInstant(), booking.getEndDateTime().toInstant());
     }
 
-    @PostMapping("/my-bookings/{id}/rate")
-    @ResponseBody
-    public Map<String, Object> rateBooking(@PathVariable Long id, @RequestBody Map<String, Object> payload, Principal principal) {
-        Map<String, Object> response = new HashMap<>();
-
-        String email = principal.getName();
-        Account emailAccount = accountRepository.findByEmail(email);
-
-        if (emailAccount == null) {
-            response.put("success", false);
-            response.put("message", "User not found");
-            return response;
-        }
-
-        Booking booking = bookingRepository.findById(id).orElse(null);
-        if (booking == null || !booking.getStatus().equals("Completed")) {
-            response.put("success", false);
-            response.put("message", "Invalid booking or status");
-            return response;
-        }
-
-        int rating = Integer.parseInt(payload.get("rating").toString());
-        String review = (String) payload.get("review");
-
-        Feedback feedback = new Feedback();
-        feedback.setRatings(rating);
-        feedback.setContent(review);
-        feedback.setDateTime(new Date());
-        feedback.setBooking(booking);
-        feedbackRepository.save(feedback);
-
-
-        response.put("success", true);
-        response.put("message", "Rating submitted successfully");
-        return response;
-    }
-
-    //    @GetMapping("/car-details/{id}")
-//    public String showCarDetails(@PathVariable("id") Long id, Model model) {
-//        Car car = carRepository.findById(id).orElse(null);
-//        if (car == null) {
-//            model.addAttribute("message", "No car found with the given ID");
-//            return "car-details-empty";
-//        }
-//        model.addAttribute("car", car);
-//        return "car-details";
-//    }
-
-    //    @GetMapping("/car-details")
-//    public String showCarDetails(@RequestParam("id") long id, Model model) {
-//        Car car = carRepository.findById(id).orElse(null);
-//        if (car == null) {
-//            model.addAttribute("message", "Car not found");
-//            return "car-not-found";
-//        }
-//        model.addAttribute("car", car);
-//        setUpUserRole(model);
-//        model.addAttribute("currentPage", "car-details");
-//        return "customer/car-details";
-//    }
     private void setUpUserRole(Model model) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication != null && authentication.isAuthenticated() && authentication.getPrincipal() instanceof UserDetails) {

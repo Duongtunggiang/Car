@@ -52,7 +52,7 @@
                 <div class=""><img th:src="@{'/img/' + ${carBooking.car.images}}"  width="70%" alt="${carBooking.car.name}" /></div>
                 <div class="booking-info">
                     <h2 th:text="'Car name: '+${carBooking.car.name}"></h2>
-                    <h3 th:text="${carBooking.car.brand + ' ' + carBooking.car.model + ' ' + carBooking.car.productionYears.getYear()}">Car Brand Model Year</h3>
+                    <h3 th:text="${carBooking.car.brand + ' ' + carBooking.car.model + ' ' + carBooking.car.productionYears}">Car Brand Model Year</h3>
                     <p th:text="'From: ' + ${#dates.format(booking.startDateTime, 'dd/MM/yyyy - HH:mm')}"></p>
                     <p th:text="'To: ' + ${#dates.format(booking.endDateTime, 'dd/MM/yyyy - HH:mm')}"></p>
                     <p th:text="'Number of days: ' + ${T(java.time.temporal.ChronoUnit).DAYS.between(booking.startDateTime.toInstant(), booking.endDateTime.toInstant())}"></p>
