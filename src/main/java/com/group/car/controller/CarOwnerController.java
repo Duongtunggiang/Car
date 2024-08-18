@@ -119,7 +119,7 @@ public class CarOwnerController {
         setUpUserRole(model);
         model.addAttribute("currentPage", "addCar");
 
-        return "car-owner/addCar";
+        return "car-owner/add-car2";
     }
 
     @PostMapping("/add")
@@ -129,7 +129,7 @@ public class CarOwnerController {
             result.addError(new FieldError("carDto", "images", "The file is required"));
         }
         if (result.hasErrors()) {
-            return "car-owner/addCar";
+            return "car-owner/add-car2";
         }
 
         // Save image file
@@ -176,7 +176,7 @@ public class CarOwnerController {
 
         if (carOwner == null) {
             result.rejectValue("carOwner", "error.carOwner", "Car owner not found");
-            return "car-owner/addCar";
+            return "car-owner/add-car2";
         }
         car.setCarOwner(carOwner);
 

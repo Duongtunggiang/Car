@@ -19,7 +19,7 @@ public class Booking {
 //    private Date startDateTime;
 //    private Date endDateTime;
 
-    @DateTimeFormat(pattern = "yyyy-MM-dd'T'HH:mm")
+    @DateTimeFormat(pattern = "dd-MM-dd'T'HH:mm")
     private Date startDateTime;
 
     @DateTimeFormat(pattern = "yyyy-MM-dd'T'HH:mm")

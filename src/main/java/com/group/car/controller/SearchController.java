@@ -39,10 +39,10 @@ public class SearchController {
 
     @PostMapping("/search")
     public String searchCars(@RequestParam String pickupLocation,
-                             @RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate pickupDate,
+                             @RequestParam @DateTimeFormat(pattern = "dd-MM-yyyy") LocalDate pickupDate,
                              @RequestParam @DateTimeFormat(pattern = "HH:mm") LocalTime pickupTime,
 
-                             @RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate dropoffDate,
+                             @RequestParam @DateTimeFormat(pattern = "dd-MM-yyyy") LocalDate dropoffDate,
                              @RequestParam @DateTimeFormat(pattern = "HH:mm") LocalTime dropoffTime,
                              Model model, HttpSession session) {
         LocalDateTime startDateTime = LocalDateTime.of(pickupDate, pickupTime);

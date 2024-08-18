@@ -8,7 +8,6 @@
 
 <main class="mt-3 mb-3">
     <div class="container">
-        <h1 class="jutify-content-center text-center">Home Car</h1>
     </div>
 </main> <h1 class="text-center">Welcome to Our Service</h1>
 <div class="container mt-3 mb-5">
@@ -21,25 +20,25 @@
         </div>
 
         <div class="search-form bg-white p-4 rounded shadow">
-            <h3 class="text-center mb-4">Find the ideal car rental for your trip</h3>
+<!--            <h3 class="text-center mb-4">Find the ideal car rental for your trip</h3>-->
             <form th:action="@{/customer/search}" method="post" class="row g-3">
-                <div class="col-md-12">
-                    <label for="pickupLocation" class="form-label">PICK-UP LOCATION:</label>
-                    <input type="text" class="form-control" id="pickupLocation" name="pickupLocation" placeholder="Enter location" required>
-                </div>
-                <div class="col-md-6">
-                    <label for="pickupDate" class="form-label">PICK-UP DATE AND TIME:</label>
-                    <input type="date" class="form-control" id="pickupDate" name="pickupDate" required>
-                    <input type="time" class="form-control mt-2" id="pickupTime" name="pickupTime" required>
-                </div>
-                <div class="col-md-6">
-                    <label for="dropoffDate" class="form-label">DROP-OFF DATE AND TIME:</label>
-                    <input type="date" class="form-control" id="dropoffDate" name="dropoffDate" required>
-                    <input type="time" class="form-control mt-2" id="dropoffTime" name="dropoffTime" required>
-                </div>
-                <div class="col-12 text-center">
-                    <button type="submit" class="btn btn-primary btn-lg mt-3">SEARCH</button>
-                </div>
+<!--                <div class="col-md-12">-->
+<!--                    <label for="pickupLocation" class="form-label">PICK-UP LOCATION:</label>-->
+<!--                    <input type="text" class="form-control" id="pickupLocation" name="pickupLocation" placeholder="Enter location" required>-->
+<!--                </div>-->
+<!--                <div class="col-md-6">-->
+<!--                    <label for="pickupDate" class="form-label">PICK-UP DATE AND TIME:</label>-->
+<!--                    <input type="date" class="form-control" id="pickupDate" name="pickupDate" required>-->
+<!--                    <input type="time" class="form-control mt-2" id="pickupTime" name="pickupTime" required>-->
+<!--                </div>-->
+<!--                <div class="col-md-6">-->
+<!--                    <label for="dropoffDate" class="form-label">DROP-OFF DATE AND TIME:</label>-->
+<!--                    <input type="date" class="form-control" id="dropoffDate" name="dropoffDate" required>-->
+<!--                    <input type="time" class="form-control mt-2" id="dropoffTime" name="dropoffTime" required>-->
+<!--                </div>-->
+<!--                <div class="col-12 text-center">-->
+<!--                    <button type="submit" class="btn btn-primary btn-lg mt-3">SEARCH</button>-->
+<!--                </div>-->
             </form>
         </div>
     </div>
@@ -110,12 +109,11 @@
 
         <h2>Where to find us?</h2>
         <div class="locations d-flex">
-            <div class="location">Hanoi</div>
-            <div class="location">Ho Chi Minh city</div>
-            <div class="location">Da Nang - Hoi An</div>
+            <div class="location">Hà nội</div>
+            <div class="location">Đà Nẵng</div>
             <div class="location">Nha Trang</div>
-            <div class="location">Da Lat</div>
-            <div class="location">Quang Ninh</div>
+            <div class="location">Đà lạt</div>
+            <div class="location">Quảng Ninh</div>
         </div>
     </div>
 </div>
