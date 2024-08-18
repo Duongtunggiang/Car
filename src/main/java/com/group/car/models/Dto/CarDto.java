@@ -6,7 +6,6 @@ import jakarta.validation.constraints.Size;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.time.LocalDate;
 import java.util.Date;
 
 public class CarDto {
@@ -29,8 +28,7 @@ public class CarDto {
     @Min(1)
     private int numbersOfSeats;
 
-    @DateTimeFormat(pattern = "yyyy-MM-dd")
-    private Date productionYears;
+    private Integer productionYears;
 
     @NotEmpty(message = "The name is required")
     private String transmissionType;
@@ -69,11 +67,11 @@ public class CarDto {
 
     private MultipartFile images;
 
-    public Date getProductionYears() {
+    public Integer getProductionYears() {
         return productionYears;
     }
 
-    public void setProductionYears(Date productionYears) {
+    public void setProductionYears(Integer productionYears) {
         this.productionYears = productionYears;
     }
 

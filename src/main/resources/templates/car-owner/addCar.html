@@ -4,7 +4,34 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
-  <title>Create Product</title>
+  <title>Add Car</title>
+  <style>
+    body {
+      background-color: #f8f9fa;
+    }
+    .form-container {
+      background-color: #ffffff;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+      padding: 30px;
+      margin-top: 30px;
+      margin-bottom: 30px;
+    }
+    .form-title {
+      color: #0d6efd;
+      margin-bottom: 30px;
+    }
+    .breadcrumb {
+      background-color: transparent;
+      padding-left: 0;
+    }
+    .form-label {
+      font-weight: bold;
+    }
+    .btn-submit {
+      width: 100%;
+    }
+  </style>
 </head>
 <body>
 
@@ -48,191 +75,173 @@
 </nav>
 
 <div class="container">
-  <p class="text-dark"><a class="text-primary" href="/home-driver">Home Car</a> / <a class="text-primary" href="/carowner">List Car</a>
-    / <a class="text-primary" href="/carowner/add">Add Car</a></p>
-  <div class="row">
-    <div class="mt-2">
-      <h1 class="text-center ">Add Car</h1>
+  <nav aria-label="breadcrumb" class="mt-3">
+    <ol class="breadcrumb">
+      <li class="breadcrumb-item"><a href="/home-driver">Home</a></li>
+      <li class="breadcrumb-item"><a href="/carowner">My Cars</a></li>
+      <li class="breadcrumb-item active" aria-current="page">Add Car</li>
+    </ol>
+  </nav>
+
+  <div class="row justify-content-center">
+    <div class="col-md-8 form-container">
+      <h4 class=" form-title">Add a car</h4>
 
       <form th:object="${carDto}" th:action="@{/carowner/add}" method="post" enctype="multipart/form-data">
 
-        <div class="mb-3 row ">
-          <label for="name" class="form-label col-sm-4">Name</label>
-          <div class="col-sm-8">
-            <input type="text" class="form-control" id="name" name="name"
-                   th:field="${carDto.name}" >
-            <p th:if="${#fields.hasErrors('name')}" th:errorclass="text-danger"
-               th:errors="${carDto.name}"></p></div>
+        <!--Step 1 Basic -->
+        <div class="row mb-3">
+          <div class="col-md-6">
+            <label for="name" class="form-label">Name:</label>
+            <input type="text" class="form-control" id="name" th:field="${carDto.name}">
+            <p th:if="${#fields.hasErrors('name')}" th:errorclass="text-danger" th:errors="${carDto.name}"></p>
+          </div>
+
+          <div class="col-md-6">
+            <label for="licensePlate" class="form-label">License Plate:</label>
+            <input type="text" class="form-control" id="licensePlate" th:field="${carDto.licensePlate}">
+            <p th:if="${#fields.hasErrors('licensePlate')}" th:errorclass="text-danger" th:errors="${carDto.licensePlate}"></p>
+          </div>
+
+          <div class="col-md-4">
+            <label for="color" class="form-label">Color:</label>
+            <input type="text" class="form-control" id="color" th:field="${carDto.color}">
+            <p th:if="${#fields.hasErrors('color')}" th:errorclass="text-danger" th:errors="${carDto.color}"></p>
+          </div>
         </div>
 
-        <div class="mb-3 row ">
-          <label for="licensePlate" class="form-label col-sm-4">LicensePlate</label>
-          <div class="col-sm-8">
-            <input type="text" class="form-control" id="licensePlate" name="licensePlate"
-                   th:field="${carDto.licensePlate}" >
-            <p th:if="${#fields.hasErrors('licensePlate')}" th:errorclass="text-danger"
-               th:errors="${carDto.licensePlate}"></p></div>
+        <div class="row mb-3">
+          <div class="col-md-4">
+            <label for="brand" class="form-label">Brand name:</label>
+            <input type="text" class="form-control" id="brand" th:field="${carDto.brand}">
+            <p th:if="${#fields.hasErrors('brand')}" th:errorclass="text-danger" th:errors="${carDto.brand}"></p>
+          </div>
+
+          <div class="col-md-4">
+            <label for="model" class="form-label">Model:</label>
+            <input type="text" class="form-control" id="model" th:field="${carDto.model}">
+            <p th:if="${#fields.hasErrors('model')}" th:errorclass="text-danger" th:errors="${carDto.model}"></p>
+          </div>
+
         </div>
 
-        <div class="mb-3 row ">
-          <label for="brand" class="form-label col-sm-4">Brand</label>
-          <div class="col-sm-8">
-            <input type="text" class="form-control" id="brand" name="brand" th:field="${carDto.brand}" >
-            <p th:if="${#fields.hasErrors('brand')}" th:errorclass="text-danger"
-               th:errors="${carDto.brand}"></p></div>
+        <div class="row mb-3">
+          <div class="col-md-6">
+            <label for="productionYears" class="form-label">Production year:</label>
+            <input type="number" step="1" placeholder="2022" class="form-control" id="productionYears" th:field="${carDto.productionYears}">
+            <p th:if="${#fields.hasErrors('productionYears')}" th:errorclass="text-danger" th:errors="${carDto.productionYears}"></p>
+          </div>
+
+          <div class="col-md-6">
+            <label for="numbersOfSeats" class="form-label">No of seats:</label>
+            <input type="number" placeholder="4" step="1" class="form-control" id="numbersOfSeats" th:field="${carDto.numbersOfSeats}">
+            <p th:if="${#fields.hasErrors('numbersOfSeats')}" th:errorclass="text-danger" th:errors="${carDto.numbersOfSeats}"></p>
+          </div>
+
         </div>
 
-        <div class="mb-3 row ">
-          <label for="model" class="form-label col-sm-4">Model</label>
-          <div class="col-sm-8">
-            <input type="text" class="form-control" id="model" name="model"
-                   th:field="${carDto.model}" >
-            <p th:if="${#fields.hasErrors('model')}" th:errorclass="text-danger"
-               th:errors="${carDto.model}"></p></div>
+        <div class="row mb-3">
+          <div class="col-md-6">
+            <label for="transmissionType" class="form-label">Transmission:</label>
+            <select class="form-select" id="transmissionType" th:field="${carDto.transmissionType}">
+              <option value="Automatic">Automatic</option>
+              <option value="Manual">Manual</option>
+            </select>
+            <p th:if="${#fields.hasErrors('transmissionType')}" th:errorclass="text-danger" th:errors="${carDto.transmissionType}"></p>
+          </div>
+          <div class="col-md-6">
+            <label for="fuelType" class="form-label">Fuel:</label>
+            <select class="form-select" id="fuelType" th:field="${carDto.fuelType}">
+              <option value="Gasoline">Gasoline</option>
+              <option value="Diesel">Diesel</option>
+            </select>
+            <p th:if="${#fields.hasErrors('fuelType')}" th:errorclass="text-danger" th:errors="${carDto.fuelType}"></p>
+          </div>
+        </div>
+        <!--End of Step 1 -->
+
+        <!--Step 2 Details -->
+        <div class="row mb-3">
+          <div class="col-md-6">
+            <label for="mileage" class="form-label">Mileage:</label>
+            <input type="number" class="form-control" id="mileage" th:field="${carDto.mileage}">
+            <p th:if="${#fields.hasErrors('mileage')}" th:errorclass="text-danger" th:errors="${carDto.mileage}"></p>
+          </div>
+          <div class="col-md-5">
+            <label for="fuelConsumption" class="form-label">Fuel Consumption:</label>
+            <input type="number" step="1" class="form-control" id="fuelConsumption" th:field="${carDto.fuelConsumption}">
+            <span class="input-group-text">liter/100km</span>
+            <p th:if="${#fields.hasErrors('fuelConsumption')}" th:errorclass="text-danger" th:errors="${carDto.fuelConsumption}"></p>
+          </div>
         </div>
 
-        <div class="mb-3 row ">
-          <label for="color" class="form-label col-sm-4">Color</label>
-          <div class="col-sm-8">
-            <input type="text" class="form-control" id="color" name="color"
-                   th:field="${carDto.color}" >
-            <p th:if="${#fields.hasErrors('color')}" th:errorclass="text-danger"
-               th:errors="${carDto.color}"></p></div>
+        <div class="mb-3">
+          <label for="address" class="form-label">Address</label>
+          <input type="text" class="form-control" id="address" th:field="${carDto.address}">
+          <p th:if="${#fields.hasErrors('address')}" th:errorclass="text-danger" th:errors="${carDto.address}"></p>
         </div>
 
-        <div class="mb-3 row ">
-          <label for="numbersOfSeats" class="form-label col-sm-4">NumbersOfSeats</label>
-          <div class="col-sm-8">
-            <input type="text" class="form-control" id="numbersOfSeats" name="numbersOfSeats"
-                   th:field="${carDto.numbersOfSeats}" >
-            <p th:if="${#fields.hasErrors('numbersOfSeats')}" th:errorclass="text-danger"
-               th:errors="${carDto.numbersOfSeats}"></p></div>
+        <div class="mb-3">
+          <label for="description" class="form-label">Description</label>
+          <textarea class="form-control" id="description" rows="3" th:field="${carDto.description}"></textarea>
+          <p th:if="${#fields.hasErrors('description')}" th:errorclass="text-danger" th:errors="${carDto.description}"></p>
         </div>
 
-        <div class="mb-3 row ">
-          <label for="productionYears" class="form-label col-sm-4">ProductionYears</label>
-          <div class="col-sm-8">
-            <input type="date" class="form-control" id="productionYears" name="productionYears"
-                   th:field="${carDto.productionYears}" >
-            <p th:if="${#fields.hasErrors('productionYears')}" th:errorclass="text-danger"
-               th:errors="${carDto.productionYears}"></p></div>
+        <div class="mb-3">
+          <label for="additionalFunction" class="form-label">Additional Functions</label>
+          <textarea class="form-control" id="additionalFunction" rows="3" th:field="${carDto.additionalFunction}"></textarea>
+          <p th:if="${#fields.hasErrors('additionalFunction')}" th:errorclass="text-danger" th:errors="${carDto.additionalFunction}"></p>
+        </div>
+        <!--End of Step 2 -->
+
+
+        <!--Step 3 Pricing -->
+        <div class="row mb-3">
+          <div class="col-md-6">
+            <label for="price" class="form-label">Set base price for your car:</label>
+            <div class="input-group">
+              <span class="input-group-text">VND/day</span>
+              <input type="number" step="1" class="form-control" id="price" th:field="${carDto.basicPrice}">
+            </div>
+            <p th:if="${#fields.hasErrors('basicPrice')}" th:errorclass="text-danger" th:errors="${carDto.basicPrice}"></p>
+          </div>
+          <div class="col-md-6">
+            <label for="deposit" class="form-label">Require deposit:</label>
+            <div class="input-group">
+              <span class="input-group-text">VND</span>
+              <input type="number" step="1" class="form-control" id="deposit" th:field="${carDto.deposit}">
+            </div>
+            <p th:if="${#fields.hasErrors('deposit')}" th:errorclass="text-danger" th:errors="${carDto.deposit}"></p>
+          </div>
+
+          <div class="mb-3">
+            <label for="termsOfUse" class="form-label">Terms of Use</label>
+            <textarea class="form-control" id="termsOfUse" rows="3" th:field="${carDto.termsOfUse}"></textarea>
+            <p th:if="${#fields.hasErrors('termsOfUse')}" th:errorclass="text-danger" th:errors="${carDto.termsOfUse}"></p>
+          </div>
         </div>
 
-        <div class="mb-3 row ">
-          <label for="transmissionType" class="form-label col-sm-4">TransmissionType</label>
-          <div class="col-sm-8">
-            <input type="text" class="form-control" id="transmissionType" name="transmissionType"
-                   th:field="${carDto.transmissionType}" >
-            <p th:if="${#fields.hasErrors('transmissionType')}" th:errorclass="text-danger"
-               th:errors="${carDto.transmissionType}"></p></div>
+        <div class="mb-3">
+          <label for="image" class="form-label">Car Images</label>
+          <input type="file" class="form-control" id="image" th:field="${carDto.images}" multiple>
+          <p th:if="${#fields.hasErrors('images')}" th:errorclass="text-danger" th:errors="${carDto.images}"></p>
+        </div>
+        <!--End of Step 3 -->
+
+<!--        Step4: Finish-->
+
+        <div class="d-grid gap-2 mt-4">
+          <button type="submit" class="btn btn-primary btn-lg btn-submit">Submit</button>
+          <a class="btn btn-outline-secondary btn-lg" href="/carowner">Cancel</a>
         </div>
 
-        <div class="mb-3 row ">
-          <label for="fuelType" class="form-label col-sm-4">FuelType</label>
-          <div class="col-sm-8">
-            <input type="text" class="form-control" id="fuelType" name="fuelType"
-                   th:field="${carDto.fuelType}" >
-            <p th:if="${#fields.hasErrors('fuelType')}" th:errorclass="text-danger"
-               th:errors="${carDto.fuelType}"></p></div>
-        </div>
-
-        <div class="mb-3 row ">
-          <label for="mileage" class="form-label col-sm-4">Mileage</label>
-          <div class="col-sm-8">
-            <input type="text" class="form-control" id="mileage" name="mileage"
-                   th:field="${carDto.mileage}" >
-            <p th:if="${#fields.hasErrors('mileage')}" th:errorclass="text-danger"
-               th:errors="${carDto.mileage}"></p></div>
-        </div>
-
-        <div class="mb-3 row ">
-          <label for="fuelConsumption" class="form-label col-sm-4">FuelConsumption</label>
-          <div class="col-sm-8">
-            <input type="text" class="form-control" id="fuelConsumption" name="fuelConsumption"
-                   th:field="${carDto.fuelConsumption}" >
-            <p th:if="${#fields.hasErrors('fuelConsumption')}" th:errorclass="text-danger"
-               th:errors="${carDto.fuelConsumption}"></p></div>
-        </div>
-
-        <div class="mb-3 row ">
-          <label for="price" class="form-label col-sm-4">Price</label>
-          <div class="col-sm-8">
-            <input type="number" step="0.01" class="form-control" id="price" min="0" name="price"
-                   th:field="${carDto.basicPrice}" >
-            <p th:if="${#fields.hasErrors('basicPrice')}" th:errorclass="text-danger"
-               th:errors="${carDto.basicPrice}"></p></div>
-        </div>
-
-        <div class="mb-3 row ">
-          <label for="deposit" class="form-label col-sm-4">Deposit</label>
-          <div class="col-sm-8">
-            <input type="number" step="0.01" class="form-control" id="deposit" min="0" name="deposit"
-                   th:field="${carDto.deposit}" >
-            <p th:if="${#fields.hasErrors('deposit')}" th:errorclass="text-danger"
-               th:errors="${carDto.deposit}"></p></div>
-        </div>
-
-        <div class="mb-3 row ">
-          <label for="address" class="form-label col-sm-4">Address</label>
-          <div class="col-sm-8">
-            <input type="text" class="form-control" id="address" name="address"
-                   th:field="${carDto.address}" >
-            <p th:if="${#fields.hasErrors('address')}" th:errorclass="text-danger"
-               th:errors="${carDto.address}"></p></div>
-        </div>
-
-        <div class="mb-3 row ">
-          <label for="description" class="form-label col-sm-4">Description</label>
-          <div class="col-sm-8">
-                        <textarea class="form-control" id="description" name="description" rows="3"
-                                  th:field="${carDto.description}" ></textarea>
-            <p th:if="${#fields.hasErrors('description')}" th:errorclass="text-danger"
-               th:errors="${carDto.description}"></p></div>
-        </div>
-
-        <div class="mb-3 row ">
-          <label for="additionalFunction" class="form-label col-sm-4">AdditionalFunction</label>
-          <div class="col-sm-8">
-                        <textarea class="form-control" id="additionalFunction" name="additionalFunction" rows="3"
-                                  th:field="${carDto.additionalFunction}" ></textarea>
-            <p th:if="${#fields.hasErrors('additionalFunction')}" th:errorclass="text-danger"
-               th:errors="${carDto.additionalFunction}"></p></div>
-        </div>
-
-        <div class="mb-3 row ">
-          <label for="termsOfUse" class="form-label col-sm-4">TermsOfUse</label>
-          <div class="col-sm-8">
-                        <textarea class="form-control" id="termsOfUse" name="termsOfUse" rows="3"
-                                  th:field="${carDto.termsOfUse}" ></textarea>
-            <p th:if="${#fields.hasErrors('termsOfUse')}" th:errorclass="text-danger"
-               th:errors="${carDto.termsOfUse}"></p></div>
-        </div>
-
-        <div class="mb-3 row ">
-          <label for="image" class="form-label col-sm-4">Image</label>
-          <div class="col-sm-8">
-            <input type="file" class="form-control" id="image" name="image"
-                   th:field="${carDto.images}" >
-            <p th:if="${#fields.hasErrors('images')}" th:errorclass="text-danger"
-               th:errors="${carDto.images}"></p></div>
-        </div>
-
-        <div class="modal-footer justify-content-end">
-          <div class="">
-            <button type="submit" class="btn btn-primary m-2">Save changes</button>
-          </div> <div class="">
-          <a class="btn btn-outline-secondary m-2" href="/carowner">Close</a>
-        </div>
-        </div>
+        <!--    end  Step4: Finish-->
 
       </form>
     </div>
   </div>
-
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
-          integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
-          crossorigin="anonymous">
-  </script>
 </div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
 </body>
 </html>
