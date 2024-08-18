@@ -88,6 +88,8 @@ public class CarOwnerController {
             CarOwner carOwner = carOwnerOptional.get();
             List<Car> cars = carService.findAllByCarOwner(carOwner.getId());
 
+            cars.sort(Comparator.comparing(Car::getId).reversed());
+
             Map<Long, String> carStatusMap = new HashMap<>();
 
             for (Car car : cars) {
@@ -117,9 +119,9 @@ public class CarOwnerController {
         CarDto carDto = new CarDto();
         model.addAttribute("carDto", carDto);
         setUpUserRole(model);
-        model.addAttribute("currentPage", "addCar");
+        model.addAttribute("currentPage", "add-car2");
 
-        return "car-owner/addCar";
+        return "car-owner/add-car2";
     }
 
     @PostMapping("/add")
@@ -129,7 +131,7 @@ public class CarOwnerController {
             result.addError(new FieldError("carDto", "images", "The file is required"));
         }
         if (result.hasErrors()) {
-            return "car-owner/addCar";
+            return "car-owner/add-car2";
         }
 
         // Save image file
@@ -176,7 +178,7 @@ public class CarOwnerController {
 
         if (carOwner == null) {
             result.rejectValue("carOwner", "error.carOwner", "Car owner not found");
-            return "car-owner/addCar";
+            return "car-owner/add-car2";
         }
         car.setCarOwner(carOwner);
 
@@ -210,7 +212,33 @@ public class CarOwnerController {
         return "redirect:/carowner";
     }
 
+    @PostMapping("/confirmDeposit")
+    public String confirmDeposit(@RequestParam Long carId) {
+        Car car = carRepository.findById(carId).orElseThrow(() -> new RuntimeException("Car not found"));
+        List<CarBooking> carBookings = carBookingRepository.findByCarId(carId);
 
+        for (CarBooking carBooking : carBookings) {
+            Booking booking = carBooking.getBooking();
+            booking.setStatus("Booked");
+            bookingRepository.save(booking);
+        }
+
+        return "redirect:/carowner";
+    }
+
+    @PostMapping("/confirmPayment")
+    public String confirmPayment(@RequestParam Long carId) {
+        Car car = carRepository.findById(carId).orElseThrow(() -> new RuntimeException("Car not found"));
+        List<CarBooking> carBookings = carBookingRepository.findByCarId(carId);
+
+        for (CarBooking carBooking : carBookings) {
+            Booking booking = carBooking.getBooking();
+            booking.setStatus("Completed");
+            bookingRepository.save(booking);
+        }
+
+        return "redirect:/carowner";
+    }
 
     @GetMapping("/delete")
     public String deleteCar(@RequestParam long id) {

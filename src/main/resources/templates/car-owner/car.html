@@ -5,17 +5,18 @@
 
 <div th:insert="header-footer/header :: nav"></div>
 
-<div class="container">
-    <p class="text-dark"><a class="text-primary" href="/home-driver">Home Car</a> / <a class="text-primary" href="/carowner">List Car</a> </p>
+<div class="container mt-3 mb-3">
+    <div class="mt-3 mb-3">
+        <p class="text-dark"><a class="text-primary" href="/home-driver">Home Car</a> / <a class="text-primary" href="/carowner">List Car</a> </p>
 
-    <h1 class="text-center my-4">List My Car</h1>
-    <a class="btn btn-primary m-3" href="/carowner/add">AddCar</a><br>
-
+        <h1 class="text-center my-4">List My Car</h1>
+        <a class="btn btn-primary m-3" href="/carowner/add">Add a new Car</a><br>
+    </div>
     <table class="table">
         <tbody>
         <tr th:each="car : ${cars}">
             <td>
-                <img th:src="@{'/img/' + ${car.images}}" width="80%"></td>
+                <img th:src="@{'/img/' + ${car.images}}" width="60%"></td>
             <td>
                 <div th:text="${car.name}"></div>
                 <div>Rating: *****</div>
@@ -25,13 +26,21 @@
                 <div th:text="'Status: ' + ${carStatusMap[car.id]}">Status: Available</div>
             </td>
             <td style="white-space: nowrap">
-                <a class="btn btn-primary btn-sm" th:href="@{'/carowner/edit?id=' + ${car.id}}">Edit</a>
-                <a class="btn btn-danger btn-sm" th:href="@{'/carowner/delete?id=' + ${car.id}}"
-                   onclick="return confirm('Are you sure?')">Delete</a>
+                <a class="btn btn-primary btn-sm" th:href="@{'/carowner/edit?id=' + ${car.id}}" th:if="${carStatusMap[car.id] =='Available'}">Edit</a>
+<!--                <a class="btn btn-danger btn-sm" th:href="@{'/carowner/delete?id=' + ${car.id}}"-->
+<!--                   onclick="return confirm('Are you sure?')">Delete</a>-->
 
             </td>
             <td>
-                <form method="post" th:action="@{/carowner/updateStatus}">
+                <form method="post" th:action="@{/carowner/confirmDeposit}" onsubmit="return confirm('Please confirm that you have receive the deposit this booking. This will allow the customer to pick-up the car at the agreed date and time.');">
+                    <input type="hidden" name="carId" th:value="${car.id}">
+                    <button type="submit" th:if="${carStatusMap[car.id] =='Confirmed'}" class="btn btn-primary btn-sm">Confirm Deposit</button>
+                </form>
+                <form method="post" th:action="@{/carowner/confirmPayment}" onsubmit="return confirm('Please confirm that you have receive the deposit this booking.');">
+                    <input type="hidden" name="carId" th:value="${car.id}">
+                    <button type="submit" th:if="${carStatusMap[car.id] =='In-Progress'}" class="btn btn-primary btn-sm">Confirm Payment</button>
+                </form>
+                <form method="post" th:action="@{/carowner/updateStatus}" th:if="${carStatusMap[car.id] !='Booked'}">
                     <input type="hidden" name="carId" th:value="${car.id}">
                     <select name="status">
                         <option value="Available">Available</option>

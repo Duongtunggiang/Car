@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.*;
 import java.security.Principal;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 @Controller()
 @RequestMapping("/customer")
@@ -81,6 +82,32 @@ public class CarController {
         response.put("success", true);
         response.put("message", "Car returned successfully");
         return response;
+    }
+    @PostMapping("/my-bookings/{id}/submit-feedback")
+    public String submitFeedback(@PathVariable Long id, @RequestParam("rating") int rating, @RequestParam("review") String review, Principal principal, RedirectAttributes redirectAttributes) {
+        String email = principal.getName();
+        Account emailAccount = accountRepository.findByEmail(email);
+
+        if (emailAccount == null) {
+            redirectAttributes.addFlashAttribute("error", "User not found");
+            return "redirect:/customer/my-bookings";
+        }
+
+        Booking booking = bookingRepository.findById(id).orElse(null);
+        if (booking == null || !booking.getStatus().equals("Completed")) {
+            redirectAttributes.addFlashAttribute("error", "Invalid booking or status");
+            return "redirect:/customer/my-bookings";
+        }
+
+        Feedback feedback = new Feedback();
+        feedback.setRatings(rating);
+        feedback.setContent(review);
+        feedback.setBooking(booking);
+        feedback.setDateTime(new Date());
+        feedbackRepository.save(feedback);
+
+        redirectAttributes.addFlashAttribute("success", "Feedback submitted successfully");
+        return "redirect:/customer/my-bookings";
     }
 
     @PostMapping("/my-bookings/{id}/continue-payment")
@@ -243,7 +270,10 @@ public class CarController {
 
         if (emailAccount.getRoles().stream().anyMatch(role -> role.getName().equals("Customer"))) {
             Customer customer = customerRepository.findByAccountId(emailAccount.getId());
-            List<Booking> bookings = customer.getBookings();  // Ensure getBookings() is defined in Customer class
+            List<Booking> bookings = customer.getBookings();
+
+            bookings.sort((b1, b2) -> Long.compare(b2.getId(), b1.getId()));
+
             model.addAttribute("bookings", bookings);
         } else {
             model.addAttribute("bookings", null);
@@ -298,7 +328,7 @@ public class CarController {
         }
 
         // Check if booking status allows confirmation
-        if (booking.getStatus().equals("Confirmed")) {
+        if (booking.getStatus().equals("Booked")) {
             booking.setStatus("In-Progress");
             bookingRepository.save(booking);
 
@@ -384,7 +414,7 @@ public class CarController {
         customerRepository.save(customer);
 
         // Cộng số tiền bị trừ vào ví của chủ xe
-        carOwner.setWallet(carOwner.getWallet() + penaltyAmount);
+        carOwner.setWallet(carOwner.getWallet() - penaltyAmount);
         carOwnerRepository.save(carOwner);
 
         // Lưu lịch sử giao dịch của khách hàng (trả lại một nửa số tiền cọc)

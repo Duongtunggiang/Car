@@ -1,0 +1,298 @@
+<!doctype html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.w3.org/1999/xhtml">
+<head th:insert="header-footer/header :: head"></head>
+<head>
+    <style>
+        body {
+            background-color: #f8f9fa;
+        }
+        .form-container {
+            background-color: #ffffff;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            padding: 30px;
+            margin-top: 30px;
+            margin-bottom: 30px;
+        }
+        .form-title {
+            color: #0d6efd;
+            margin-bottom: 30px;
+        }
+        .breadcrumb {
+            background-color: transparent;
+            padding-left: 0;
+        }
+        .form-label {
+            font-weight: bold;
+        }
+        .btn-submit {
+            width: 100%;
+        }
+        /* New styles for multi-step form */
+        .step-indicator {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 20px;
+        }
+        .step {
+            flex: 1;
+            text-align: center;
+            padding: 10px;
+            background-color: #f8f9fa;
+            border: 1px solid #dee2e6;
+        }
+        .step.active {
+            background-color: #0d6efd;
+            color: white;
+        }
+        .form-step {
+            display: none;
+        }
+        .form-step.active {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+
+<div th:insert="header-footer/header :: nav"></div>
+
+<div class="container">
+    <nav aria-label="breadcrumb" class="mt-3">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="/home-driver">Home</a></li>
+            <li class="breadcrumb-item"><a href="/carowner">My Cars</a></li>
+            <li class="breadcrumb-item active" aria-current="page">Add Car</li>
+        </ol>
+    </nav>
+
+    <div class="row justify-content-center">
+        <div class="col-md-8 form-container">
+            <h4 class="form-title">Add a car</h4>
+
+            <!-- Step indicator -->
+            <div class="step-indicator">
+                <div class="step active" id="step1-indicator">Step 1: Basic</div>
+                <div class="step" id="step2-indicator">Step 2: Details</div>
+                <div class="step" id="step3-indicator">Step 3: Pricing</div>
+                <div class="step" id="step4-indicator">Step 4: Finish</div>
+            </div>
+
+            <form th:object="${carDto}" th:action="@{/carowner/add}" method="post" enctype="multipart/form-data">
+
+                <!-- Step 1: Basic -->
+                <div id="step1" class="form-step active">
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label for="name" class="form-label">Name:</label>
+                            <input type="text" class="form-control" id="name" th:field="${carDto.name}">
+                        </div>
+
+                        <div class="col-md-6">
+                            <label for="licensePlate" class="form-label">License Plate:</label>
+                            <input type="text" class="form-control" id="licensePlate" th:field="${carDto.licensePlate}">
+                        </div>
+                    </div>
+
+                    <div class="row mb-3">
+                        <div class="col-md-4">
+                            <label for="color" class="form-label">Color:</label>
+                            <input type="text" class="form-control" id="color" th:field="${carDto.color}">
+                        </div>
+
+                        <div class="col-md-4">
+                            <label for="brand" class="form-label">Brand name:</label>
+                            <input type="text" class="form-control" id="brand" th:field="${carDto.brand}">
+                        </div>
+
+                        <div class="col-md-4">
+                            <label for="model" class="form-label">Model:</label>
+                            <input type="text" class="form-control" id="model" th:field="${carDto.model}">
+                        </div>
+                    </div>
+
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label for="productionYears" class="form-label">Production year:</label>
+                            <input type="number" step="1" placeholder="2022" class="form-control" id="productionYears" th:field="${carDto.productionYears}">
+                        </div>
+
+                        <div class="col-md-6">
+                            <label for="numbersOfSeats" class="form-label">No of seats:</label>
+                            <input type="number" placeholder="4" step="1" class="form-control" id="numbersOfSeats" th:field="${carDto.numbersOfSeats}">
+                        </div>
+                    </div>
+
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label for="transmissionType" class="form-label">Transmission:</label>
+                            <select class="form-select" id="transmissionType" th:field="${carDto.transmissionType}">
+                                <option value="Automatic">Automatic</option>
+                                <option value="Manual">Manual</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="fuelType" class="form-label">Fuel:</label>
+                            <select class="form-select" id="fuelType" th:field="${carDto.fuelType}">
+                                <option value="Gasoline">Gasoline</option>
+                                <option value="Diesel">Diesel</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <button type="button" class="btn btn-primary" onclick="nextStep(1)">Next</button>
+                </div>
+
+                <!-- Step 2: Details -->
+                <div id="step2" class="form-step">
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label for="mileage" class="form-label">Mileage:</label>
+                            <input type="number" class="form-control" id="mileage" th:field="${carDto.mileage}">
+                        </div>
+                        <div class="col-md-6">
+                            <label for="fuelConsumption" class="form-label">Fuel Consumption:</label>
+                            <div class="input-group">
+                                <input type="number" step="0.1" class="form-control" id="fuelConsumption" th:field="${carDto.fuelConsumption}">
+                                <span class="input-group-text">liter/100km</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="address" class="form-label">Address</label>
+                        <input type="text" class="form-control" id="address" th:field="${carDto.address}">
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="description" class="form-label">Description</label>
+                        <textarea class="form-control" id="description" rows="3" th:field="${carDto.description}"></textarea>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="additionalFunction" class="form-label">Additional Functions</label>
+                        <textarea class="form-control" id="additionalFunction" rows="3" th:field="${carDto.additionalFunction}"></textarea>
+                    </div>
+
+                    <button type="button" class="btn btn-secondary" onclick="prevStep(2)">Previous</button>
+                    <button type="button" class="btn btn-primary" onclick="nextStep(2)">Next</button>
+                </div>
+
+                <!-- Step 3: Pricing -->
+                <div id="step3" class="form-step">
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label for="price" class="form-label">Set base price for your car:</label>
+                            <div class="input-group">
+                                <span class="input-group-text">VND/day</span>
+                                <input type="number" step="1" class="form-control" id="price" th:field="${carDto.basicPrice}">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="deposit" class="form-label">Require deposit:</label>
+                            <div class="input-group">
+                                <span class="input-group-text">VND</span>
+                                <input type="number" step="1" class="form-control" id="deposit" th:field="${carDto.deposit}">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="termsOfUse" class="form-label">Terms of Use</label>
+                        <textarea class="form-control" id="termsOfUse" rows="3" th:field="${carDto.termsOfUse}"></textarea>
+                    </div>
+
+                    <div class="mb-3 row">
+                        <label for="image" class="form-label col-sm-4">Image</label>
+                        <div class="col-sm-8">
+                            <input type="file" class="form-control" id="image" name="image"
+                                   th:field="${carDto.images}">
+                        </div>
+                    </div>
+
+                    <button type="button" class="btn btn-secondary" onclick="prevStep(3)">Previous</button>
+                    <button type="button" class="btn btn-primary" onclick="nextStep(3)">Next</button>
+                </div>
+
+                <!-- Step 4: Finish -->
+                <div id="step4" class="form-step">
+                    <h4>Preview</h4>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div id="carImagePreview" class="mb-3">
+                                <!-- Placeholder for car image -->
+                                <div style="width: 100%; height: 200px; background-color: #f0f0f0; display: flex; justify-content: center; align-items: center;">
+                                    <span>Car Image Preview</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <h5 id="carNamePreview"></h5>
+                            <p>Ratings: <span id="ratingsPreview">☆☆☆☆☆ (No ratings yet)</span></p>
+                            <p>No. of rides: <span id="ridesPreview">0</span></p>
+                            <p>Price: <span id="pricePreview"></span>/day</p>
+                            <p>Locations: <span id="locationsPreview"></span></p>
+                            <p>Status: <span style="color: green;">Available</span></p>
+                        </div>
+                    </div>
+                    <div class="mt-3">
+                        <button type="button" class="btn btn-secondary" onclick="prevStep(4)">Cancel</button>
+                        <button type="submit" class="btn btn-primary">Submit</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+<script>
+    let currentStep = 1;
+
+     function nextStep(step) {
+         document.getElementById('step' + step).classList.remove('active');
+         document.getElementById('step' + (step + 1)).classList.add('active');
+         updateStepIndicator(step + 1);
+         currentStep = step + 1;
+         if (currentStep === 4) {
+             updateSummary();
+         }
+     }
+
+     function prevStep(step) {
+         document.getElementById('step' + step).classList.remove('active');
+         document.getElementById('step' + (step - 1)).classList.add('active');
+         updateStepIndicator(step - 1);
+     }
+
+     function updateStepIndicator(step) {
+         document.querySelectorAll('.step').forEach((el, index) => {
+             el.classList.toggle('active', index + 1 === step);
+         });
+     }
+
+     function updateSummary() {
+         document.getElementById('carNamePreview').textContent = document.getElementById('name').value;
+         document.getElementById('pricePreview').textContent = document.getElementById('price').value + ' VND';
+         // Other preview updates can go here
+     document.getElementById('locationsPreview').textContent =
+         document.getElementById('address').value;
+
+     const imageInput = document.getElementById('image');
+     if (imageInput.files && imageInput.files[0]) {
+         const reader = new FileReader();
+         reader.onload = function(e) {
+             const imgElement = document.createElement('img');
+             imgElement.src = e.target.result;
+             imgElement.style.maxWidth = '100%';
+             imgElement.style.height = 'auto';
+             const previewContainer = document.getElementById('carImagePreview');
+             previewContainer.innerHTML = '';
+             previewContainer.appendChild(imgElement);
+         }
+         reader.readAsDataURL(imageInput.files[0]);
+     }
+ }
+</script>
+</body>
+</html>

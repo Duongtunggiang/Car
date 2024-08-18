@@ -72,11 +72,11 @@
                     <th scope="col">Wallet balance</th>
                 </tr>
                 </thead>
-                <tbody>
+                <tbody id="transaction-table-body">
                 <tr th:each="transaction : ${transactions}">
                     <th scope="row" th:text="${transaction.id}"></th>
                     <td class="font-weight-bold"
-                        th:text="${transaction.type == 'Withdraw' || transaction.type == 'Pay deposit' || transaction.type == 'Offset final payment' && transaction.amount < 0 ? '- ' : '+ '} + ${transaction.amount} + ' VND'"></td>
+                        th:text="${transaction.type == 'Withdraw' || transaction.type == 'Pay deposit' || transaction.type == 'Offset final payment' || transaction.type== 'Receive penalty deposit'  ? '- ' : '+ '} + ${transaction.amount} + ' VND'"></td>
                     <td th:text="${transaction.type}"></td>
                     <td th:text="${#dates.format(transaction.transactionDateTime, 'dd/MM/yyyy HH:mm:ss')}"></td>
                     <td th:text="${transaction.bookingNo != null ? transaction.bookingNo : 'N/A'}"></td>
@@ -86,9 +86,47 @@
 
                 </tbody>
             </table>
+            <nav aria-label="Page navigation example">
+                <ul class="pagination" id="pagination"></ul>
+            </nav>
         </div>
     </main>
+    <script>
+        $(document).ready(function () {
+            var rowsPerPage = 8;
+            var rows = $('#transaction-table-body tr');
+            var rowsCount = rows.length;
+            var pageCount = Math.ceil(rowsCount / rowsPerPage);
+            var numbers = $('#pagination');
 
+            rows.hide();
+
+            rows.slice(0, rowsPerPage).show();
+
+            for (var i = 1; i <= pageCount; i++) {
+                numbers.append('<li class="page-item"><a class="page-link" href="#">' + i + '</a></li>');
+            }
+
+            numbers.find('li:first-child').addClass('active');
+
+            numbers.find('li').click(function (e) {
+                e.preventDefault();
+
+                numbers.find('li').removeClass('active');
+
+                $(this).addClass('active');
+
+                var index = $(this).index();
+                var start = index * rowsPerPage;
+                var end = start + rowsPerPage;
+
+                rows.hide();
+
+                rows.slice(start, end).show();
+            });
+        });
+
+    </script>
     <!-- The Modal -->
     <div class="modal" id="myModal">
         <div class="modal-dialog">

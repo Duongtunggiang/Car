@@ -24,12 +24,12 @@
         <div class="col-md-6">
             <div class="booking-info">
                 <h2 th:text="'Car name: '+${booking.carBookings[0].car.name}"></h2>
-                <h3 th:text="'Brand: '+${booking.carBookings[0].car.brand + ', Model: ' + booking.carBookings[0].car.model + ', Production of year: ' + booking.carBookings[0].car.productionYears.getYear()}">Car Brand Model Year</h3>
+                <h3 th:text="'Brand: '+${booking.carBookings[0].car.brand + ', Model: ' + booking.carBookings[0].car.model + ', Production of year: ' + booking.carBookings[0].car.productionYears}">Car Brand Model Year</h3>
                 <p th:text="'From: ' + ${#dates.format(booking.startDateTime, 'dd/MM/yyyy - HH:mm')}"></p>
                 <p th:text="'To: ' + ${#dates.format(booking.endDateTime, 'dd/MM/yyyy - HH:mm')}"></p>
-                <p th:text="'Number of days: ' + ${T(java.time.temporal.ChronoUnit).DAYS.between(booking.startDateTime.toInstant(), booking.endDateTime.toInstant())}"></p>
-                <p th:text="'Base price: $' + ${booking.carBookings[0].car.basicPrice}"></p>
-                <p th:text="'Total: ' + ${booking.carBookings[0].car.basicPrice * T(java.time.temporal.ChronoUnit).DAYS.between(booking.startDateTime.toInstant(), booking.endDateTime.toInstant())}+' VND/day'"></p>
+                <p th:text="'Number of days: ' + ${T(java.time.temporal.ChronoUnit).DAYS.between(booking.startDateTime.toInstant(), booking.endDateTime.toInstant())} +' day'"></p>
+                <p th:text="'Base price: ' + ${booking.carBookings[0].car.basicPrice} +' VND/day'"></p>
+                <p th:text="'Total: ' + ${booking.carBookings[0].car.basicPrice * T(java.time.temporal.ChronoUnit).DAYS.between(booking.startDateTime.toInstant(), booking.endDateTime.toInstant())}+' VND'"></p>
                 <p th:text="'Deposit: ' + ${booking.carBookings[0].car.deposit}+' VND'"></p>
                 <p th:text="'Booking No: ' + ${booking.bookingNo}"></p>
                 <p>Booking status: <span th:text="${booking.status}" th:class="${'status-' + #strings.toLowerCase(booking.status)}"></span></p>
@@ -42,11 +42,11 @@
                     <button type="button" class="btn btn-secondary" onclick="showReturnCarModal()" th:if="${booking.status == 'In-Progress'}">Return Car</button>
                 </form>
 
-                <form class="m-4" th:action="@{/customer/my-bookings/{id}/confirm-pickup(id=${booking.id})}" method="post" style="display: inline;" th:if="${booking.status == 'Confirmed'}" onsubmit="return confirmPickup()">
-                    <button type="submit" class="btn btn-secondary">Confirm Pickup</button>
+                <form class="m-4" th:action="@{/customer/my-bookings/{id}/confirm-pickup(id=${booking.id})}" method="post" style="display: inline;" th:if="${booking.status == 'Booked'}" onsubmit="return confirmPickup()">
+                    <button type="submit" class="btn btn-success">Confirm Pickup</button>
                 </form>
 
-                <form class="m-4" th:action="@{/customer/my-bookings/{id}/cancel(id=${booking.id})}" method="post" style="display: inline;" th:if="${booking.status != 'Cancelled' && booking.status != 'Completed' && booking.status != 'In-Progress'}" onsubmit="return confirmCancel()">
+                <form class="m-4" th:action="@{/customer/my-bookings/{id}/cancel(id=${booking.id})}" method="post" style="display: inline;" th:if="${booking.status == 'Confirmed'}" onsubmit="return confirmCancel()">
                     <button type="submit" class="btn btn-danger">Cancel Booking</button>
                 </form>
 
@@ -200,6 +200,33 @@
             </div>
         </div>
     </div>
+    <!-- Feedback Modal -->
+    <div class="modal fade" id="feedbackModal" tabindex="-1" aria-labelledby="feedbackModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="feedbackModalLabel">Rate Your Experience</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form th:action="@{/customer/my-bookings/{id}/submit-feedback(id=${booking.id})}" method="post" id="feedbackForm">
+                        <div class="mb-3">
+                            <label for="rating" class="form-label">Rating:</label>
+                            <input type="number" class="form-control" id="rating" name="rating" min="1" max="5" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="review" class="form-label">Review:</label>
+                            <textarea class="form-control" id="review" name="review" rows="3" required></textarea>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Skip</button>
+                            <button type="submit" class="btn btn-primary">Submit Rating</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
     <!-- Payment Confirmation Modal -->
     <div class="modal fade" id="paymentConfirmModal" tabindex="-1" aria-labelledby="paymentConfirmModalLabel" aria-hidden="true">
         <div class="modal-dialog">
@@ -253,7 +280,8 @@
             .then(data => {
                 if (data.success) {
                     alert(data.message);
-                    window.location.reload();
+                    var feedbackModal = new bootstrap.Modal(document.getElementById('feedbackModal'));
+                    feedbackModal.show();
                 } else {
                     alert(data.message);
                 }

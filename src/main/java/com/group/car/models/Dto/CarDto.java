@@ -30,7 +30,7 @@ public class CarDto {
     private int numbersOfSeats;
 
     @DateTimeFormat(pattern = "yyyy-MM-dd")
-    private Date productionYears;
+    private Integer  productionYears;
 
     @NotEmpty(message = "The name is required")
     private String transmissionType;
@@ -69,11 +69,11 @@ public class CarDto {
 
     private MultipartFile images;
 
-    public Date getProductionYears() {
+    public Integer  getProductionYears() {
         return productionYears;
     }
 
-    public void setProductionYears(Date productionYears) {
+    public void setProductionYears(Integer  productionYears) {
         this.productionYears = productionYears;
     }
 

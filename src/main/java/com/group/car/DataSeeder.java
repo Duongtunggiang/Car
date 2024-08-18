@@ -91,7 +91,7 @@
 //            car1.setModel("Navara");
 //            car1.setColor("Black");
 //            car1.setNumbersOfSeats(5);
-//            car1.setProductionYears(new Date());
+//            car1.setProductionYears(2007);
 //            car1.setTransmissionType("Automatic");
 //            car1.setFuelType("Diesel");
 //            car1.setMileage("50000");
@@ -111,7 +111,7 @@
 //            car2.setModel("Camry");
 //            car2.setColor("White");
 //            car2.setNumbersOfSeats(5);
-//            car2.setProductionYears(new Date());
+//            car2.setProductionYears(2010);
 //            car2.setTransmissionType("Automatic");
 //            car2.setFuelType("Petrol");
 //            car2.setMileage("20000");
@@ -131,7 +131,7 @@
 //            car3.setModel("CR-V");
 //            car3.setColor("Silver");
 //            car3.setNumbersOfSeats(7);
-//            car3.setProductionYears(new Date());
+//            car3.setProductionYears(2015);
 //            car3.setTransmissionType("Automatic");
 //            car3.setFuelType("Petrol");
 //            car3.setMileage("35000");
@@ -151,7 +151,7 @@
 //            car4.setModel("Ranger");
 //            car4.setColor("Blue");
 //            car4.setNumbersOfSeats(5);
-//            car4.setProductionYears(new Date());
+//            car4.setProductionYears(2017);
 //            car4.setTransmissionType("Automatic");
 //            car4.setFuelType("Diesel");
 //            car4.setMileage("10000");

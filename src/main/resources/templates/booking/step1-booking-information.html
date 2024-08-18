@@ -2,7 +2,6 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head th:insert="header-footer/header :: head"></head>
 <head>
-    <title>Booking Information</title>
     <style>
         h1, h2 {
             color: #333;
@@ -71,13 +70,6 @@
             background: #1a5bb8;
         }
     </style>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0/dist/css/select2.min.css" rel="stylesheet" />
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0/dist/js/select2.min.js"></script>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
-
 </head>
 <body>
 <div th:insert="header-footer/header :: nav"></div>
@@ -120,7 +112,12 @@
     </div>
 </div>
 <script>
+    var isChangeClicked = false;
     $(document).ready(function() {
+        $('#bookingModal').on('show.bs.modal', function (e) {
+            isChangeClicked = false;
+        });
+
         $('#saveBookingChanges').click(function() {
             var pickUpLocation = $('#modalPickUpLocation').val();
             var pickupDate = $('#modalPickupDate').val();
@@ -132,6 +129,11 @@
             if (pickupDate && pickupTime && dropoffDate && dropoffTime) {
                 var startDateTime = pickupDate + 'T' + pickupTime;
                 var endDateTime = dropoffDate + 'T' + dropoffTime;
+
+                if (endDateTime <= startDateTime) {
+                    alert('Return date and time must be later than pick-up date and time!');
+                    return;
+                }
 
                 $.ajax({
                     url: '/booking/update-booking',
@@ -152,7 +154,26 @@
                         $('#displayNumberOfDays').text(response.numberOfDays);
                         $('#displayTotalPrice').text(response.totalPrice);
 
+                        if (response.numberOfDays > 0) {
+                            $('#return-info').show();
+                            $('#number-of-days').show();
+                            $('#total-price').show();
+                        } else {
+                            $('#return-info').hide();
+                            $('#number-of-days').hide();
+                            $('#total-price').hide();
+                        }
+
                         $('#bookingModal').modal('hide');
+                        isChangeClicked = true;
+
+                        if (!$('#change-time').hasClass('highlighted')) {
+                            $('html, body').animate({
+                                scrollTop: $('#change-time').offset().top
+                            }, 500, function() {
+                                $('#change-time').addClass('highlighted');
+                            });
+                        }
                     },
                     error: function(error) {
                         console.log(error);
@@ -161,6 +182,23 @@
                 });
             } else {
                 alert('Please select both pick up and return dates!');
+            }
+        });
+        $("button[type='submit']").click(function(event) {
+            event.preventDefault();
+
+            if (!isChangeClicked) {
+                alert('Please change the booking details before proceeding to the next step!');
+
+                $('html, body').animate({
+                    scrollTop: $('#change-time').offset().top
+                }, 500, function() {
+                    $('#change-time').effect("highlight", {}, 1000);
+                });
+
+                $("a[data-bs-target='#bookingModal']").effect("highlight", {}, 1000);
+            } else {
+                $(this).closest("form").submit();
             }
         });
     });
@@ -182,7 +220,7 @@
 
         <div class="booking-summary">
             <h3>Booking Summary <span style="float: right; cursor: pointer; text-decoration: none;">
-        <a class="text-dark me-3" data-bs-toggle="modal" data-bs-target="#bookingModal"><i class="bi-pencil-square"></i> Change</a>
+        <a class="text-dark me-3 change" id="change-time" data-bs-toggle="modal" data-bs-target="#bookingModal"><i class="bi-pencil-square"></i> Change</a>
         </span></h3>
             <p>
                 Pick-up location: <strong id="displayPickUpLocation" th:text="${booking.pickUpLocation}">N/A</strong>

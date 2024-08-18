@@ -10,6 +10,7 @@ import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -84,23 +85,28 @@ public class BookingNewController {
 
         if (pickupDate == null) pickupDate = LocalDate.now();
         if (pickupTime == null) pickupTime = LocalTime.MIDNIGHT;
-        if (dropoffDate == null) dropoffDate = LocalDate.now().plusDays(1);
-        if (dropoffTime == null) dropoffTime = LocalTime.MIDNIGHT;
 
         LocalDateTime pickupDateTime = LocalDateTime.of(pickupDate, pickupTime);
-        LocalDateTime returnDateTime = LocalDateTime.of(dropoffDate, dropoffTime);
+        LocalDateTime returnDateTime = null;
+        long numberOfDays = 0;
+        int totalPrice = 0;
+
+        if (dropoffDate != null && dropoffTime != null) {
+            returnDateTime = LocalDateTime.of(dropoffDate, dropoffTime);
+            numberOfDays = ChronoUnit.DAYS.between(pickupDateTime.toLocalDate(), returnDateTime.toLocalDate());
+            if (numberOfDays == 0) {
+                numberOfDays = 1; // Minimum 1 day rental
+            }
+            totalPrice = car.getBasicPrice() * (int) numberOfDays;
+        }
 
         booking.setPickUpLocation(pickupLocation);
         booking.setStartDateTime(Date.from(pickupDateTime.atZone(ZoneId.systemDefault()).toInstant()));
-        booking.setEndDateTime(Date.from(returnDateTime.atZone(ZoneId.systemDefault()).toInstant()));
-
-        long numberOfDays = ChronoUnit.DAYS.between(pickupDateTime.toLocalDate(), returnDateTime.toLocalDate());
-        if (numberOfDays == 0) {
-            numberOfDays = 1; // Minimum 1 day rental
+        if (returnDateTime != null) {
+            booking.setEndDateTime(Date.from(returnDateTime.atZone(ZoneId.systemDefault()).toInstant()));
         }
-        booking.setNumberOfDays((int) numberOfDays);
 
-        int totalPrice = car.getBasicPrice() * (int) numberOfDays;
+        booking.setNumberOfDays((int) numberOfDays);
         booking.setTotalPrice(totalPrice);
 
         model.addAttribute("car", car);
@@ -108,9 +114,12 @@ public class BookingNewController {
         model.addAttribute("customer", customer);
         model.addAttribute("pickupDateTime", pickupDateTime);
         model.addAttribute("returnDateTime", returnDateTime);
+        setUpUserRole(model);
+        model.addAttribute("currentPage", "step1-booking-information");
 
         return "booking/step1-booking-information";
     }
+
 
     @PostMapping("/update-booking")
     @ResponseBody
@@ -212,6 +221,8 @@ public class BookingNewController {
         model.addAttribute("car", car);
         model.addAttribute("customer", customer);
         model.addAttribute("status", status);
+        setUpUserRole(model);
+        model.addAttribute("currentPage", "step2-payment");
 
         return "booking/step2-payment";
     }
@@ -298,7 +309,7 @@ public class BookingNewController {
         }
 
         model.addAttribute("error", "Unable to process booking.");
-        return "booking/step2";
+        return "booking/step2-payment";
     }
 
 
@@ -315,6 +326,9 @@ public class BookingNewController {
         model.addAttribute("booking", booking);
         model.addAttribute("car", car);
         model.addAttribute("customer", booking.getCustomer());
+
+        setUpUserRole(model);
+        model.addAttribute("currentPage", "step3-finish");
 
         return "booking/step3-finish";
     }
@@ -349,5 +363,27 @@ public class BookingNewController {
         String email = authentication.getName();
         return customerRepository.findByEmail(email)
                 .orElseThrow(() -> new RuntimeException("Customer not found"));
+    }
+    private void setUpUserRole(Model model) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication != null && authentication.isAuthenticated() && authentication.getPrincipal() instanceof UserDetails) {
+            UserDetails userDetails = (UserDetails) authentication.getPrincipal();
+            String username = userDetails.getUsername();
+
+            Account account = accountRepository.findByEmail(username);
+            if (account != null) {
+                Set<Role> roles = account.getRoles();
+                model.addAttribute("userRoles", roles);
+                if (roles.stream().anyMatch(role -> role.getName().equals("CarOwner"))) {
+                    model.addAttribute("userRole", "CarOwner");
+                } else if (roles.stream().anyMatch(role -> role.getName().equals("Customer"))) {
+                    model.addAttribute("userRole", "Customer");
+                }
+            } else {
+                model.addAttribute("userRole", "Guest");
+            }
+        } else {
+            model.addAttribute("userRole", "Guest");
+        }
     }
 }

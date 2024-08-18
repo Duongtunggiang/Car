@@ -1,7 +1,10 @@
 package com.group.car.controller;
 
+import com.group.car.models.Account;
 import com.group.car.models.Car;
 import com.group.car.models.CarBooking;
+import com.group.car.models.Role;
+import com.group.car.repository.AccountRepository;
 import com.group.car.repository.CarBookingRepository;
 import com.group.car.repository.CarRepository;
 import com.group.car.service.CarService;
@@ -9,6 +12,9 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -19,6 +25,7 @@ import java.time.LocalTime;
 import java.time.ZoneId;
 import java.util.Date;
 import java.util.List;
+import java.util.Set;
 
 @Controller
 @RequestMapping("customer")
@@ -39,10 +46,10 @@ public class SearchController {
 
     @PostMapping("/search")
     public String searchCars(@RequestParam String pickupLocation,
-                             @RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate pickupDate,
+                             @RequestParam @DateTimeFormat(pattern = "dd-MM-yyyy") LocalDate pickupDate,
                              @RequestParam @DateTimeFormat(pattern = "HH:mm") LocalTime pickupTime,
 
-                             @RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate dropoffDate,
+                             @RequestParam @DateTimeFormat(pattern = "dd-MM-yyyy") LocalDate dropoffDate,
                              @RequestParam @DateTimeFormat(pattern = "HH:mm") LocalTime dropoffTime,
                              Model model, HttpSession session) {
         LocalDateTime startDateTime = LocalDateTime.of(pickupDate, pickupTime);
@@ -83,8 +90,33 @@ public class SearchController {
 
         model.addAttribute("car", car);
         model.addAttribute("status", status);
+        setUpUserRole(model);
+        model.addAttribute("currentPage", "car-details");
 
         return "customer/car-details";
     }
+    @Autowired
+    AccountRepository accountRepository;
+    private void setUpUserRole(Model model) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication != null && authentication.isAuthenticated() && authentication.getPrincipal() instanceof UserDetails) {
+            UserDetails userDetails = (UserDetails) authentication.getPrincipal();
+            String username = userDetails.getUsername();
 
+            Account account = accountRepository.findByEmail(username);
+            if (account != null) {
+                Set<Role> roles = account.getRoles();
+                model.addAttribute("userRoles", roles);
+                if (roles.stream().anyMatch(role -> role.getName().equals("CarOwner"))) {
+                    model.addAttribute("userRole", "CarOwner");
+                } else if (roles.stream().anyMatch(role -> role.getName().equals("Customer"))) {
+                    model.addAttribute("userRole", "Customer");
+                }
+            } else {
+                model.addAttribute("userRole", "Guest");
+            }
+        } else {
+            model.addAttribute("userRole", "Guest");
+        }
+    }
 }

@@ -19,7 +19,7 @@ public class Car {
     private String model;
     private String color;
     private int numbersOfSeats;
-    private Date productionYears;
+    private Integer  productionYears;
     private String transmissionType;
     private String fuelType;
     private String mileage;
@@ -42,11 +42,11 @@ public class Car {
     @OneToMany(mappedBy = "car", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<CarBooking> carBookings;
 
-    public Date getProductionYears() {
+    public Integer getProductionYears() {
         return productionYears;
     }
 
-    public void setProductionYears(Date productionYears) {
+    public void setProductionYears(Integer productionYears) {
         this.productionYears = productionYears;
     }
 

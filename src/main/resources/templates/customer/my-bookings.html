@@ -46,30 +46,36 @@
     <h2>My Bookings</h2>
     <p th:text="'You have ' + ${bookings.size()} + ' on-going bookings'"></p>
 
-    <div th:each="booking : ${bookings}" class="booking-item">
-        <div th:each="carBooking : ${booking.carBookings}" class="car-booking-item">
-            <div class="booking-details">
-                <div class=""><img th:src="@{'/img/' + ${carBooking.car.images}}"  width="70%" alt="${carBooking.car.name}" /></div>
-                <div class="booking-info">
-                    <h2 th:text="'Car name: '+${carBooking.car.name}"></h2>
-                    <h3 th:text="${carBooking.car.brand + ' ' + carBooking.car.model + ' ' + carBooking.car.productionYears.getYear()}">Car Brand Model Year</h3>
-                    <p th:text="'From: ' + ${#dates.format(booking.startDateTime, 'dd/MM/yyyy - HH:mm')}"></p>
-                    <p th:text="'To: ' + ${#dates.format(booking.endDateTime, 'dd/MM/yyyy - HH:mm')}"></p>
-                    <p th:text="'Number of days: ' + ${T(java.time.temporal.ChronoUnit).DAYS.between(booking.startDateTime.toInstant(), booking.endDateTime.toInstant())}"></p>
-                    <p th:text="'Base price: $' + ${carBooking.car.basicPrice}"></p>
-                    <p th:text="'Total: $' + ${carBooking.car.basicPrice * T(java.time.temporal.ChronoUnit).DAYS.between(booking.startDateTime.toInstant(), booking.endDateTime.toInstant())}"></p>
-                    <p th:text="'Deposit: $' + ${carBooking.car.deposit}"></p>
-                    <p th:text="'Booking No.: ' + ${booking.bookingNo}"></p>
-                    <p>Booking status: <span th:text="${booking.status}" th:class="${'status-' + #strings.toLowerCase(booking.status)}"></span></p>
-                </div>
-                <div class="booking-actions">
-                    <a th:href="@{/customer/my-bookings/{bookingId}(bookingId=${booking.id})}" class="btn btn-primary mb-2">View details</a>
-                    <form class="m-4" th:action="@{/customer/my-bookings/{id}/confirm-pickup(id=${booking.id})}" method="post" style="display: inline;" th:if="${booking.status == 'Confirmed'}" onsubmit="return confirmPickup()">
-                        <button type="submit" class="btn btn-secondary">Confirm Pickup</button>
-                    </form>
-                    <form class="m-4" th:action="@{/customer/my-bookings/{id}/cancel(id=${booking.id})}" method="post" style="display: inline;" th:if="${booking.status != 'Cancelled' && booking.status != 'Completed' && booking.status != 'In-Progress'}" onsubmit="return confirmCancel()">
-                        <button type="submit" class="btn btn-danger">Cancel Booking</button>
-                    </form>
+    <div class="">
+        <div th:each="booking : ${bookings}" class="row booking-item mb-4">
+            <div th:each="carBooking : ${booking.carBookings}" class="col-md-12 car-booking-item">
+                <div class="row booking-details">
+                    <div class="col-md-3">
+                        <img th:src="@{'/img/' + ${carBooking.car.images}}" class="img-fluid" alt="${carBooking.car.name}">
+                    </div>
+                    <div class="col-md-6">
+                        <h2 th:text="'Car name: '+${carBooking.car.name}"></h2>
+                        <h3 th:text="'Brand: '+${carBooking.car.brand + ', Model: ' + carBooking.car.model + ' in ' + carBooking.car.productionYears}"></h3>
+                        <p th:text="'From: ' + ${#dates.format(booking.startDateTime, 'dd/MM/yyyy - HH:mm')}"></p>
+                        <p th:text="'To: ' + ${#dates.format(booking.endDateTime, 'dd/MM/yyyy - HH:mm')}"></p>
+                        <p th:text="'Number of days: ' + ${T(java.time.temporal.ChronoUnit).DAYS.between(booking.startDateTime.toInstant(), booking.endDateTime.toInstant())} +' day'"></p>
+                        <p th:text="'Base price: ' + ${carBooking.car.basicPrice}+' VND/day'"></p>
+                        <p th:text="'Total: ' + ${carBooking.car.basicPrice * T(java.time.temporal.ChronoUnit).DAYS.between(booking.startDateTime.toInstant(), booking.endDateTime.toInstant())} +' VND'"></p>
+                        <p th:text="'Deposit: ' + ${carBooking.car.deposit} +' VND'"></p>
+                        <p th:text="'Booking No: ' + ${booking.bookingNo}"></p>
+                        <p>Booking status: <span th:text="${booking.status}" th:class="${'status-' + #strings.toLowerCase(booking.status)}"></span></p>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="booking-actions">
+                            <a th:href="@{/customer/my-bookings/{bookingId}(bookingId=${booking.id})}" class="btn btn-primary mb-2">View details</a>
+                            <form class="m-4" th:action="@{/customer/my-bookings/{id}/confirm-pickup(id=${booking.id})}" method="post" style="display: inline;" th:if="${booking.status == 'Booked'}" onsubmit="return confirmPickup()">
+                                <button type="submit" class="btn btn-success">Confirm Pickup</button>
+                            </form>
+                            <form class="m-4" th:action="@{/customer/my-bookings/{id}/cancel(id=${booking.id})}" method="post" style="display: inline;" th:if="${booking.status == 'Confirmed'}" onsubmit="return confirmCancel()">
+                                <button type="submit" class="btn btn-danger">Cancel Booking</button>
+                            </form>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
