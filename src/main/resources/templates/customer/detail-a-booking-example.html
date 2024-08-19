@@ -323,19 +323,20 @@
                     'X-CSRF-TOKEN': /*[[${_csrf.token}]]*/ ''
                 }
             })
-            .then(response => response.json())
+              .then(response => response.json())
             .then(data => {
-                if (data.success) {
-                    alert(data.message);
-                    window.location.reload();
-                } else {
-                    alert(data.message);
-                }
-            })
+            if (data.success) {
+                alert(data.message);
+                var feedbackModal = new bootstrap.Modal(document.getElementById('feedbackModal'));
+                feedbackModal.show();
+            } else {
+                alert(data.message);
+            }
+        })
             .catch(error => {
                 console.error('Error:', error);
                 alert('An error occurred. Please try again.');
-            });
+        });
         }
     </script>
 

@@ -73,7 +73,7 @@
                        data-bs-toggle="dropdown">User</a>
                     <ul class="dropdown-menu">
                         <li><a class="dropdown-item" href="/profile">My Profile</a> </li>
-                        <li><a class="dropdown-item" href="/carowner">My Cars</a> </li>
+                        <li><a class="dropdown-item" href="/car-owner/my-cars">My Cars</a> </li>
                         <li><a class="dropdown-item" href="/home-driver">My Wallet</a> </li>
                         <li><a class="dropdown-item" href="/home-driver">My Repots</a> </li>
                         <li>
@@ -101,7 +101,7 @@
     <nav aria-label="breadcrumb" class="mt-3">
         <ol class="breadcrumb">
             <li class="breadcrumb-item"><a href="/home-driver">Home</a></li>
-            <li class="breadcrumb-item"><a href="/carowner">My Cars</a></li>
+            <li class="breadcrumb-item"><a href="/car-owner/my-cars">My Cars</a></li>
             <li class="breadcrumb-item active" aria-current="page">Add Car</li>
         </ol>
     </nav>
@@ -118,7 +118,7 @@
                 <div class="step" id="step4-indicator">Step 4: Finish</div>
             </div>
 
-            <form th:object="${carDto}" th:action="@{/carowner/add}" method="post" enctype="multipart/form-data">
+            <form th:object="${carDto}" th:action="@{/car-owner/add}" method="post" enctype="multipart/form-data">
 
                 <!-- Step 1: Basic -->
                 <div id="step1" class="form-step active">
@@ -201,7 +201,14 @@
 
                     <div class="mb-3">
                         <label for="address" class="form-label">Address</label>
-                        <input type="text" class="form-control" id="address" th:field="${carDto.address}">
+                        <select class="form-control" id="address" th:field="${carDto.address}" required>
+                            <option value="Ha Noi">Ha Noi</option>
+                            <option value="Ho Chi Minh City">Ho Chi Minh City</option>
+                            <option value="Da Nang">Da Nang</option>
+                            <option value="Nha Trang">Nha Trang</option>
+                            <option value="Da La">Da Lat</option>
+                            <option value="Quang Ninh">Quang Ninh</option>
+                        </select>
                     </div>
 
                     <div class="mb-3">

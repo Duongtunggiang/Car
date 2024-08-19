@@ -98,7 +98,7 @@ public class DataSeeder {
             car1.setFuelConsumption("7.5");
             car1.setBasicPrice(5000);
             car1.setDeposit(3000);
-            car1.setAddress("Hà Nội");
+            car1.setAddress("Ha Noi");
             car1.setDescription("Good condition pickup truck");
             car1.setCarOwner(carOwner1);
             carRepository.save(car1);
@@ -118,7 +118,7 @@ public class DataSeeder {
             car2.setFuelConsumption("6.5");
             car2.setBasicPrice(8000);
             car2.setDeposit(4000);
-            car2.setAddress("Hà Nội");
+            car2.setAddress("Ha Noi");
             car2.setDescription("Luxury sedan in excellent condition");
             car2.setCarOwner(carOwner1);
             carRepository.save(car2);
@@ -138,7 +138,7 @@ public class DataSeeder {
             car3.setFuelConsumption("8.0");
             car3.setBasicPrice(7000);
             car3.setDeposit(3500);
-            car3.setAddress("Đà Nẵng");
+            car3.setAddress("Da Nang");
             car3.setDescription("Spacious SUV with advanced safety features");
             car3.setCarOwner(carOwner1);
             carRepository.save(car3);
@@ -269,7 +269,7 @@ public class DataSeeder {
             booking22.setDriversInformation("Alice Brown, License: DL321654");
             booking22.setPaymentMethod("Cash");
             booking22.setPickUpLocation(car3.getAddress());
-            booking22.setStatus("Avaliable");
+            booking22.setStatus("Available");
             booking22.setCustomer(customer1);
             bookingRepository.save(booking22);
 

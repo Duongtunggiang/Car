@@ -28,7 +28,7 @@ import java.util.*;
 
 
 @Controller
-@RequestMapping("/carowner")
+@RequestMapping("/car-owner")
 public class CarOwnerController {
     @Autowired
     private CarRepository iCarService;
@@ -51,6 +51,8 @@ public class CarOwnerController {
     private CarBookingRepository carBookingRepository;
     @Autowired
     private BookingRepository bookingRepository;
+    @Autowired
+    private FeedbackRepository feedbackRepository;
 
     @Autowired
     private CustomerRepository customerRepository;
@@ -78,7 +80,81 @@ public class CarOwnerController {
         }
     }
 
-    @GetMapping({"", "/"})
+//    @GetMapping({"/my-cars"})
+//    public String showAllCar(Model model, Principal principal) {
+//        String email = principal.getName();
+//
+//        Optional<CarOwner> carOwnerOptional = carOwnerRepository.findByEmail(email);
+//
+//        if (carOwnerOptional.isPresent()) {
+//            CarOwner carOwner = carOwnerOptional.get();
+//            List<Car> cars = carService.findAllByCarOwner(carOwner.getId());
+//
+//            Map<Long, String> carStatusMap = new HashMap<>();
+//
+//            for (Car car : cars) {
+//                List<CarBooking> carBookings = carBookingRepository.findByCarId(car.getId());
+//                if (!carBookings.isEmpty()) {
+//                    String status = carBookings.get(0).getBooking().getStatus();
+//                    carStatusMap.put(car.getId(), status);
+//                } else {
+//                    carStatusMap.put(car.getId(), "Available");
+//                }
+//            }
+//
+//            model.addAttribute("cars", cars);
+//            model.addAttribute("carStatusMap", carStatusMap);
+//
+//        } else {
+//            model.addAttribute("error", "No cars found for this user.");
+//        }
+//
+//        setUpUserRole(model);
+//        model.addAttribute("currentPage", "car");
+//        return "car-owner/my-cars";
+//    }
+
+
+//    @GetMapping({"/my-cars"})
+//    public String showAllCar(Model model, Principal principal) {
+//        String email = principal.getName();
+//
+//        Optional<CarOwner> carOwnerOptional = carOwnerRepository.findByEmail(email);
+//
+//        if (carOwnerOptional.isPresent()) {
+//            CarOwner carOwner = carOwnerOptional.get();
+//            List<Car> cars = carService.findAllByCarOwner(carOwner.getId());
+//
+//            Map<Long, String> carStatusMap = new HashMap<>();
+//            Map<Long, Long> carBookingCountMap = new HashMap<>();
+//
+//            for (Car car : cars) {
+//                List<CarBooking> carBookings = carBookingRepository.findByCarId(car.getId());
+//                if (!carBookings.isEmpty()) {
+//                    String status = carBookings.get(0).getBooking().getStatus();
+//                    carStatusMap.put(car.getId(), status);
+//                } else {
+//                    carStatusMap.put(car.getId(), "Available");
+//                }
+//
+//                long bookingCount = carBookingRepository.countByCarId(car.getId());
+//                carBookingCountMap.put(car.getId(), bookingCount);
+//            }
+//
+//            model.addAttribute("cars", cars);
+//            model.addAttribute("carStatusMap", carStatusMap);
+//            model.addAttribute("carBookingCountMap", carBookingCountMap);
+//
+//        } else {
+//            model.addAttribute("error", "No cars found for this user.");
+//        }
+//
+//        setUpUserRole(model);
+//        model.addAttribute("currentPage", "car");
+//        return "car-owner/my-cars";
+//    }
+
+    @GetMapping({"/my-cars"})
     public String showAllCar(Model model, Principal principal) {
         String email = principal.getName();
 
@@ -89,6 +165,8 @@ public class CarOwnerController {
             List<Car> cars = carService.findAllByCarOwner(carOwner.getId());
 
             Map<Long, String> carStatusMap = new HashMap<>();
+            Map<Long, Long> carBookingCountMap = new HashMap<>();
+            Map<Long, Integer> carRatingMap = new HashMap<>();
 
             for (Car car : cars) {
                 List<CarBooking> carBookings = carBookingRepository.findByCarId(car.getId());
@@ -96,12 +174,23 @@ public class CarOwnerController {
                     String status = carBookings.get(0).getBooking().getStatus();
                     carStatusMap.put(car.getId(), status);
                 } else {
-                    carStatusMap.put(car.getId(), "No Booking");
+                    carStatusMap.put(car.getId(), "Available");
                 }
+
+                // Count only confirmed bookings
+                long confirmedBookingCount = carBookings.stream()
+                        .filter(cb -> "Completed".equalsIgnoreCase(cb.getBooking().getStatus()))
+                        .count();
+                carBookingCountMap.put(car.getId(), confirmedBookingCount);
+
+                Double averageRating = feedbackRepository.getAverageRatingForCar(car.getId());
+                carRatingMap.put(car.getId(), averageRating != null ? (int) Math.round(averageRating) : 0);
             }
 
             model.addAttribute("cars", cars);
             model.addAttribute("carStatusMap", carStatusMap);
+            model.addAttribute("carBookingCountMap", carBookingCountMap);
+            model.addAttribute("carRatingMap", carRatingMap);
 
         } else {
             model.addAttribute("error", "No cars found for this user.");
@@ -109,8 +198,9 @@ public class CarOwnerController {
 
         setUpUserRole(model);
         model.addAttribute("currentPage", "car");
-        return "car-owner/car";
+        return "car-owner/my-cars";
     }
+
 
     @GetMapping("/add")
     public String showCreateCar(Model model) {
@@ -172,6 +262,7 @@ public class CarOwnerController {
         car.setTermsOfUse(carDto.getTermsOfUse());
         car.setImages(storageFile);
 
+
         CarOwner carOwner = carOwnerRepository.findByAccountEmail(principal.getName());
 
         if (carOwner == null) {
@@ -181,7 +272,7 @@ public class CarOwnerController {
         car.setCarOwner(carOwner);
 
         iCarService.save(car);
-
+//
         Booking booking = new Booking();
         booking.setStatus("Available");
         booking.setPickUpLocation(car.getAddress());
@@ -193,7 +284,7 @@ public class CarOwnerController {
         carBooking.setBooking(booking);
         carBookingRepository.save(carBooking);
 
-        return "redirect:/carowner";
+        return "redirect:/car-owner/my-cars";
     }
 
     @PostMapping("/updateStatus")
@@ -207,7 +298,7 @@ public class CarOwnerController {
             bookingRepository.save(booking);
         }
 
-        return "redirect:/carowner";
+        return "redirect:/car-owner/my-cars";
     }
 
 
@@ -227,104 +318,91 @@ public class CarOwnerController {
         } catch (Exception e) {
             System.out.println("Exception: " + e.getMessage());
         }
-        return "redirect:/carowner";
+        return "redirect:/car-owner/my-cars";
     }
 
     @GetMapping("/edit")
-    public String showEditCar(Model model, @RequestParam long id) {
-        try {
-            Car car = iCarService.findById(id).get();
-            model.addAttribute("car", car);
+    public String editCarDetails(@RequestParam long id, Model model, Principal principal) {
+        String email = principal.getName();
+        Account emailAccount = accountRepository.findByEmail(email);
 
-            CarDto carDto = new CarDto();
-            // Mapping fields from car to carDto
-            carDto.setName(car.getName());
-            carDto.setLicensePlate(car.getLicensePlate());
-            carDto.setBrand(car.getBrand());
-            carDto.setModel(car.getModel());
-            carDto.setColor(car.getColor());
-            carDto.setNumbersOfSeats(car.getNumbersOfSeats());
-            carDto.setProductionYears(car.getProductionYears());
-            carDto.setTransmissionType(car.getTransmissionType());
-            carDto.setFuelType(car.getFuelType());
-            carDto.setMileage(car.getMileage());
-            carDto.setFuelConsumption(car.getFuelConsumption());
-            carDto.setBasicPrice(car.getBasicPrice());
-            carDto.setDeposit(car.getDeposit());
-            carDto.setAddress(car.getAddress());
-            carDto.setDescription(car.getDescription());
-            carDto.setAdditionalFunction(car.getAdditionalFunctions());
-            carDto.setTermsOfUse(car.getTermsOfUse());
-
-            model.addAttribute("carDto", carDto);
-
-        } catch (Exception e) {
-            System.out.println("Exception: " + e.getMessage());
-            return "redirect:/carowner";
+        if (emailAccount == null) {
+            return "redirect:/login";
         }
-        setUpUserRole(model);
-        model.addAttribute("currentPage", "edit");
 
-        return "car-owner/edit";
+        Car car = carRepository.findById(id).orElse(null);
+        if (car == null || !car.getCarOwner().getAccount().equals(emailAccount)) {
+            return "redirect:/car-owner";
+        }
+
+        // Get the count of confirmed bookings for this car
+        List<CarBooking> carBookings = carBookingRepository.findByCarId(car.getId());
+        long confirmedBookingCount = carBookings.stream()
+                .filter(cb -> "confirmed".equalsIgnoreCase(cb.getBooking().getStatus()))
+                .count();
+
+        model.addAttribute("car", car);
+        model.addAttribute("confirmedRidesCount", confirmedBookingCount);
+        setUpUserRole(model);  // Assuming this adds role-based attributes to the model
+        model.addAttribute("currentPage", "edit-car");
+        return "car-owner/edit-car2";
     }
 
-    @PostMapping("/edit")
-    public String updateCar(Model model, @RequestParam long id,
-                            @Valid @ModelAttribute CarDto carDto, BindingResult result,
-                            Principal principal) {
-        try {
-            Car car = iCarService.findById(id).get();
-            CarOwner carOwner = carOwnerRepository.findByAccountEmail(principal.getName());
-            if (result.hasErrors()) {
-                model.addAttribute("car", car);
-                return "car-owner/edit";
-            }
+    @GetMapping("/edit/{id}")
+    public String editCarDetails(@PathVariable Long id, Model model, Principal principal) {
+        String email = principal.getName();
+        Account emailAccount = accountRepository.findByEmail(email);
 
-            if (!carDto.getImages().isEmpty()) {
-                String uploadDir = "public/img/";
-                Path oldImagePath = Paths.get(uploadDir + car.getImages());
-                try {
-                    Files.delete(oldImagePath);
-                } catch (Exception e) {
-                    System.out.println("Exception: " + e.getMessage());
-                }
-
-                MultipartFile image = carDto.getImages();
-                String storageFileName = image.getOriginalFilename();
-
-                try (InputStream inputStream = image.getInputStream()) {
-                    Files.copy(inputStream, Paths.get(uploadDir + storageFileName), StandardCopyOption.REPLACE_EXISTING);
-                } catch (IOException e) {
-                    System.out.println("Exception: " + e.getMessage());
-                }
-                car.setImages(storageFileName);
-            }
-
-            car.setName(carDto.getName());
-            car.setLicensePlate(carDto.getLicensePlate());
-            car.setBrand(carDto.getBrand());
-            car.setModel(carDto.getModel());
-            car.setColor(carDto.getColor());
-            car.setNumbersOfSeats(carDto.getNumbersOfSeats());
-            car.setProductionYears(carDto.getProductionYears());
-            car.setTransmissionType(carDto.getTransmissionType());
-            car.setFuelType(carDto.getFuelType());
-            car.setMileage(carDto.getMileage());
-            car.setFuelConsumption(carDto.getFuelConsumption());
-            car.setBasicPrice(carDto.getBasicPrice());
-            car.setDeposit(carDto.getDeposit());
-            car.setAddress(carDto.getAddress());
-            car.setDescription(carDto.getDescription());
-            car.setAdditionalFunctions(carDto.getAdditionalFunction());
-            car.setTermsOfUse(carDto.getTermsOfUse());
-
-            car.setCarOwner(carOwner);
-
-            iCarService.save(car);
-
-        } catch (Exception e) {
-            System.out.println("Exception: " + e.getMessage());
+        if (emailAccount == null) {
+            return "redirect:/login";
         }
-        return "redirect:/carowner";
+
+        Car car = carRepository.findById(id).orElse(null);
+        if (car == null || !car.getCarOwner().getAccount().equals(emailAccount)) {
+            return "redirect:/car-owner";
+        }
+
+        model.addAttribute("car", car);
+        setUpUserRole(model);
+        model.addAttribute("currentPage", "edit-car");
+        return "car-owner/edit-car2";
+    }
+
+    @PostMapping("/edit/{id}")
+    public String updateCarDetails(@PathVariable Long id, @ModelAttribute Car updatedCar, Principal principal) {
+        String email = principal.getName();
+        Account emailAccount = accountRepository.findByEmail(email);
+
+        if (emailAccount == null) {
+            return "redirect:/login";
+        }
+
+        Car existingCar = carRepository.findById(id).orElse(null);
+        if (existingCar == null || !existingCar.getCarOwner().getAccount().equals(emailAccount)) {
+            return "redirect:/car-owner/my-cars";
+        }
+
+        // Update car details
+        existingCar.setLicensePlate(updatedCar.getLicensePlate());
+        existingCar.setBrand(updatedCar.getBrand());
+        existingCar.setModel(updatedCar.getModel());
+        existingCar.setProductionYears(updatedCar.getProductionYears());
+        existingCar.setTransmissionType(updatedCar.getTransmissionType());
+        existingCar.setFuelType(updatedCar.getFuelType());
+        existingCar.setNumbersOfSeats(updatedCar.getNumbersOfSeats());
+        existingCar.setMileage(updatedCar.getMileage());
+        existingCar.setFuelConsumption(updatedCar.getFuelConsumption());
+        existingCar.setColor(updatedCar.getColor());
+        existingCar.setDescription(updatedCar.getDescription());
+        existingCar.setAdditionalFunctions(updatedCar.getAdditionalFunctions());
+        existingCar.setBasicPrice(updatedCar.getBasicPrice());
+        existingCar.setDeposit(updatedCar.getDeposit());
+        existingCar.setTermsOfUse(updatedCar.getTermsOfUse());
+        existingCar.setAddress(updatedCar.getAddress());
+        existingCar.setName(updatedCar.getName());
+
+        carRepository.save(existingCar);
+
+        return "redirect:/car-owner/my-cars";
     }
 }

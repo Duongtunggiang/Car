@@ -80,7 +80,7 @@
                     <li th:if="${userRole == 'Customer'}"><a class="dropdown-item" href="/customer/my-bookings">My Bookings</a></li>
                     <li th:if="${userRole == 'Customer'}"><a class="dropdown-item" href="/mywallet/my-wallet">My Wallet</a></li>
                     <li th:if="${userRole == 'CarOwner'}"><a class="dropdown-item" href="/mywallet/my-wallet">My Wallet</a></li>
-                    <li th:if="${userRole == 'CarOwner'}"><a class="dropdown-item" href="/carowner">My Cars</a></li>
+                    <li th:if="${userRole == 'CarOwner'}"><a class="dropdown-item" href="/car-owner/my-cars">My Cars</a></li>
                     <li th:if="${userRole == 'CarOwner'}"><a class="dropdown-item" href="/home-driver">My Reports</a></li>
                     <li><a class="dropdown-item" href="#" onclick="confirmLogout(event)">Logout</a></li>
                 </ul>

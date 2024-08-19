@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:insert="header-footer/header :: head"></head>
+<body>
+<div th:insert="header-footer/header :: nav"></div>
+<div class="container mt-4 mb-5">
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="/">Home</a></li>
+            <li class="breadcrumb-item"><a href="/car-owner/my-cars">My Cars</a></li>
+            <li class="breadcrumb-item active" aria-current="page">Edit Car Details</li>
+        </ol>
+    </nav>
+
+    <h2>Edit Car Details</h2>
+
+    <div class="row">
+        <div class="col-md-6">
+            <div class="">
+                <img th:src="@{'/img/' + ${car.images}}" width="50%" th:alt="${car.brand + ' ' + car.model}" />
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="car-info">
+                <h3 th:text="${car.name}"></h3>
+                <p th:text="'No. of Rides: ' + ${confirmedRidesCount}"></p>
+                <p th:text="'Price: ' + ${car.basicPrice} + 'k / day'"></p>
+                <p th:text="'Location: ' + ${car.address}"></p>
+                <p th:text="'Status: ' + 'Available'"></p>
+            </div>
+        </div>
+    </div>
+
+    <form th:action="@{/car-owner/edit/{id}(id=${car.id})}" th:object="${car}" method="post" class="mt-4">
+        <ul class="nav nav-tabs" id="myTab" role="tablist">
+            <li class="nav-item" role="presentation">
+                <button class="nav-link active" id="basic-tab" data-bs-toggle="tab" data-bs-target="#basic" type="button" role="tab" aria-controls="basic" aria-selected="true">Basic Information</button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="details-tab" data-bs-toggle="tab" data-bs-target="#details" type="button" role="tab" aria-controls="details" aria-selected="false">Details</button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="pricing-tab" data-bs-toggle="tab" data-bs-target="#pricing" type="button" role="tab" aria-controls="pricing" aria-selected="false">Pricing</button>
+            </li>
+        </ul>
+
+        <div class="tab-content mt-4" id="myTabContent">
+            <div class="tab-pane fade show active" id="basic" role="tabpanel" aria-labelledby="basic-tab">
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label for="licensePlate" class="form-label">License Plate:</label>
+                        <input type="text" class="form-control" id="licensePlate" th:field="*{licensePlate}" required>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label for="brand" class="form-label">Brand:</label>
+                        <input type="text" class="form-control" id="brand" th:field="*{brand}" required>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label for="model" class="form-label">Model:</label>
+                        <input type="text" class="form-control" id="model" th:field="*{model}" required>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label for="productionYears" class="form-label">Production Year:</label>
+                        <input type="number" class="form-control" id="productionYears" th:field="*{productionYears}" required>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label for="transmissionType" class="form-label">Transmission:</label>
+                        <input type="text" class="form-control" id="transmissionType" th:field="*{transmissionType}" required>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label for="fuelType" class="form-label">Fuel Type:</label>
+                        <input type="text" class="form-control" id="fuelType" th:field="*{fuelType}" required>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label for="name" class="form-label">Car Name:</label>
+                        <input type="text" class="form-control" id="name" th:field="*{name}" required>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label for="address" class="form-label">Address:</label>
+                        <input type="text" class="form-control" id="address" th:field="*{address}" required>
+                    </div>
+                </div>
+            </div>
+
+            <div class="tab-pane fade" id="details" role="tabpanel" aria-labelledby="details-tab">
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label for="numbersOfSeats" class="form-label">Number of Seats:</label>
+                        <input type="number" class="form-control" id="numbersOfSeats" th:field="*{numbersOfSeats}" required>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label for="mileage" class="form-label">Mileage:</label>
+                        <input type="text" class="form-control" id="mileage" th:field="*{mileage}" required>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label for="fuelConsumption" class="form-label">Fuel Consumption:</label>
+                        <input type="text" class="form-control" id="fuelConsumption" th:field="*{fuelConsumption}" required>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label for="color" class="form-label">Color:</label>
+                        <input type="text" class="form-control" id="color" th:field="*{color}" required>
+                    </div>
+                </div>
+                <div class="mb-3">
+                    <label for="description" class="form-label">Description:</label>
+                    <textarea class="form-control" id="description" th:field="*{description}" rows="3"></textarea>
+                </div>
+                <div class="mb-3">
+                    <label for="additionalFunctions" class="form-label">Additional Functions:</label>
+                    <input type="text" class="form-control" id="additionalFunctions" th:field="*{additionalFunctions}">
+                </div>
+            </div>
+
+            <div class="tab-pane fade" id="pricing" role="tabpanel" aria-labelledby="pricing-tab">
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label for="basicPrice" class="form-label">Base Price (VND/Day):</label>
+                        <input type="number" class="form-control" id="basicPrice" th:field="*{basicPrice}" required>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label for="deposit" class="form-label">Required Deposit (VND):</label>
+                        <input type="number" class="form-control" id="deposit" th:field="*{deposit}" required>
+                    </div>
+                </div>
+                <div class="mb-3">
+                    <label for="termsOfUse" class="form-label">Terms of Use:</label>
+                    <textarea class="form-control" id="termsOfUse" th:field="*{termsOfUse}" rows="3"></textarea>
+                </div>
+            </div>
+        </div>
+
+        <div class="mt-4">
+            <button type="submit" class="btn btn-primary">Save Changes</button>
+            <a href="/car-owner/my-cars" class="btn btn-secondary">Cancel</a>
+        </div>
+    </form>
+</div>
+
+<div th:insert="header-footer/footer :: footer"></div>
+</body>
+</html>
