@@ -80,79 +80,50 @@ public class CarOwnerController {
         }
     }
 
-//    @GetMapping({"/my-cars"})
-//    public String showAllCar(Model model, Principal principal) {
-//        String email = principal.getName();
-//
-//        Optional<CarOwner> carOwnerOptional = carOwnerRepository.findByEmail(email);
-//
-//        if (carOwnerOptional.isPresent()) {
-//            CarOwner carOwner = carOwnerOptional.get();
-//            List<Car> cars = carService.findAllByCarOwner(carOwner.getId());
-//
-//            Map<Long, String> carStatusMap = new HashMap<>();
-//
-//            for (Car car : cars) {
-//                List<CarBooking> carBookings = carBookingRepository.findByCarId(car.getId());
-//                if (!carBookings.isEmpty()) {
-//                    String status = carBookings.get(0).getBooking().getStatus();
-//                    carStatusMap.put(car.getId(), status);
-//                } else {
-//                    carStatusMap.put(car.getId(), "Available");
-//                }
-//            }
-//
-//            model.addAttribute("cars", cars);
-//            model.addAttribute("carStatusMap", carStatusMap);
-//
-//        } else {
-//            model.addAttribute("error", "No cars found for this user.");
-//        }
-//
-//        setUpUserRole(model);
-//        model.addAttribute("currentPage", "car");
-//        return "car-owner/my-cars";
-//    }
+    @GetMapping("/my-reports")
+    public String viewFeedbackReport(Model model, Principal principal) {
+        String email = principal.getName();
+        Optional<CarOwner> carOwnerOptional = carOwnerRepository.findByEmail(email);
 
+        if (carOwnerOptional.isPresent()) {
+            CarOwner carOwner = carOwnerOptional.get();
+            List<Car> cars = carService.findAllByCarOwner(carOwner.getId());
 
-//    @GetMapping({"/my-cars"})
-//    public String showAllCar(Model model, Principal principal) {
-//        String email = principal.getName();
-//
-//        Optional<CarOwner> carOwnerOptional = carOwnerRepository.findByEmail(email);
-//
-//        if (carOwnerOptional.isPresent()) {
-//            CarOwner carOwner = carOwnerOptional.get();
-//            List<Car> cars = carService.findAllByCarOwner(carOwner.getId());
-//
-//            Map<Long, String> carStatusMap = new HashMap<>();
-//            Map<Long, Long> carBookingCountMap = new HashMap<>();
-//
-//            for (Car car : cars) {
-//                List<CarBooking> carBookings = carBookingRepository.findByCarId(car.getId());
-//                if (!carBookings.isEmpty()) {
-//                    String status = carBookings.get(0).getBooking().getStatus();
-//                    carStatusMap.put(car.getId(), status);
-//                } else {
-//                    carStatusMap.put(car.getId(), "Available");
-//                }
-//
-//                long bookingCount = carBookingRepository.countByCarId(car.getId());
-//                carBookingCountMap.put(car.getId(), bookingCount);
-//            }
-//
-//            model.addAttribute("cars", cars);
-//            model.addAttribute("carStatusMap", carStatusMap);
-//            model.addAttribute("carBookingCountMap", carBookingCountMap);
-//
-//        } else {
-//            model.addAttribute("error", "No cars found for this user.");
-//        }
-//
-//        setUpUserRole(model);
-//        model.addAttribute("currentPage", "car");
-//        return "car-owner/my-cars";
-//    }
+            List<Feedback> allFeedbacks = new ArrayList<>();
+            Map<Integer, Long> feedbackCounts = new HashMap<>();
+            double totalRating = 0;
+            long totalFeedbacks = 0;
+
+            for (Car car : cars) {
+                for (CarBooking carBooking : car.getCarBookings()) {
+                    Feedback feedback = carBooking.getBooking().getFeedback();
+                    if (feedback != null) {
+                        allFeedbacks.add(feedback);
+                        int rating = feedback.getRatings();
+                        totalRating += rating;
+                        totalFeedbacks++;
+                        feedbackCounts.put(rating, feedbackCounts.getOrDefault(rating, 0L) + 1);
+                    }
+                }
+            }
+
+            // Calculate average rating
+            double averageRating = totalFeedbacks > 0 ? totalRating / totalFeedbacks : 0;
+
+            // Round the average rating to 1 decimal place
+            averageRating = Math.round(averageRating * 10.0) / 10.0;
+
+            model.addAttribute("averageRating", averageRating);
+            model.addAttribute("feedbacks", allFeedbacks);
+            model.addAttribute("feedbackCounts", feedbackCounts);
+            setUpUserRole(model);
+            model.addAttribute("currentPage", "my-reports");
+            return "car-owner/my-reports";
+        } else {
+            return "redirect:/login";
+        }
+    }
+
 
     @GetMapping({"/my-cars"})
     public String showAllCar(Model model, Principal principal) {

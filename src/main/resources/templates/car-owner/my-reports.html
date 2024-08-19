@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>My Reports</title>
+    <!-- Bootstrap for UI styling (optional, but recommended) -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <!-- Font Awesome for star icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f9f9f9;
+            color: #333;
+        }
+        h1, h2 {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .star-rating {
+            font-size: 2rem;
+            color: #ffc107;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        .feedback-item {
+            background-color: #fff;
+            padding: 20px;
+            margin-bottom: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        .feedback-item img {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            object-fit: cover;
+            margin-right: 10px;
+        }
+        .feedback-item .car-details img {
+            width: 100px;
+            height: 70px;
+            object-fit: cover;
+            border-radius: 5px;
+        }
+        .rating-btns {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .rating-btns button {
+            margin: 0 5px;
+            padding: 5px 10px;
+            font-size: 1rem;
+        }
+        #feedbackList {
+            margin: 0 auto;
+            max-width: 800px;
+        }
+        .car-details {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .pagination {
+            display: flex;
+            justify-content: center;
+        }
+        .checked {
+    color: #ffc107; /* Gold color for filled stars */
+}
+    </style>
+</head>
+<body>
+<div class="container mt-5">
+    <h1>My Reports</h1>
+
+    <!-- Average Ratings with Star Component -->
+    <h2>Average Ratings</h2>
+    <div class="star-rating">
+        <span th:text="${averageRating + ' stars'}"></span> <!-- Display numerical average rating -->
+        <span th:each="i : ${#numbers.sequence(1, 5)}">
+        <i class="fas fa-star" th:classappend="${i <= T(java.lang.Math).floor(averageRating)} ? 'checked' : ''"></i>
+    </span>
+    </div>
+
+<!--    &lt;!&ndash; Average Ratings with Full and Half Stars &ndash;&gt;-->
+<!--    <h2>Average Ratings</h2>-->
+<!--    <div class="star-rating">-->
+<!--        <span th:text="${averageRating + ' stars'}"></span>-->
+<!--        <span th:each="i : ${#numbers.sequence(1, 5)}">-->
+<!--        <i th:if="${i <= T(java.lang.Math).floor(averageRating)}" class="fas fa-star checked"></i>-->
+<!--        <i th:if="${i == T(java.lang.Math).ceil(averageRating) and averageRating - T(java.lang.Math).floor(averageRating) >= 0.5}" class="fas fa-star-half-alt checked"></i>-->
+<!--        <i th:if="${i > T(java.lang.Math).ceil(averageRating)}" class="fas fa-star"></i>-->
+<!--    </span>-->
+<!--    </div>-->
+
+
+    <!-- Filter Buttons for Ratings -->
+    <h2>Details</h2>
+    <div class="rating-btns">
+        <button th:each="i : ${#numbers.sequence(1, 5)}" class="btn btn-outline-primary"
+                th:text="${i + ' Stars (' + feedbackCounts.getOrDefault(i, 0L) + ')'}"
+                th:onclick="'filterFeedbacks(' + ${i} + ')'"></button>
+        <button class="btn btn-outline-secondary" onclick="filterFeedbacks(0)">All</button>
+    </div>
+
+    <!-- Feedback List -->
+    <div id="feedbackList">
+        <div th:each="feedback : ${feedbacks}" class="feedback-item" th:attr="data-rating=${feedback.ratings}">
+            <div class="d-flex align-items-center mb-3">
+                <img src="/path/to/user-icon.png" alt="User Icon">
+                <div>
+                    <strong th:text="${feedback.booking.customer.name}"></strong>
+                    <div class="text-muted small" th:text="${#dates.format(feedback.dateTime, 'dd/MM/yyyy HH:mm')}"></div>
+                </div>
+            </div>
+            <p th:text="${feedback.content}"></p>
+            <div class="text-warning">
+                <span th:text="${feedback.ratings + ' stars'}"></span>
+                <i class="fas fa-star"></i>
+            </div>
+
+            <div class="car-details mt-3">
+                <img th:src="${feedback.booking.carBookings[0].car.images}" alt="Car Image">
+                <div>
+                    <span th:text="${feedback.booking.carBookings[0].car.name}"></span>
+                    <div class="text-muted small">
+                        <span th:text="'From: ' + ${#dates.format(feedback.booking.startDateTime, 'dd/MM/yyyy HH:mm')}"></span>
+                        <span th:text="'To: ' + ${#dates.format(feedback.booking.endDateTime, 'dd/MM/yyyy HH:mm')}"></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Pagination (use Bootstrap pagination) -->
+    <nav aria-label="Feedback pagination">
+        <ul class="pagination">
+            <li class="page-item">
+                <a class="page-link" href="#" aria-label="Previous">
+                    <span aria-hidden="true">&laquo;</span>
+                </a>
+            </li>
+            <li class="page-item"><a class="page-link" href="#">1</a></li>
+            <li class="page-item"><a class="page-link" href="#">2</a></li>
+            <li class="page-item"><a class="page-link" href="#">3</a></li>
+            <li class="page-item">
+                <a class="page-link" href="#" aria-label="Next">
+                    <span aria-hidden="true">&raquo;</span>
+                </a>
+            </li>
+        </ul>
+    </nav>
+</div>
+
+<script>
+    function filterFeedbacks(rating) {
+        const feedbacks = document.querySelectorAll('.feedback-item');
+        feedbacks.forEach(feedback => {
+            if (rating === 0 || parseInt(feedback.getAttribute('data-rating')) === rating) {
+                feedback.style.display = 'block';
+            } else {
+                feedback.style.display = 'none';
+            }
+        });
+    }
+</script>
+</body>
+</html>
