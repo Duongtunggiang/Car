@@ -23,8 +23,8 @@
         </div>
         <div class="col-md-6">
             <div class="booking-info">
-                <h2 th:text="'Car name: '+${booking.carBookings[0].car.name}"></h2>
-                <h3 th:text="'Brand: '+${booking.carBookings[0].car.brand + ', Model: ' + booking.carBookings[0].car.model + ', Production of year: ' + booking.carBookings[0].car.productionYears}">Car Brand Model Year</h3>
+                <h2 th:text="${booking.carBookings[0].car.name}"></h2>
+<!--                <h3 th:text="'Brand: '+${booking.carBookings[0].car.brand + ', Model: ' + booking.carBookings[0].car.model + ', Production of year: ' + booking.carBookings[0].car.productionYears}">Car Brand Model Year</h3>-->
                 <p th:text="'From: ' + ${#dates.format(booking.startDateTime, 'dd/MM/yyyy - HH:mm')}"></p>
                 <p th:text="'To: ' + ${#dates.format(booking.endDateTime, 'dd/MM/yyyy - HH:mm')}"></p>
                 <p th:text="'Number of days: ' + ${T(java.time.temporal.ChronoUnit).DAYS.between(booking.startDateTime.toInstant(), booking.endDateTime.toInstant())}"></p>

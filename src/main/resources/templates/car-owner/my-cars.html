@@ -1,67 +1,76 @@
 <!doctype html>
 <html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.w3.org/1999/xhtml">
 <head th:insert="header-footer/header :: head">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
+    <style>
+        .fa-star {
+            font-size: 24px;
+        }
+        .fa-star.checked {
+            color: gold;
+        }
+        .car-card {
+            margin-bottom: 20px;
+        }
+        .car-image {
+            height: 200px;
+            object-fit: cover;
+        }
+        .car-info {
+            padding: 10px;
+        }
+    </style>
 </head>
 <body>
 
 <div th:insert="header-footer/header :: nav"></div>
 
 <div class="container">
-    <p class="text-dark"><a class="text-primary" href="/home-driver">Home Car</a> / <a class="text-primary" href="/car-owner">List Car</a> </p>
+    <p class="text-dark">
+        <a class="text-primary" href="/home-driver">Home Car</a> /
+        <a class="text-primary" href="/car-owner">List Car</a>
+    </p>
 
     <h1 class="text-center my-4">List My Car</h1>
-    <a class="btn btn-primary m-3" href="/car-owner/add">AddCar</a><br>
+    <a class="btn btn-primary m-3" href="/car-owner/add">Add Car</a>
 
-    <table class="table">
-        <tbody>
-        <tr th:each="car : ${cars}">
-            <td>
-                <img th:src="@{'/img/' + ${car.images}}" width="80%"></td>
-            <td>
-                <div th:text="${car.name}"></div>
-                <div class="star-rating" data-rating="${carRatingMap[car.id]}">
-                    <!-- Hiển thị số sao tại đây -->
-                    <span th:each="star, iterStat : ${#numbers.sequence(1, 5)}"
-                          th:classappend="${iterStat.index <= carRatingMap[car.id]} ? 'fa fa-star checked' : 'fa fa-star'"></span>
+    <div class="row">
+        <div th:each="car : ${cars}" class="col-md-4 mb-5">
+            <div class="card car-card">
+                <img class="card-img-top car-image" th:src="@{'/img/' + ${car.images}}" alt="Car Image">
+                <div class="card-body car-info">
+                    <h5 class="card-title" th:text="${car.name}"></h5>
+                    <div class="star-rating" data-rating="${carRatingMap[car.id]}">
+                        <span th:each="star, iterStat : ${#numbers.sequence(1, 5)}"
+                              th:classappend="${iterStat.index <= carRatingMap[car.id]} ? 'fa fa-star checked' : 'fa fa-star'"></span>
+                    </div>
+                    <div th:text="'No Of Rides: ' + ${carBookingCountMap[car.id]}"></div>
+                    <div th:text="'Price: ' + ${car.basicPrice} + ' $/day'"></div>
+                    <div th:text="'Location: ' + ${car.address}"></div>
+                    <div th:text="'Status: ' + ${carStatusMap[car.id]}">Status: Available</div>
+                    <a class="btn btn-primary btn-sm mt-2" th:href="@{'/car-owner/edit?id=' + ${car.id}}">View details</a>
                 </div>
-                <div th:text="'No Of Rides: ' + ${carBookingCountMap[car.id]}"></div>
-                <div th:text="'Price: '+${car.basicPrice} + ' $/day'"></div>
-                <div th:text="'Location: '+${car.address}"></div>
-                <div th:text="'Status: ' + ${carStatusMap[car.id]}">Status: Available</div>
-            </td>
-            <td style="white-space: nowrap">
-                <a class="btn btn-primary btn-sm" th:href="@{'/car-owner/edit?id=' + ${car.id}}">Edit</a>
-                <a class="btn btn-danger btn-sm" th:href="@{'/car-owner/delete?id=' + ${car.id}}"
-                   onclick="return confirm('Are you sure?')">Delete</a>
-            </td>
-            <td>
-                <form method="post" th:action="@{/car-owner/updateStatus}">
-                    <input type="hidden" name="carId" th:value="${car.id}">
-                    <select name="status">
-                        <option value="Available">Available</option>
-                        <option value="Stopped">Stopped</option>
-                    </select>
-                    <button type="submit" class="btn btn-success">Update Status</button>
-                </form>
-            </td>
-        </tr>
-        </tbody>
-    </table>
+                <div class="card-footer">
+                    <form method="post" th:action="@{/car-owner/updateStatus}">
+                        <input type="hidden" name="carId" th:value="${car.id}">
+                        <div class="form-group">
+                            <select class="form-control" name="status">
+                                <option value="Available">Available</option>
+                                <option value="Stopped">Stopped</option>
+                            </select>
+                        </div>
+                        <button type="submit" class="btn btn-success btn-block">Update Status</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
 
 <!-- Footer -->
 <div th:insert="header-footer/footer :: footer"></div>
 
-<style>
-    .fa-star {
-        font-size: 24px;
-    }
-    .fa-star.checked {
-        color: gold;
-    }
-</style>
-
-<script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
 <script>
     document.addEventListener('DOMContentLoaded', function() {
         var starRatings = document.querySelectorAll('.star-rating');

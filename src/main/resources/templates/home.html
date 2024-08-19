@@ -51,7 +51,7 @@
             <div class="card mb-4 mt-2">
                 <img th:src="@{'/img/' + ${car.images}}" class="card-img-top" alt="Car 1">
                 <div class="card-body">
-                    <h5 class="card-title" th:text="'Car name: '+${car.name}">Car Model 1</h5>
+                    <h5 class="card-title" th:text="${car.name}">Car Model 1</h5>
                     <p class="card-text" th:text="'Brand: ' + ${car.brand}">Brand: </p>
                     <p class="card-text" th:text="'Location: '+${car.address}">Location: </p>
                     <p th:text="'Status: ' + ${carStatusMap[car.id]}"

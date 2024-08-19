@@ -9,25 +9,30 @@
             border: 1px solid #ddd;
             margin-bottom: 20px;
             padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
         }
         .booking-image {
-            width: 200px;
-            height: 150px;
+            width: 30%;
+            height: auto;
             background-color: #eee;
             display: flex;
             justify-content: center;
             align-items: center;
-            margin-right: 20px;
+            border-radius: 8px;
         }
         .booking-details {
             display: flex;
+            flex-wrap: wrap;
         }
         .booking-info {
             flex-grow: 1;
+            padding-left: 20px;
         }
         .booking-actions {
             display: flex;
             flex-direction: column;
+            align-items: flex-end;
         }
         .status-confirmed { color: green; }
         .status-pending { color: orange; }
@@ -43,15 +48,14 @@
             <li class="breadcrumb-item"><a href="/customer/my-bookings">My Bookings</a></li>
         </ol>
     </nav>
-    <h2>My Bookings</h2>
+    <h2 class="mb-4">My Bookings</h2>
     <p th:text="'You have ' + ${bookings.size()} + ' on-going bookings'"></p>
 
     <div th:each="booking : ${bookings}" class="booking-item">
         <div th:each="carBooking : ${booking.carBookings}" class="car-booking-item">
             <div class="booking-details">
-                <div class=""><img th:src="@{'/img/' + ${carBooking.car.images}}"  width="70%" alt="${carBooking.car.name}" /></div>
+                <div class="booking-image"><img th:src="@{'/img/' + ${carBooking.car.images}}" alt="${carBooking.car.name}" /></div>
                 <div class="booking-info">
-                    <h2 th:text="'Car name: '+${carBooking.car.name}"></h2>
                     <h3 th:text="${carBooking.car.brand + ' ' + carBooking.car.model + ' ' + carBooking.car.productionYears}">Car Brand Model Year</h3>
                     <p th:text="'From: ' + ${#dates.format(booking.startDateTime, 'dd/MM/yyyy - HH:mm')}"></p>
                     <p th:text="'To: ' + ${#dates.format(booking.endDateTime, 'dd/MM/yyyy - HH:mm')}"></p>
@@ -64,11 +68,11 @@
                 </div>
                 <div class="booking-actions">
                     <a th:href="@{/customer/my-bookings/{bookingId}(bookingId=${booking.id})}" class="btn btn-primary mb-2">View details</a>
-                    <form class="m-4" th:action="@{/customer/my-bookings/{id}/confirm-pickup(id=${booking.id})}" method="post" style="display: inline;" th:if="${booking.status == 'Confirmed'}" onsubmit="return confirmPickup()">
-                        <button type="submit" class="btn btn-secondary">Confirm Pickup</button>
+                    <form th:action="@{/customer/my-bookings/{id}/confirm-pickup(id=${booking.id})}" method="post" style="display: inline;" th:if="${booking.status == 'Confirmed'}" onsubmit="return confirmPickup()">
+                        <button type="submit" class="btn btn-secondary mb-2">Confirm Pickup</button>
                     </form>
-                    <form class="m-4" th:action="@{/customer/my-bookings/{id}/cancel(id=${booking.id})}" method="post" style="display: inline;" th:if="${booking.status != 'Cancelled' && booking.status != 'Completed' && booking.status != 'In-Progress'}" onsubmit="return confirmCancel()">
-                        <button type="submit" class="btn btn-danger">Cancel Booking</button>
+                    <form th:action="@{/customer/my-bookings/{id}/cancel(id=${booking.id})}" method="post" style="display: inline;" th:if="${booking.status != 'Cancelled' && booking.status != 'Completed' && booking.status != 'In-Progress'}" onsubmit="return confirmCancel()">
+                        <button type="submit" class="btn btn-danger mb-2">Cancel Booking</button>
                     </form>
                 </div>
             </div>

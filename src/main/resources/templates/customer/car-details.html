@@ -48,8 +48,6 @@
                 <p>No. of rides: 0</p>
                 <p th:text="'Price: ' + ${car.basicPrice} + '/day'">Price: 900k/day</p>
                 <p th:text="'Locations: ' + ${car.address}">Locations: Cau Giay, Hanoi</p>
-                <p>Status: <span th:text="${status}"
-                          th:classappend="${status == 'Available'} ? 'text-success' : 'text-danger'">Status: Available</span></p>
             </div>
         </div>
 
