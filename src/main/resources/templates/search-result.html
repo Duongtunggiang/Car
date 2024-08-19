@@ -152,7 +152,7 @@
     <div th:if="${searchResults != null}" class="search-results">
         <!-- ... existing content ... -->
         <div th:each="car : ${searchResults}" class="car-item">
-            <div class="car-image">Car Image Placeholder</div>
+            <div class="car-image"><img th:src="@{'/img/' + ${car.images}}" alt="${carBooking.car.name}" /></div>
             <div class="car-info">
                 <h3 th:text="${car.brand} + ' ' + ${car.model} + ' (' + ${car.productionYears} + ')'"></h3>
                 <p>Ratings: ☆☆☆☆☆ (No ratings yet)</p>
